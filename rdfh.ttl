@@ -1,0 +1,94 @@
+@prefix h: <http://www.w3.org/ns/rdfh#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+#
+# Vocabulary Definition for RDF 2.0 Holon Extensions (RDF-H)
+#
+
+h: a owl:Ontology ;
+    rdfs:label "RDF 2.0 Holon Extensions Vocabulary" ;
+    rdfs:comment "This vocabulary defines the classes, properties, and SHACL extensions for representing and validating holonic graphs."@en ;
+    owl:versionIRI <http://www.w3.org/ns/rdfh#1.0> ;
+    dct:creator [
+        a foaf:Person ;
+        foaf:name "Stephane Fellah" ;
+        foaf:workplaceHomepage <https://geoknoesis.com>
+    ] .
+
+#
+# Classes and Properties
+#
+
+h:Holon a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Holon" ;
+    rdfs:comment "A resource that can structurally contain other resources. It represents a whole that is composed of parts."@en .
+
+h:containedIn a rdf:Property ;
+    rdfs:label "is contained in" ;
+    rdfs:comment "Represents the reified containment relationship from a part to a whole."@en .
+
+h:contains a rdf:Property ;
+    rdfs:label "contains" ;
+    rdfs:comment "Represents the inverse of the containment relationship, from a whole to a part."@en ;
+    owl:inverseOf h:containedIn .
+
+#
+# SHACL-H Constraint Component Definitions
+#
+
+# -- Acyclic Containment Constraint --
+# This component validates that a holon is not part of a containment cycle.
+
+h:AcyclicContainmentConstraintComponent a sh:ConstraintComponent ;
+    rdfs:label "Acyclic Containment Constraint Component" ;
+    rdfs:comment "A constraint component that checks if a holon is part of a containment cycle."@en ;
+    sh:validator h:AcyclicContainmentValidator .
+
+h:AcyclicContainmentValidator a sh:SPARQLValidator ;
+    sh:message "The focus node participates in a containment cycle."@en ;
+    # The query returns true (and thus violates the constraint) if the focus node ($this)
+    # can reach itself via one or more h:containedIn steps.
+    sh:select """
+        PREFIX h: <http://www.w3.org/ns/rdfh#>
+        
+        ASK {
+            GRAPH h:ContainmentGraph {
+                $this h:containedIn+ $this .
+            }
+        }
+        """ .
+
+# -- Holon Type Constraint --
+# This component validates that any resource acting as a container is explicitly typed as h:Holon.
+
+h:HolonConstraintComponent a sh:ConstraintComponent ;
+    rdfs:label "Holon Type Constraint Component" ;
+    rdfs:comment "A constraint component that checks if a resource acting as a container is of type h:Holon."@en ;
+    sh:validator h:HolonTypeValidator .
+
+h:HolonTypeValidator a sh:SPARQLValidator ;
+    sh:message "The focus node is used as a container but is not explicitly typed as h:Holon."@en ;
+    # The query returns true (and thus violates the constraint) if the focus node ($this)
+    # is the object of an h:containedIn relationship but is not of type h:Holon.
+    sh:select """
+        PREFIX h: <http://www.w3.org/ns/rdfh#>
+        
+        ASK {
+            # This constraint only applies if the focus node is actually used as a container.
+            GRAPH h:ContainmentGraph {
+                ?part h:containedIn $this .
+            }
+            
+            # The constraint is violated if it's a container but lacks the type.
+            FILTER NOT EXISTS {
+                $this a h:Holon .
+            }
+        }
+        """ .
