@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Resource Description Framework (RDF) 2.0 — Holon Extensions</title>
+    <title>RDF-H: Holon Extensions for RDF</title>
     <script src="https://www.w3.org/Tools/respec/respec-w3c" class="remove"></script>
     <script class="remove">
         /* ReSpec configuration */
@@ -12,7 +12,7 @@
             specStatus: "unofficial", 
             
             // General Metadata
-            shortName: "rdf20-holon", 
+            shortName: "rdf-h", 
             editors: [{
                 name: "Stephane Fellah",
                 url: "https://geoknoesis.com",
@@ -104,7 +104,7 @@
 <body>
     <section id="abstract">
         <p>
-            This specification defines the abstract syntax, formal semantics, and concrete syntaxes for a proposed holonic extension to the Resource Description Framework 1.2, referred to here as RDF 2.0. This proposal introduces the <strong>holon</strong> as a first-class primitive within the RDF data model. A holon is a resource that is simultaneously a whole in itself and a part of a larger whole, capable of structurally containing other RDF resources, including other holons. This mechanism provides a semantically precise and structurally native method for representing nested, contextual, and compositional knowledge. It is designed to overcome the limitations of existing RDF paradigms—such as the verbosity of standard reification, the statement-level focus of RDF-star, and the dataset-level partitioning of named graphs—for modeling complex systems. By grounding containment in formal mereology and ensuring full backward compatibility with RDF 1.2, this specification enables the robust modeling of digital twins, cyber-physical systems, fine-grained access control policies, and other domains requiring a native understanding of "wholes-within-wholes."
+            This specification defines the abstract syntax, formal semantics, and concrete syntaxes for a proposed holonic extension to the Resource Description Framework 1.2, referred to here as <strong>RDF-H</strong>. This proposal introduces the <strong>holon</strong> as a first-class primitive within the RDF data model. A holon is a resource that is simultaneously a whole in itself and a part of a larger whole, capable of structurally containing other RDF resources, including other holons. This mechanism provides a semantically precise and structurally native method for representing nested, contextual, and compositional knowledge. It is designed to overcome the limitations of existing RDF paradigms—such as the verbosity of standard reification, the statement-level focus of RDF-star, and the dataset-level partitioning of named graphs—for modeling complex systems. By grounding containment in formal mereology and ensuring full backward compatibility with RDF 1.2, this specification enables the robust modeling of digital twins, cyber-physical systems, fine-grained access control policies, and other domains requiring a native understanding of "wholes-within-wholes."
         </p>
     </section>
 
@@ -129,7 +129,7 @@
                 Many real-world and conceptual domains are fundamentally compositional. A car is a whole composed of parts like an engine and wheels; the engine, in turn, is a whole composed of its own parts. A digital twin of a factory floor is a whole that contains digital twins of individual assembly lines, which in turn contain twins of robotic arms. In systems biology, a cell contains organelles, which contain molecular complexes. In all these cases, the identity, boundary, and integrity of a subsystem (the "part") are as crucial as the relationships that exist <em>within</em> it.
             </p>
             <p>
-                While RDF can <em>describe</em> these part-whole relations using predicates (e.g., <code>ex:engine ex:partOf ex:car</code>), it lacks a primitive mechanism to <em>structurally represent</em> this containment within the data model itself. Existing approaches require developers to adopt specific modeling conventions or use mechanisms that were designed for related but distinct purposes. This leads to semantic ambiguity, complex queries, and a disconnect between the intuitive structure of the domain and its representation in the graph. This proposal for RDF 2.0 introduces the <strong>holon</strong> primitive to address this gap, providing a native, semantically grounded way to model structural containment directly within the graph.
+                While RDF can <em>describe</em> these part-whole relations using predicates (e.g., <code>ex:engine ex:partOf ex:car</code>), it lacks a primitive mechanism to <em>structurally represent</em> this containment within the data model itself. Existing approaches require developers to adopt specific modeling conventions or use mechanisms that were designed for related but distinct purposes. This leads to semantic ambiguity, complex queries, and a disconnect between the intuitive structure of the domain and its representation in the graph. This specification for <strong>RDF-H</strong> introduces the <strong>holon</strong> primitive to address this gap, providing a native, semantically grounded way to model structural containment directly within the graph.
             </p>
         </section>
 
@@ -174,7 +174,7 @@
                             <th>Standard Reification</th>
                             <th>RDF-star (RDF 1.2)</th>
                             <th>Named Graphs (RDF 1.1)</th>
-                            <th><strong>Holonic Graphs (RDF 2.0)</strong></th>
+                            <th><strong>Holonic Graphs (RDF-H)</strong></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -221,7 +221,7 @@
         <section>
             <h3>A Mereological Foundation for Holons</h3>
             <p>
-                To ensure conceptual rigor, the holon primitive is grounded in <strong>mereology</strong>, the formal theory of parts and wholes. While ontology design patterns have been developed to represent various part-whole relations in OWL (e.g., <code>componentOf</code>, <code>memberOf</code>, <code>contains</code>) [[OEP-PARTWHOLE]], these are vocabulary-level conventions. RDF 2.0 elevates containment to a structural primitive of the data model itself.
+                To ensure conceptual rigor, the holon primitive is grounded in <strong>mereology</strong>, the formal theory of parts and wholes. While ontology design patterns have been developed to represent various part-whole relations in OWL (e.g., <code>componentOf</code>, <code>memberOf</code>, <code>contains</code>) [[OEP-PARTWHOLE]], these are vocabulary-level conventions. <strong>RDF-H</strong> elevates containment to a structural primitive of the data model itself.
             </p>
             <p>
                 The containment relation introduced in this specification, denoted by the symbol <code>⊂</code>, is defined as a <strong>strict partial order</strong>, corresponding to the notion of a <em>proper part</em>. It adheres to the following core axioms:
@@ -232,15 +232,15 @@
                 <li><strong>Transitivity:</strong> If A is a proper part of B, and B is a proper part of C, then A is a proper part of C.</li>
             </ol>
             <p>
-                By building these properties into the data model and its semantics, RDF 2.0 provides a robust and predictable foundation for representing and reasoning about compositional systems. The most critical property derived from these axioms is <strong>acyclicity</strong>, which ensures the model is well-founded and free from logical paradoxes.
+                By building these properties into the data model and its semantics, <strong>RDF-H</strong> provides a robust and predictable foundation for representing and reasoning about compositional systems. The most critical property derived from these axioms is <strong>acyclicity</strong>, which ensures the model is well-founded and free from logical paradoxes.
             </p>
         </section>
 
         <section>
             <h3>Design Principles and Requirements</h3>
-            <p>The design of RDF 2.0 is guided by the following principles:</p>
+            <p>The design of <strong>RDF-H</strong> is guided by the following principles:</p>
             <ul>
-                <li><strong>Backward Compatibility:</strong> Any valid RDF 1.2 graph or dataset <em class="rfc2119" title="MUST">MUST</em> be a valid RDF 2.0 graph or dataset. All existing RDF 1.2 semantics and entailment rules remain in effect.</li>
+                <li><strong>Backward Compatibility:</strong> Any valid RDF 1.2 graph or dataset <em class="rfc2119" title="MUST">MUST</em> be a valid <strong>RDF-H</strong> graph or dataset. All existing RDF 1.2 semantics and entailment rules remain in effect.</li>
                 <li><strong>Semantic Coherence:</strong> The introduction of holons and the containment relation <em class="rfc2119" title="MUST">MUST</em> be a conservative extension of the RDF 1.2 model-theoretic semantics [[RDF12-SEMANTICS]]. It must not introduce logical contradictions or invalidate existing entailments.</li>
                 <li><strong>Syntactic Integration:</strong> Concrete syntaxes for holons (e.g., Turtle-H) <em class="rfc2119" title="MUST">MUST</em> integrate cleanly with existing syntaxes, particularly the quoted triple syntax (<code>&lt;&lt;...&gt;&gt;</code>) of RDF-star. The two mechanisms are designed to be orthogonal and compositional.</li>
                 <li><strong>Native Queryability:</strong> The containment relation <em class="rfc2119" title="MUST">MUST</em> be a first-class, traversable path within the graph. Querying holonic structures <em class="rfc2119" title="SHOULD">SHOULD</em> feel like natural graph traversal, not like a meta-level operation on datasets.</li>
@@ -251,15 +251,15 @@
     <section id="conformance">
         <h2>Conformance Criteria</h2>
         <p>This specification defines two classes of conformance.</p>
-        <p>A conformant <strong>RDF 2.0 Processor</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
+        <p>A conformant <strong>RDF-H Processor</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
         <ol>
             <li>Satisfy all conformance criteria for a fully conformant RDF 1.2 processor, including support for RDF 1.2 Datasets and the RDF-star data model and syntaxes.</li>
             <li>Correctly parse and serialize the concrete syntaxes defined in <a href="#syntax" class="sec-ref"></a>.</li>
             <li>Implement the H-Entailment regime as defined in <a href="#semantics" class="sec-ref"></a>, including the formal properties of the containment relation.</li>
-            <li>Detect and reject any RDF 2.0 graph that contains a cyclic containment relationship, treating it as a malformed graph.</li>
+            <li>Detect and reject any <strong>RDF-H</strong> graph that contains a cyclic containment relationship, treating it as a malformed graph.</li>
             <li>Correctly implement the SPARQL-H query extensions as defined in <a href="#querying" class="sec-ref"></a>.</li>
         </ol>
-        <p>A conformant <strong>RDF 2.0 Dataset</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
+        <p>A conformant <strong>RDF-H Dataset</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
         <ol>
             <li>Adhere to the abstract data model defined in <a href="#data-model" class="sec-ref"></a>.</li>
             <li>Satisfy all constraints defined in <a href="#semantics" class="sec-ref"></a>, most notably the acyclicity of the containment relation.</li>
@@ -268,7 +268,7 @@
 
     <section id="data-model">
         <h2>The Semantic Holonic Graph (SHG) Abstract Data Model</h2>
-        <p>This section defines the formal abstract syntax for RDF 2.0, extending the [[RDF12-CONCEPTS]]. The core extension is the introduction of a primitive containment relation, giving rise to Holonic Graphs.</p>
+        <p>This section defines the formal abstract syntax for <strong>RDF-H</strong>, extending the [[RDF12-CONCEPTS]]. The core extension is the introduction of a primitive containment relation, giving rise to Holonic Graphs.</p>
 
         <section>
             <h3>Terminology</h3>
@@ -278,7 +278,7 @@
                 <dd>An RDF term (an IRI or a blank node) that is an instance of the class <code>h:Holon</code>. A holon is a resource that can structurally contain other RDF terms, establishing a boundary within an RDF graph.</dd>
 
                 <dt><dfn data-dfn-type="dfn" id="dfn-containment-relation" class="export">Containment Relation</dfn> (<code>⊂</code>)</dt>
-                <dd>A primitive, directed, binary relation between a contained RDF term (the <em>part</em> or <em>member</em>) and a containing holon (the <em>whole</em>). This relation is a fundamental part of the RDF 2.0 data model and is not represented by a specific IRI predicate in the graph's triple set.</dd>
+                <dd>A primitive, directed, binary relation between a contained RDF term (the <em>part</em> or <em>member</em>) and a containing holon (the <em>whole</em>). This relation is a fundamental part of the <strong>RDF-H</strong> data model and is not represented by a specific IRI predicate in the graph's triple set.</dd>
 
                 <dt><dfn data-dfn-type="dfn" id="dfn-containment-edge" class="export">Containment Edge</dfn></dt>
                 <dd>An instance of the containment relation, denoted <code>t ⊂ H</code>, where <code>t</code> is any RDF term and <code>H</code> is a holon. It represents the assertion that <code>t</code> is a direct part of the whole <code>H</code>.</dd>
@@ -298,17 +298,17 @@
             <h3>Formal Definition of Holonic Graphs and Datasets</h3>
             <p>The abstract data model of RDF 1.2 is extended as follows:</p>
             <ol>
-                <li>An <strong>RDF 2.0 Term</strong> is an IRI, a literal, a blank node, or a quoted triple, as defined in [[RDF12-CONCEPTS]].</li>
-                <li>A <strong>Holon</strong> is an RDF 2.0 Term that is an IRI or a blank node.</li>
-                <li>A <strong>Containment Edge</strong> is an ordered pair <code>(t, H)</code> where <code>t</code> is an RDF 2.0 Term and <code>H</code> is a Holon. This is written notationally as <code>t ⊂ H</code>.</li>
-                <li>An <strong>RDF 2.0 Triple</strong> is an RDF triple as defined in [[RDF12-CONCEPTS]].</li>
-                <li>An <strong>RDF 2.0 Graph</strong> (or Holonic Graph) is a pair <code>$G_h = (T, C)$</code>, where:
+                <li>An <strong>RDF-H Term</strong> is an IRI, a literal, a blank node, or a quoted triple, as defined in [[RDF12-CONCEPTS]].</li>
+                <li>A <strong>Holon</strong> is an RDF-H Term that is an IRI or a blank node.</li>
+                <li>A <strong>Containment Edge</strong> is an ordered pair <code>(t, H)</code> where <code>t</code> is an RDF-H Term and <code>H</code> is a Holon. This is written notationally as <code>t ⊂ H</code>.</li>
+                <li>An <strong>RDF-H Triple</strong> is an RDF triple as defined in [[RDF12-CONCEPTS]].</li>
+                <li>An <strong>RDF-H Graph</strong> (or Holonic Graph) is a pair <code>$G_h = (T, C)$</code>, where:
                     <ul>
-                        <li><code>$T$</code> is a set of RDF 2.0 Triples.</li>
+                        <li><code>$T$</code> is a set of RDF-H Triples.</li>
                         <li><code>$C$</code> is a set of Containment Edges.</li>
                     </ul>
                 </li>
-                <li>An <strong>RDF 2.0 Dataset</strong> is a collection of RDF 2.0 Graphs, comprising exactly one default graph and zero or more named graphs. Each named graph is a pair of an IRI or blank node (the graph name) and an RDF 2.0 Graph. This structure is consistent with the RDF 1.1 Dataset definition.</li>
+                <li>An <strong>RDF-H Dataset</strong> is a collection of RDF-H Graphs, comprising exactly one default graph and zero or more named graphs. Each named graph is a pair of an IRI or blank node (the graph name) and an RDF-H Graph. This structure is consistent with the RDF 1.1 Dataset definition.</li>
             </ol>
         </section>
 
@@ -322,7 +322,7 @@
 
         <section>
             <h3>The Containment Relation (⊂) and its Formal Properties</h3>
-            <p>The containment relation <code>⊂</code> is a primitive part of the data model. It is not an RDF property and does not have an IRI. Its semantics are built directly into RDF 2.0 processors. The relation defines a strict partial order over the terms in a graph, and <em class="rfc2119" title="MUST">MUST</em> adhere to the following formal properties:</p>
+            <p>The containment relation <code>⊂</code> is a primitive part of the data model. It is not an RDF property and does not have an IRI. Its semantics are built directly into <strong>RDF-H</strong> processors. The relation defines a strict partial order over the terms in a graph, and <em class="rfc2119" title="MUST">MUST</em> adhere to the following formal properties:</p>
             <table class="def">
                 <thead>
                     <tr>
@@ -410,11 +410,11 @@
 
     <section id="semantics">
         <h2>Formal Semantics and Entailment</h2>
-        <p>This section provides a formal model-theoretic semantics for RDF 2.0, defining the precise meaning of holonic graphs and the conditions under which entailments hold. The semantics is a conservative extension of the [[RDF12-SEMANTICS]].</p>
+        <p>This section provides a formal model-theoretic semantics for <strong>RDF-H</strong>, defining the precise meaning of holonic graphs and the conditions under which entailments hold. The semantics is a conservative extension of the [[RDF12-SEMANTICS]].</p>
 
         <section>
             <h3>H-Interpretations: Extending the RDF 1.2 Semantics</h3>
-            <p>The model theory for RDF 2.0 extends the notion of an interpretation from the [[RDF12-SEMANTICS]].</p>
+            <p>The model theory for <strong>RDF-H</strong> extends the notion of an interpretation from the [[RDF12-SEMANTICS]].</p>
             <p>A <strong>simple H-interpretation</strong> <code>I</code> is an RDF 1.2 simple interpretation <code>I_rdf = (IR, IP, IEXT, IS, IL, RE)</code> defined in [[RDF12-SEMANTICS]], augmented with two additional components:</p>
             <ol>
                 <li>A distinguished subset <code>$IH ⊆ IR$</code>, which is the extension of the class <code>h:Holon</code>.</li>
@@ -474,16 +474,16 @@ THEN:?b rdf:type h:Holon.
 
         <section class="informative">
             <h3>Acyclicity, Well-Foundedness, and the Prevention of Paradoxes</h3>
-            <p>The requirement that the containment relation <code>⊂</code> be acyclic is not merely a practical constraint for simplifying traversal algorithms; it is a fundamental guarantee of the logical soundness of the RDF 2.0 data model. Its importance is analogous to the Axiom of Foundation in Zermelo-Fraenkel set theory.</p>
+            <p>The requirement that the containment relation <code>⊂</code> be acyclic is not merely a practical constraint for simplifying traversal algorithms; it is a fundamental guarantee of the logical soundness of the <strong>RDF-H</strong> data model. Its importance is analogous to the Axiom of Foundation in Zermelo-Fraenkel set theory.</p>
             <p>Self-referential structures are the source of many well-known logical paradoxes. For example, Russell's Paradox arises from considering the set of all sets that do not contain themselves, <code>$R = \{x | x \notin x\}$</code> [[SEP-SELFREF]]. Asking whether <code>$R \in R$</code> leads to a contradiction. This paradox demonstrated that naive set theory, which allowed any definable property to form a set, was inconsistent. The solution in modern set theory is to build the universe of sets in a cumulative hierarchy, which explicitly forbids a set from containing itself.</p>
-            <p>In the context of RDF 2.0, a cyclic containment such as <code>H1 ⊂ H2</code> and <code>H2 ⊂ H1</code> would be a structural paradox. A more complex cycle, <code>H1 ⊂ H2 ⊂... ⊂ Hn ⊂ H1</code>, presents the same logical problem. If such structures were permitted, the very notion of "containment" would become incoherent, and the transitive closure of the <code>⊂</code> relation would be ill-defined for cyclic members.</p>
-            <p>By mandating that the containment relation <code>⊂</code> be irreflexive and acyclic (i.e., that the holarchy be a well-founded directed acyclic graph), this specification ensures that the holonic extension to RDF is free from such self-referential paradoxes. This is the core reason why a conformant RDF 2.0 processor <em class="rfc2119" title="MUST">MUST</em> detect and reject graphs containing containment cycles. Such a graph is not merely "malformed"; it is logically inconsistent with the foundational axioms of the data model. This guarantee of well-foundedness is a cornerstone of the robustness of the Semantic Holonic Graph model.</p>
+            <p>In the context of <strong>RDF-H</strong>, a cyclic containment such as <code>H1 ⊂ H2</code> and <code>H2 ⊂ H1</code> would be a structural paradox. A more complex cycle, <code>H1 ⊂ H2 ⊂... ⊂ Hn ⊂ H1</code>, presents the same logical problem. If such structures were permitted, the very notion of "containment" would become incoherent, and the transitive closure of the <code>⊂</code> relation would be ill-defined for cyclic members.</p>
+            <p>By mandating that the containment relation <code>⊂</code> be irreflexive and acyclic (i.e., that the holarchy be a well-founded directed acyclic graph), this specification ensures that the holonic extension to RDF is free from such self-referential paradoxes. This is the core reason why a conformant <strong>RDF-H</strong> processor <em class="rfc2119" title="MUST">MUST</em> detect and reject graphs containing containment cycles. Such a graph is not merely "malformed"; it is logically inconsistent with the foundational axioms of the data model. This guarantee of well-foundedness is a cornerstone of the robustness of the Semantic Holonic Graph model.</p>
         </section>
     </section>
 
     <section id="syntax">
         <h2>Concrete Syntaxes for Holonic Graphs</h2>
-        <p>This section defines concrete syntaxes for writing and exchanging RDF 2.0 Holonic Graphs. The primary syntax is Turtle-H, an extension of Turtle-star. Guidance for a JSON-LD representation is also provided.</p>
+        <p>This section defines concrete syntaxes for writing and exchanging <strong>RDF-H</strong> Holonic Graphs. The primary syntax is Turtle-H, an extension of Turtle-star. Guidance for a JSON-LD representation is also provided.</p>
         
         <section>
             <h3>Turtle-H: A Holonic Extension to Turtle-star</h3>
@@ -615,7 +615,7 @@ ex:SensorData h:containedIn ex:SecureEnclave.
             <p>To support interoperability with existing quad-based infrastructure, a mapping from the holonic data model to a quad representation is defined. This mapping must distinguish between triples <em>asserted in</em> a named graph and statements <em>about</em> containment.</p>
             <p>A containment edge <code>t ⊂ H</code> is serialized as a quad using a dedicated, well-known graph IRI, <code>h:ContainmentGraph</code>. The predicate <code>h:containedIn</code> is used to represent the relation.</p>
             <p><code>t h:containedIn H h:ContainmentGraph.</code></p>
-            <p>A conformant RDF 2.0 processor, when consuming quads, <em class="rfc2119" title="MUST">MUST</em> interpret any quad in the <code>h:ContainmentGraph</code> not as a triple within a named graph, but as a direct assertion of a containment edge in the holonic data model. This allows the holarchy structure to be preserved during serialization and exchange, while clearly separating it from the named graph mechanism for dataset partitioning.</p>
+            <p>A conformant <strong>RDF-H</strong> processor, when consuming quads, <em class="rfc2119" title="MUST">MUST</em> interpret any quad in the <code>h:ContainmentGraph</code> not as a triple within a named graph, but as a direct assertion of a containment edge in the holonic data model. This allows the holarchy structure to be preserved during serialization and exchange, while clearly separating it from the named graph mechanism for dataset partitioning.</p>
         </section>
     </section>
 
@@ -836,7 +836,7 @@ ex:EngineShape a sh:NodeShape ;
     ].
 </pre>
                 </div>
-                <p>Validation of complex emergent properties (e.g., that the total weight of a whole equals the sum of its parts' weights) can be achieved using SHACL-SPARQL constraints, which allow for arbitrary SPARQL queries to be used for validation. This combination of new holon-specific components and existing SHACL features provides a comprehensive framework for ensuring the quality and integrity of RDF 2.0 Holonic Graphs.</p>
+                <p>Validation of complex emergent properties (e.g., that the total weight of a whole equals the sum of its parts' weights) can be achieved using SHACL-SPARQL constraints, which allow for arbitrary SPARQL queries to be used for validation. This combination of new holon-specific components and existing SHACL features provides a comprehensive framework for ensuring the quality and integrity of <strong>RDF-H</strong> Holonic Graphs.</p>
             </section>
         </section>
     </section>
@@ -894,14 +894,14 @@ SELECT ?doc WHERE {
         <section>
             <h3>A Comparative Look: Holonic Graphs vs. Labeled Property Graphs (LPGs)</h3>
             <p>Practitioners familiar with Labeled Property Graphs (LPGs), such as those used by Neo4j, will recognize similarities between holonic modeling and common patterns in LPGs. LPGs naturally support hierarchical data by creating relationships between nodes representing wholes and parts. Query languages like Cypher excel at traversing these hierarchies with variable-length path expressions.</p>
-            <p>RDF 2.0 can be seen as introducing a key structural capability of LPGs into the RDF data model, but with the distinct advantages of the Semantic Web stack:</p>
+            <p><strong>RDF-H</strong> can be seen as introducing a key structural capability of LPGs into the RDF data model, but with the distinct advantages of the Semantic Web stack:</p>
             <ul>
-                <li><strong>Formal Semantics:</strong> RDF 2.0, including holons, is defined by a formal, model-theoretic semantics [[RDF12-SEMANTICS]]. This provides a rigorous foundation for data interpretation and logical inference that is often lacking in the LPG world, where semantics can be implementation-dependent.</li>
+                <li><strong>Formal Semantics:</strong> <strong>RDF-H</strong>, including holons, is defined by a formal, model-theoretic semantics [[RDF12-SEMANTICS]]. This provides a rigorous foundation for data interpretation and logical inference that is often lacking in the LPG world, where semantics can be implementation-dependent.</li>
                 <li><strong>Global Uniqueness:</strong> Resources in RDF are identified by IRIs, providing a global, web-scalable namespace. This facilitates data integration and federation in a way that is more challenging with the local identifiers used in many LPGs.</li>
                 <li><strong>Standardization:</strong> RDF, SPARQL, and SHACL are W3C standards, promoting interoperability between different tools and vendors. SPARQL-H and SHACL-H extend this standardized ecosystem. In contrast, while efforts like the GQL standard are underway, the LPG space remains more fragmented.</li>
                 <li><strong>Rich Entailment:</strong> Holonic graphs can be used in conjunction with RDFS and OWL entailment regimes [[SPARQL11-ENTAILMENT]]. This allows for rich semantic reasoning (e.g., class subsumption, property characteristics) to be combined with structural containment, a feature not native to LPGs.</li>
             </ul>
-            <p>In essence, RDF 2.0 Holonic Graphs offer a "best of both worlds" approach: the intuitive, traversal-friendly modeling of hierarchies found in property graphs, combined with the formal rigor, global interoperability, and reasoning capabilities of RDF.</p>
+            <p>In essence, <strong>RDF-H</strong> Holonic Graphs offer a "best of both worlds" approach: the intuitive, traversal-friendly modeling of hierarchies found in property graphs, combined with the formal rigor, global interoperability, and reasoning capabilities of RDF.</p>
         </section>
     </section>
 
@@ -909,7 +909,7 @@ SELECT ?doc WHERE {
         <h2>Security and Privacy Considerations</h2>
         <p>The introduction of holons and, particularly, the transitivity of the containment relation, has significant implications for security and privacy that implementers and data modelers <em class="rfc2119" title="MUST">MUST</em> consider.</p>
         <ul>
-            <li><strong>Transitive Access and Data Aggregation:</strong> A naive access control model might grant a user access to a holon <code>H</code>. Due to transitivity, this could imply access to all resources contained within <code>H</code>, and all resources contained within its sub-holons, to any depth. This can lead to unintentional data exposure if a sub-holon contains sensitive information. Access control systems built on RDF 2.0 <em class="rfc2119" title="SHOULD">SHOULD NOT</em> assume that access to a whole implies access to all its parts. Policies should be explicit about the propagation of access rights down the holarchy. The boundary graph mechanism provides a means to specify such policies on a per-edge basis.</li>
+            <li><strong>Transitive Access and Data Aggregation:</strong> A naive access control model might grant a user access to a holon <code>H</code>. Due to transitivity, this could imply access to all resources contained within <code>H</code>, and all resources contained within its sub-holons, to any depth. This can lead to unintentional data exposure if a sub-holon contains sensitive information. Access control systems built on <strong>RDF-H</strong> <em class="rfc2119" title="SHOULD NOT">SHOULD NOT</em> assume that access to a whole implies access to all its parts. Policies should be explicit about the propagation of access rights down the holarchy. The boundary graph mechanism provides a means to specify such policies on a per-edge basis.</li>
             <li><strong>Inference and Data Leakage:</strong> The combination of H-entailment with other regimes like RDFS or OWL can lead to new inferences. For example, if a policy states that only members of the <code>ex:Admin</code> class can be contained in the <code>ex:AdminHolon</code>, and a user observes that <code>ex:Bob ⊂ ex:AdminHolon</code>, they can infer that <code>ex:Bob</code> is an <code>ex:Admin</code>, even if that triple is not directly visible. Implementers of secure systems must analyze the potential for such information leakage through inference.</li>
             <li><strong>Boundary Graph Security:</strong> Boundary graphs themselves contain policy or context metadata. Access to the boundary graphs must be controlled as carefully as access to the data they describe. An attacker who can modify a boundary graph could potentially escalate their own privileges. For example, changing <code>acl:mode acl:Read</code> to <code>acl:mode acl:Write</code> on a containment edge's boundary. Systems <em class="rfc2119" title="SHOULD">SHOULD</em> treat boundary graph data as highly sensitive.</li>
             <li><strong>Denial of Service:</strong> The requirement for processors to validate acyclicity is a potential vector for denial-of-service attacks. A malicious user could submit a graph with a very large, complex, but ultimately cyclic containment structure. Implementations <em class="rfc2119" title="SHOULD">SHOULD</em> use efficient cycle detection algorithms and may impose limits on traversal depth during validation to mitigate this risk.</li>
@@ -918,10 +918,10 @@ SELECT ?doc WHERE {
 
     <section id="conclusion" class="informative">
         <h2>Conclusion</h2>
-        <p>This specification introduces RDF 2.0, a conservative yet powerful extension to the Resource Description Framework that integrates the <strong>holon</strong> as a native data model primitive. By providing a semantically sound and structurally first-class mechanism for representing containment, RDF 2.0 directly addresses a long-standing challenge in knowledge representation: the modeling of complex, compositional systems.</p>
+        <p>This specification introduces <strong>RDF-H</strong>, a conservative yet powerful extension to the Resource Description Framework that integrates the <strong>holon</strong> as a native data model primitive. By providing a semantically sound and structurally first-class mechanism for representing containment, <strong>RDF-H</strong> directly addresses a long-standing challenge in knowledge representation: the modeling of complex, compositional systems.</p>
         <p>The comparative analysis demonstrates that holons offer a superior alternative to existing RDF mechanisms for this purpose. Unlike the verbosity of reification, the statement-level focus of RDF-star, or the ambiguous, dataset-level partitioning of named graphs, holons provide a resource-centric, mereologically-grounded, and natively traversable way to define "wholes-within-wholes." The formal data model, H-interpretation semantics, and H-entailment regime ensure that this new capability is integrated into the RDF stack with logical rigor, while the acyclicity constraint guarantees well-foundedness and prevents paradoxes.</p>
         <p>The accompanying extensions to concrete syntaxes (Turtle-H, JSON-LD-H) and query/validation languages (SPARQL-H, SHACL-H) ensure that this new model is both practical for developers and interoperable across implementations. By reusing and composing with existing standards like RDF-star wherever possible, the design prioritizes elegance and minimizes the introduction of new machinery.</p>
-        <p>RDF 2.0 with Holon Extensions bridges a crucial gap between the property graph and RDF worlds, offering the intuitive hierarchical modeling capabilities of the former with the formal semantics, global interoperability, and rich reasoning of the latter. It provides a robust foundation for the next generation of knowledge graphs in domains such as digital twins, systems engineering, and contextual AI, enabling a more faithful and powerful representation of our complex, interconnected world.</p>
+        <p><strong>RDF-H</strong> with Holon Extensions bridges a crucial gap between the property graph and RDF worlds, offering the intuitive hierarchical modeling capabilities of the former with the formal semantics, global interoperability, and rich reasoning of the latter. It provides a robust foundation for the next generation of knowledge graphs in domains such as digital twins, systems engineering, and contextual AI, enabling a more faithful and powerful representation of our complex, interconnected world.</p>
     </section>
 
     <section id="acknowledgements" class="appendix">
