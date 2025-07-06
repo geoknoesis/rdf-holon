@@ -19,9 +19,8 @@ This specification proposes the **holon** as a new first-class primitive in RDF.
 
 The latest version of the draft specification can be viewed online, rendered directly from this repository via GitHub Pages:
 
-**[https://<your-github-username>.github.io/rdf-holon-spec/](https://<your-github-username>.github.io/rdf-holon-spec/)**
+**[https://geoknoesis.github.io/rdf-holon-spec/](https://geoknoesis.github.io/rdf-holon-spec/)**
 
-_(Note: You will need to replace `<your-github-username>` with your actual GitHub username.)_
 
 ## Contributing
 
