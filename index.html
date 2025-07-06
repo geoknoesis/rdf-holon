@@ -293,7 +293,16 @@
                 <dd>A set of resources organized by the transitive closure of the containment relation (<code>⊂*</code>), forming a forest of directed acyclic graphs (DAGs).</dd>
             </dl>
         </section>
-
+        <section>
+            <h3>Namespace</h3>
+                <p>A stable, persistent, and dereferenceable namespace URI is critical for the interoperability of the terms defined in this specification. To ensure long-term stability and vendor-neutrality, this specification adopts the <code>w3id.org</code> permanent identifier service managed by the W3C Permanent Identifier Community Group.         </p>
+                <p>The namespace for all terms defined in the RDF-H specification (e.g., <code>h:Holon</code>, <code>h:containedIn</code>) is:</p>
+                    <ul>
+                        <li><strong>Namespace URI:</strong> <code>https://w3id.org/ns/rdf-h#</code></li>
+                        <li><strong>Conventional Prefix:</strong> <code>h</code></li>
+                    </ul>
+                <p> Should this specification be accepted for standardization by the W3C, this namespace may be migrated to an official <code>w3.org</code> domain. However, the <code>w3id.org</code> URI will be maintained indefinitely as a stable identifier.</p>
+        </section>
         <section>
             <h3>Formal Definition of Holonic Graphs and Datasets</h3>
             <p>The abstract data model of RDF 1.2 is extended as follows:</p>
