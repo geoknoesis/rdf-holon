@@ -13,7 +13,6 @@
             
             // General Metadata
             shortName: "rdf20-holon", 
-            edDraftURI: "https://geoknoesis.com/specs/rdf-holon/", // A more appropriate URI for a company proposal
             editors: [{
                 name: "Stephane Fellah",
                 url: "https://geoknoesis.com",
@@ -275,22 +274,22 @@
             <h3>Terminology</h3>
             <p>The terminology of [[RDF12-CONCEPTS]] applies unless overridden here. A new vocabulary namespace, <code>http://www.w3.org/ns/rdfh#</code>, is introduced and is bound by convention to the prefix <code>h:</code>.</p>
             <dl>
-                <dt><dfn data-dfn-type="dfn" id="dfn-holon-term">Holon</dfn></dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-holon-term" class="export">Holon</dfn></dt>
                 <dd>An RDF term (an IRI or a blank node) that is an instance of the class <code>h:Holon</code>. A holon is a resource that can structurally contain other RDF terms, establishing a boundary within an RDF graph.</dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-containment-relation">Containment Relation</dfn> (<code>⊂</code>)</dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-containment-relation" class="export">Containment Relation</dfn> (<code>⊂</code>)</dt>
                 <dd>A primitive, directed, binary relation between a contained RDF term (the <em>part</em> or <em>member</em>) and a containing holon (the <em>whole</em>). This relation is a fundamental part of the RDF 2.0 data model and is not represented by a specific IRI predicate in the graph's triple set.</dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-containment-edge">Containment Edge</dfn></dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-containment-edge" class="export">Containment Edge</dfn></dt>
                 <dd>An instance of the containment relation, denoted <code>t ⊂ H</code>, where <code>t</code> is any RDF term and <code>H</code> is a holon. It represents the assertion that <code>t</code> is a direct part of the whole <code>H</code>.</dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-holonic-graph">Holonic Graph</dfn></dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-holonic-graph" class="export">Holonic Graph</dfn></dt>
                 <dd>An RDF graph that may contain zero or more holons and containment edges. It is formally defined as a pair of a set of triples and a set of containment edges.</dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-boundary-graph">Boundary Graph</dfn></dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-boundary-graph" class="export">Boundary Graph</dfn></dt>
                 <dd>An RDF graph that provides metadata about a specific containment edge. It is attached to the containment relationship itself, not to the part or the whole. It can be used to express constraints or context (e.g., temporal, modal, security) on the membership of the part within the whole.</dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-holarchy">Holarchy</dfn></dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-holarchy" class="export">Holarchy</dfn></dt>
                 <dd>A set of resources organized by the transitive closure of the containment relation (<code>⊂*</code>), forming a forest of directed acyclic graphs (DAGs).</dd>
             </dl>
         </section>
