@@ -1,8 +1,8 @@
-@prefix h:   <http://www.w3.org/ns/rdfh#> .
+@prefix h: <http://www.w3.org/ns/rdfh#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -11,9 +11,9 @@
 # Ontology Header
 #################################################################
 
-h: a owl:Ontology ;
-    rdfs:label "RDF-H - Holon Extensions Vocabulary"@en ;
-    rdfs:comment "This vocabulary defines the classes, properties, and SHACL extensions for representing and validating holonic graphs."@en ;
+<http://www.w3.org/ns/rdfh#> a owl:Ontology ;
+    rdfs:label "RDF-H - A Holonic Modeling Pattern Vocabulary"@en ;
+    rdfs:comment "This vocabulary defines the core classes, properties, and SHACL constraint components for representing and validating holarchic structures in RDF."@en ;
     owl:versionIRI <http://www.w3.org/ns/rdfh#1.0> ;
     dct:creator [
         a foaf:Person ;
@@ -28,117 +28,111 @@ h: a owl:Ontology ;
 h:Holon a rdfs:Class ;
     rdfs:subClassOf rdfs:Resource ;
     rdfs:label "Holon"@en ;
-    rdfs:comment "A resource that may act as both a whole and a part within a holarchy."@en .
+    rdfs:comment "A resource that acts as a context for other relationships, representing a 'whole' composed of 'parts'."@en .
 
 #################################################################
-# Generic Super-Property
+# Core Holon Property
 #################################################################
 
-h:holonLink a owl:ObjectProperty ;
-    rdfs:label "holonic link"@en ;
-    rdfs:comment "Any relationship between two holons in a holarchy."@en .
+h:inHolon a owl:ObjectProperty ;
+    rdfs:label "in holon"@en ;
+    rdfs:comment "An object property that links a reified triple (a relationship) to the holon it is a constituent part of."@en ;
+    rdfs:domain rdf:Statement ;
+    rdfs:range h:Holon .
 
 #################################################################
-# Holonic Link Primitives
+# Part-Of Hierarchy
 #################################################################
 
-# Containment
-h:containedIn a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "is contained in"@en ;
-    rdfs:comment "Reified containment relationship from a part to a whole."@en ;
-    owl:inverseOf h:contains .
+# Top-Level Part-Of Properties
+h:partOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "part of"@en ;
+    rdfs:comment "The top-level, transitive super-property for all part-whole relations."@en .
 
-h:contains a owl:ObjectProperty, owl:TransitiveProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "contains"@en ;
-    rdfs:comment "Inverse of h:containedIn; from a whole to a part."@en .
+h:hasPart a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "has part"@en ;
+    rdfs:comment "The top-level, transitive super-property for all whole-part relations."@en ;
+    owl:inverseOf h:partOf .
 
-# Hierarchy
-h:hierarchyParent a owl:ObjectProperty, owl:TransitiveProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "hierarchy parent"@en ;
-    rdfs:comment "Represents a general hierarchical superordinate relationship."@en ;
-    owl:inverseOf h:hierarchyChild .
+# Sub-Property: Component
+h:componentOf a owl:ObjectProperty ;
+    rdfs:label "component of"@en ;
+    rdfs:comment "A non-transitive sub-property of h:partOf for functional or structural parts."@en ;
+    rdfs:subPropertyOf h:partOf .
 
-h:hierarchyChild a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "hierarchy child"@en ;
-    rdfs:comment "Represents a general hierarchical subordinate relationship."@en .
+h:hasComponent a owl:ObjectProperty ;
+    rdfs:label "has component"@en ;
+    rdfs:comment "The inverse of h:componentOf."@en ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:componentOf .
 
-# Membership
+# Sub-Property: Member
 h:memberOf a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:holonLink ;
     rdfs:label "member of"@en ;
-    rdfs:comment "Indicates group membership or loose association."@en ;
-    owl:inverseOf h:hasMember .
+    rdfs:comment "A non-transitive sub-property of h:partOf for elements in a collection or group."@en ;
+    rdfs:subPropertyOf h:partOf .
 
 h:hasMember a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:holonLink ;
     rdfs:label "has member"@en ;
-    rdfs:comment "Inverse of h:memberOf."@en .
+    rdfs:comment "The inverse of h:memberOf."@en ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:memberOf .
 
-# Peer Relationship
-h:peerOf a owl:ObjectProperty, owl:SymmetricProperty, owl:IrreflexiveProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "peer of"@en ;
-    rdfs:comment "Lateral, symmetric coordination."@en .
+# Sub-Property: Substance
+h:substanceOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "substance of"@en ;
+    rdfs:comment "A transitive sub-property of h:partOf for material composition."@en ;
+    rdfs:subPropertyOf h:partOf .
 
-# Dependency
-h:dependsOn a owl:ObjectProperty, owl:AsymmetricProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "depends on"@en ;
-    rdfs:comment "Functional or temporal prerequisite."@en ;
-    owl:inverseOf h:requiredBy .
+h:hasSubstance a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "has substance"@en ;
+    rdfs:comment "The inverse of h:substanceOf."@en ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:substanceOf .
 
-h:requiredBy a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:holonLink ;
-    rdfs:label "required by"@en ;
-    rdfs:comment "Inverse of h:dependsOn."@en .
+# Sub-Property: Portion
+h:portionOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "portion of"@en ;
+    rdfs:comment "A transitive sub-property of h:partOf for segments of a continuous whole."@en ;
+    rdfs:subPropertyOf h:partOf .
+
+h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "has portion"@en ;
+    rdfs:comment "The inverse of h:portionOf."@en ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:portionOf .
 
 #################################################################
-# Holonic Link Graph
+# SHACL Constraint Components
 #################################################################
 
-h:HolonicLinkGraph a rdfs:Class ;
-    rdfs:label "Holonic Link Graph"@en ;
-    rdfs:comment "A special graph context for serializing holonic link assertions."@en .
+h:AcyclicPartConstraintComponent a sh:ConstraintComponent ;
+    rdfs:label "Acyclic Part Constraint Component"@en ;
+    rdfs:comment "Validates that a holon is not part of a cycle in the part-of hierarchy."@en ;
+    sh:validator h:AcyclicPartValidator .
 
-#################################################################
-# SHACL-H Constraint Component Definitions
-#################################################################
-
-# -- Acyclicity Constraint (for containment & hierarchy)
-h:AcyclicHolonicLinkConstraintComponent a sh:ConstraintComponent ;
-    rdfs:label "Acyclic Holonic Link Constraint Component"@en ;
-    rdfs:comment "Validates that a holon is not part of a cycle in containment or hierarchy links."@en ;
-    sh:validator h:AcyclicHolonicLinkValidator .
-
-h:AcyclicHolonicLinkValidator a sh:SPARQLValidator ;
-    sh:message "The focus node participates in a containment or hierarchy cycle."@en ;
+h:AcyclicPartValidator a sh:SPARQLValidator ;
+    sh:message "The focus node participates in a part-of cycle."@en ;
     sh:select """
         PREFIX h: <http://www.w3.org/ns/rdfh#>
-        ASK {
-            GRAPH h:HolonicLinkGraph {
-                $this (h:containedIn|h:hierarchyChild)+ $this .
-            }
+        SELECT $this
+        WHERE {
+            $this h:partOf+ $this .
         }
     """ .
 
-# -- Holon Type Constraint --
-h:HolonConstraintComponent a sh:ConstraintComponent ;
-    rdfs:label "Holon Type Constraint Component"@en ;
-    rdfs:comment "Checks if a resource acting as a container is explicitly typed as h:Holon."@en ;
-    sh:validator h:HolonTypeValidator .
+h:HolonIntegrityConstraintComponent a sh:ConstraintComponent ;
+    rdfs:label "Holon Integrity Constraint Component"@en ;
+    rdfs:comment "Validates that a resource used as a holon is explicitly typed as h:Holon."@en ;
+    sh:validator h:HolonIntegrityValidator .
 
-h:HolonTypeValidator a sh:SPARQLValidator ;
-    sh:message "The focus node is used as a container but is not explicitly typed as h:Holon."@en ;
+h:HolonIntegrityValidator a sh:SPARQLValidator ;
+    sh:message "The focus node is used as a holon (object of h:inHolon) but is not typed as h:Holon."@en ;
     sh:select """
         PREFIX h: <http://www.w3.org/ns/rdfh#>
-        ASK {
-            GRAPH h:HolonicLinkGraph {
-                ?part (h:containedIn|h:hierarchyChild|h:hasMember|h:requiredBy) $this .
-            }
+        SELECT $this
+        WHERE {
+            ?s h:inHolon $this .
             FILTER NOT EXISTS { $this a h:Holon . }
         }
     """ .

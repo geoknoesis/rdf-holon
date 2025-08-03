@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>RDF-H: Holon Extensions for RDF</title>
+    <title>RDF-H: A Holonic Modeling Pattern for RDF</title>
     <script src="https://www.w3.org/Tools/respec/respec-w3c" class="remove"></script>
     <script class="remove">
         /* ReSpec configuration */
@@ -20,7 +20,7 @@
                 company: "Geoknoesis LLC",
                 companyURL: "https://geoknoesis.com"
             }],
-            version: "0.20",
+            version: "0.3",
             github: "https://github.com/geoknoesis/rdf-holon",
             copyrightStart: "2025",
             license: "w3c-software-doc",
@@ -107,18 +107,18 @@
 <body>
     <section id="abstract">
         <p>
-            This specification defines the abstract syntax, formal semantics, and concrete syntaxes for a proposed
-            holonic extension to the Resource Description Framework 1.2, referred to here as <strong>RDF-H</strong>.
-            This proposal introduces the <strong>holon</strong> as a first-class primitive within the RDF data model. A
-            holon is a resource that is simultaneously a whole in itself and a part of a larger whole, capable of
-            structurally containing other RDF resources, including other holons. This mechanism provides a semantically
-            precise and structurally native method for representing nested, contextual, and compositional knowledge. It
-            is designed to overcome the limitations of existing RDF paradigms—such as the verbosity of standard
-            reification, the statement-level focus of RDF-star, and the dataset-level partitioning of named graphs—for
-            modeling complex systems. By grounding containment in formal mereology and ensuring full backward
-            compatibility with RDF 1.2, this specification enables the robust modeling of digital twins, cyber-physical
-            systems, fine-grained access control policies, and other domains requiring a native understanding of
-            "wholes-within-wholes."
+            This document specifies <strong>RDF-H</strong>, a vocabulary and modeling pattern for representing
+            holarchic structures within the Resource Description Framework 1.2. A holarchy is a system of
+            <strong>holons</strong>, where each holon is a resource that is simultaneously a whole in itself and a part
+            of a larger whole. RDF-H provides a semantically precise and structurally native method for representing
+            nested, contextual, and compositional knowledge by leveraging the capabilities of RDF-star. It introduces a
+            core vocabulary centered on the <code>h:inHolon</code> property to link relationships to their
+            containing holon, and a formal mereological hierarchy of part-whole relations. This specification also
+            proposes <strong>Turtle-H</strong>, a syntactic extension to Turtle providing a concise block-style syntax
+            for defining holons, making the pattern intuitive and easy to use. By grounding containment in formal
+            mereology and ensuring full backward compatibility with RDF 1.2, RDF-H enables the robust modeling of
+            digital twins, cyber-physical systems, fine-grained access control policies, and other domains requiring a
+            native understanding of "wholes-within-wholes."
         </p>
     </section>
 
@@ -148,7 +148,7 @@
         </p>
 
         <section>
-            <h3>The Need for Native Structural Containment</h3>
+            <h3>The Need for a Compositional Modeling Pattern</h3>
             <p>
                 Many real-world and conceptual domains are fundamentally compositional. A car is a whole composed of
                 parts like an engine and wheels; the engine, in turn, is a whole composed of its own parts. A digital
@@ -159,94 +159,69 @@
             </p>
             <p>
                 While RDF can <em>describe</em> these part-whole relations using predicates (e.g.,
-                <code>ex:engine ex:partOf ex:car</code>), it lacks a primitive mechanism to <em>structurally
-                    represent</em> this containment within the data model itself. Existing approaches require developers
-                to adopt specific modeling conventions or use mechanisms that were designed for related but distinct
-                purposes. This leads to semantic ambiguity, complex queries, and a disconnect between the intuitive
-                structure of the domain and its representation in the graph. This specification for
-                <strong>RDF-H</strong> introduces the <strong>holon</strong> primitive to address this gap, providing a
-                native, semantically grounded way to model structural containment directly within the graph.
+                <code>ex:engine ex:partOf ex:car</code>), it lacks a simple, standardized pattern to represent this
+                containment in a way that is both structurally intuitive and semantically rich. Existing approaches
+                require developers to adopt specific modeling conventions or use mechanisms that were designed for
+                related but distinct purposes. This leads to semantic ambiguity, complex queries, and a disconnect
+                between the intuitive structure of the domain and its representation in the graph. This specification
+                for <strong>RDF-H</strong> introduces a vocabulary and modeling pattern to address this gap, providing a
+                native, semantically grounded way to model structural composition directly within the graph.
             </p>
         </section>
 
         <section>
             <h3>Limitations of Existing Approaches: A Comparative Analysis</h3>
             <p>
-                The need for a new primitive is best understood by examining the limitations of current RDF mechanisms
-                for grouping, contextualizing, and annotating data.
+                The need for a new standardized pattern is best understood by examining the limitations of current RDF
+                mechanisms for grouping, contextualizing, and annotating data.
             </p>
             <section>
                 <h4>Standard Reification</h4>
                 <p>
                     The original RDF specification provided a vocabulary for reification, allowing a statement to be
-                    treated as a resource. To annotate the triple <code>:man :hasSpouse :woman</code>, one must create a
-                    new resource of type <code>rdf:Statement</code> and link it to the subject, predicate, and object
-                    via <code>rdf:subject</code>, <code>rdf:predicate</code>, and <code>rdf:object</code> properties.
-                    This approach has several well-documented drawbacks:
+                    treated as a resource. This approach has several well-documented drawbacks, including verbosity (four
+                    extra triples per annotation) and weak semantics (asserting the reification does not assert the
+                    original triple).
                 </p>
-                <ul>
-                    <li><strong>Verbosity:</strong> It requires four additional triples to make a single assertion about
-                        another triple, leading to significant data bloat and unwieldy queries.</li>
-                    <li><strong>Semantic Weakness:</strong> Asserting the four reification triples does not, by itself,
-                        assert the original triple. It merely describes it.</li>
-                    <li><strong>Identity Crisis:</strong> Each reification creates a new, distinct
-                        <code>rdf:Statement</code> resource. This models a <em>particular instance or token</em> of a
-                        statement (e.g., its appearance in a specific document), not the abstract proposition itself.
-                        This is useful for provenance but is not suitable for grouping resources under a conceptual
-                        whole.
-                    </li>
-                </ul>
             </section>
             <section>
                 <h4>RDF-star (RDF 1.2)</h4>
                 <p>
                     RDF-star, now integrated into RDF 1.2, was a major breakthrough that addressed the verbosity of
                     reification by introducing quoted (or embedded) triples as a new type of RDF term
-                    [[RDF12-CONCEPTS]]. A triple can be used directly as the subject or object of another triple (e.g.,
-                    <code>&lt;&lt;:man :hasSpouse :woman&gt;&gt; :confidence 0.95.</code>). While immensely useful,
-                    RDF-star's purpose is statement-level annotation. It is designed to attach metadata to
-                    <em>individual edges</em> in the graph. It answers the question, "What can be said about this
-                    specific relationship?" It does not, however, provide a mechanism for grouping a <em>set of
-                        resources</em> (both nodes and edges) into a containing whole. It cannot answer the question,
-                    "What statements hold true <em>inside</em> the boundary of this system?"
+                    [[RDF12-CONCEPTS]]. While immensely useful, RDF-star provides a <strong>mechanism</strong>, not a
+                    <strong>pattern</strong>. It is designed to attach metadata to <em>individual edges</em> in the
+                    graph, answering the question, "What can be said about this specific relationship?" However, it does
+                    not, by itself, provide a standardized way to group a <em>set of relationships</em> into a
+                    containing whole. Without a standard like RDF-H, developers would use the RDF-star mechanism with
+                    different, incompatible properties (e.g., <code>ex:hasContext</code>, <code>ex:isAbout</code>,
+                    <code>ex:partOfGroup</code>) to achieve the same goal, leading to a fragmented ecosystem where graphs
+                    cannot be reliably merged or queried. RDF-H solves this by proposing a single, standard vocabulary
+                    (<code>h:inHolon</code>) for this purpose.
                 </p>
             </section>
             <section>
                 <h4>Named Graphs (RDF Datasets)</h4>
                 <p>
-                    Named graphs are the most common mechanism in RDF for grouping triples [[RDF11-DATASETS]]. An RDF
-                    dataset consists of a default graph and zero or more named graphs, where each named graph is a pair
-                    of an IRI (the graph name) and an RDF graph. This mechanism, often serialized as quads (subject,
-                    predicate, object, graph name), appears to offer a form of containment. However, a deeper analysis
-                    reveals that it is fundamentally a data management feature, not a resource modeling primitive, with
-                    critical limitations for representing holonic structures:
+                    Named graphs are the most common mechanism in RDF for grouping triples [[RDF11-DATASETS]]. However, a
+                    deeper analysis reveals that it is fundamentally a data management feature, not a resource modeling
+                    primitive, with critical limitations for representing holonic structures:
                 </p>
                 <ul>
-                    <li><strong>Dataset-Level Partitioning, Not Resource-Level Containment:</strong> Named graphs
-                        partition the entire triple store into distinct, named sets of triples. This is a mechanism for
-                        managing collections of graphs, often used for provenance, access control, or versioning at the
-                        level of a whole document or dataset. In contrast, a holon establishes a containment
-                        relationship <em>between resources within a single, unified graph</em>. A holon is an RDF term
-                        that can be the subject or object of other triples, while a named graph's name is an identifier
-                        <em>for</em> a graph, not typically a node <em>within</em> it.
-                    </li>
+                    <li><strong>Dataset-Level Partitioning, Not Resource-Level Composition:</strong> Named graphs
+                        partition the entire triple store into distinct, named sets of triples. In contrast, RDF-H
+                        establishes a compositional relationship <em>between resources within a single, unified
+                            graph</em>.</li>
                     <li><strong>Ambiguous Semantics:</strong> The semantics of a graph name are notoriously
-                        underspecified in the W3C recommendations. A graph name could denote the graph itself, the
-                        document it came from, a context, or an unconstrained resource. This ambiguity makes named
-                        graphs unsuitable for precise, model-theoretic representation of part-whole relations.</li>
-                    <li><strong>Exclusive Membership:</strong> In most quad-store implementations, a triple belongs to
-                        exactly one graph. This makes it difficult to model a resource that is simultaneously a part of
-                        multiple, overlapping systems—a common requirement in complex systems modeling.</li>
+                        underspecified. This ambiguity makes named graphs unsuitable for precise, model-theoretic
+                        representation of part-whole relations.</li>
                     <li><strong>Querying Paradigm:</strong> Querying across named graphs in SPARQL requires the
-                        <code>GRAPH</code> clause, which changes the <em>active graph</em> against which a sub-query is
-                        evaluated. This is a meta-level operation on the dataset, not a traversal of a relationship
-                        within the graph. It does not naturally compose with property paths, which are designed for
-                        in-graph traversal.
+                        <code>GRAPH</code> clause, which changes the <em>active graph</em>. This is a meta-level
+                        operation on the dataset, not a traversal of a relationship within the graph.
                     </li>
                 </ul>
-                <p>Holons, as proposed in this specification, offer a solution that is semantically precise, operates at
-                    the resource level, allows for overlapping containment, and is designed for native traversal-based
-                    querying.</p>
+                <p>RDF-H, as proposed in this specification, offers a solution that is semantically precise, operates at
+                    the resource level, and is designed for native traversal-based querying.</p>
                 <table class="def">
                     <thead>
                         <tr>
@@ -254,7 +229,7 @@
                             <th>Standard Reification</th>
                             <th>RDF-star (RDF 1.2)</th>
                             <th>Named Graphs (RDF 1.1)</th>
-                            <th><strong>Holonic Graphs (RDF-H)</strong></th>
+                            <th><strong>RDF-H Pattern</strong></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -263,7 +238,7 @@
                             <td>Single Statement</td>
                             <td>Single Statement</td>
                             <td>Set of Statements (Graph)</td>
-                            <td>Set of Resources (Subgraph)</td>
+                            <td>Set of Relationships (Composition)</td>
                         </tr>
                         <tr>
                             <td><strong>Semantic Precision</strong></td>
@@ -277,75 +252,25 @@
                             <td>High (4 extra triples)</td>
                             <td>Low (<code>&lt;&lt;...&gt;&gt;</code>)</td>
                             <td>Moderate (quads)</td>
-                            <td>Low (<code>@holon {...}</code>)</td>
+                            <td>Low (proposed <code>{...}</code> syntax)</td>
                         </tr>
                         <tr>
                             <td><strong>Querying Paradigm</strong></td>
                             <td>Complex Joins</td>
                             <td>SPARQL-star Patterns</td>
                             <td><code>GRAPH</code> Clause (Scope Change)</td>
-                            <td>Property Path Traversal (<code>CONTAINS</code>)</td>
+                            <td>Property Path Traversal</td>
                         </tr>
                         <tr>
                             <td><strong>Core Use Case</strong></td>
                             <td>Provenance of a statement token</td>
                             <td>Metadata on a statement</td>
                             <td>Dataset management, provenance</td>
-                            <td>Modeling structural containment</td>
+                            <td>Modeling structural composition</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
-        </section>
-
-        <section>
-            <h3>A Mereological Foundation for Holons</h3>
-            <p>
-                To ensure conceptual rigor, the holon primitive is grounded in <strong>mereology</strong>, the formal
-                theory of parts and wholes. While ontology design patterns have been developed to represent various
-                part-whole relations in OWL (e.g., <code>componentOf</code>, <code>memberOf</code>,
-                <code>contains</code>) [[OEP-PARTWHOLE]], these are vocabulary-level conventions. <strong>RDF-H</strong>
-                elevates containment to a structural primitive of the data model itself.
-            </p>
-            <p>
-                The containment relation introduced in this specification, denoted by the symbol <code>⊂</code>, is
-                defined as a <strong>strict partial order</strong>, corresponding to the notion of a <em>proper
-                    part</em>. It adheres to the following core axioms:
-            </p>
-            <ol>
-                <li><strong>Irreflexivity:</strong> No object is a proper part of itself.</li>
-                <li><strong>Asymmetry:</strong> If A is a proper part of B, then B cannot be a proper part of A.</li>
-                <li><strong>Transitivity:</strong> If A is a proper part of B, and B is a proper part of C, then A is a
-                    proper part of C.</li>
-            </ol>
-            <p>
-                By building these properties into the data model and its semantics, <strong>RDF-H</strong> provides a
-                robust and predictable foundation for representing and reasoning about compositional systems. The most
-                critical property derived from these axioms is <strong>acyclicity</strong>, which ensures the model is
-                well-founded and free from logical paradoxes.
-            </p>
-        </section>
-
-        <section>
-            <h3>Design Principles and Requirements</h3>
-            <p>The design of <strong>RDF-H</strong> is guided by the following principles:</p>
-            <ul>
-                <li><strong>Backward Compatibility:</strong> Any valid RDF 1.2 graph or dataset <em class="rfc2119"
-                        title="MUST">MUST</em> be a valid <strong>RDF-H</strong> graph or dataset. All existing RDF 1.2
-                    semantics and entailment rules remain in effect.</li>
-                <li><strong>Semantic Coherence:</strong> The introduction of holons and the containment relation <em
-                        class="rfc2119" title="MUST">MUST</em> be a conservative extension of the RDF 1.2
-                    model-theoretic semantics [[RDF12-SEMANTICS]]. It must not introduce logical contradictions or
-                    invalidate existing entailments.</li>
-                <li><strong>Syntactic Integration:</strong> Concrete syntaxes for holons (e.g., Turtle-H) <em
-                        class="rfc2119" title="MUST">MUST</em> integrate cleanly with existing syntaxes, particularly
-                    the quoted triple syntax (<code>&lt;&lt;...&gt;&gt;</code>) of RDF-star. The two mechanisms are
-                    designed to be orthogonal and compositional.</li>
-                <li><strong>Native Queryability:</strong> The containment relation <em class="rfc2119"
-                        title="MUST">MUST</em> be a first-class, traversable path within the graph. Querying holonic
-                    structures <em class="rfc2119" title="SHOULD">SHOULD</em> feel like natural graph traversal, not
-                    like a meta-level operation on datasets.</li>
-            </ul>
         </section>
     </section>
 
@@ -356,1580 +281,473 @@
         <ol>
             <li>Satisfy all conformance criteria for a fully conformant RDF 1.2 processor, including support for RDF 1.2
                 Datasets and the RDF-star data model and syntaxes.</li>
-            <li>Correctly parse and serialize the concrete syntaxes defined in <a href="#syntax" class="sec-ref"></a>.
-            </li>
-            <li>Implement the H-Entailment regime as defined in <a href="#semantics" class="sec-ref"></a>, including the
-                formal properties of the containment relation.</li>
-            <li>Detect and reject any <strong>RDF-H</strong> graph that contains a cyclic containment relationship,
-                treating it as a malformed graph.</li>
-            <li>Correctly implement the SPARQL-H query extensions as defined in <a href="#querying"
-                    class="sec-ref"></a>.</li>
+            <li>Correctly parse and serialize the Turtle-H syntax defined in <a href="#syntax" class="sec-ref"></a>,
+                translating it to and from the standard RDF-star representation.</li>
+            <li>Support an entailment regime that respects the RDFS and OWL semantics of the RDF-H vocabulary defined in
+                <a href="#semantics" class="sec-ref"></a>.</li>
         </ol>
-        <p>A conformant <strong>RDF-H Dataset</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
+        <p>A conformant <strong>RDF-H Graph</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
         <ol>
-            <li>Adhere to the abstract data model defined in <a href="#data-model" class="sec-ref"></a>.</li>
-            <li>Satisfy all constraints defined in <a href="#semantics" class="sec-ref"></a>, most notably the
-                acyclicity of the containment relation.</li>
+            <li>Be a valid RDF 1.2 graph.</li>
+            <li>Adhere to the modeling patterns defined in this specification.</li>
+            <li>Not contain any cycles in its part-whole relationship hierarchies.</li>
         </ol>
     </section>
 
-    <section id="data-model">
-        <h2>The Semantic Holonic Graph (SHG) Abstract Data Model</h2>
-        <p>This section defines the formal abstract syntax for <strong>RDF-H</strong>, extending the [[RDF12-CONCEPTS]].
-            The core extension is the introduction of a primitive containment relation, giving rise to Holonic Graphs.
+    <section id="vocabulary">
+        <h2>The RDF-H Vocabulary</h2>
+        <p>This section defines the core vocabulary for the RDF-H modeling pattern. The vocabulary namespace is
+            <code>https://w3id.org/rdf-h#</code>, bound by convention to the prefix <code>h:</code>.
         </p>
 
         <section>
-            <h3>Terminology</h3>
-            <p>The terminology of [[RDF12-CONCEPTS]] applies unless overridden here. A new vocabulary namespace,
-                <code>https://w3id.org/rdf-h#</code>, is introduced and is bound by convention to the prefix
-                <code>h:</code>.
-            </p>
+            <h3>Core Class and Property</h3>
             <dl>
-                <dt><dfn data-dfn-type="dfn" id="dfn-holon-term" class="export">Holon</dfn></dt>
-                <dd>An RDF term (an IRI or a blank node) that is an instance of <code>h:Holon</code>. A holon may act as
-                    both a <em>whole</em> and a <em>part</em> within a holarchy, participating in any of the primitive
-                    holonic links.</dd>
+                <dt><dfn data-dfn-type="dfn" id="dfn-holon-class" class="export">h:Holon</dfn></dt>
+                <dd>The class of all holons. A holon is a resource that acts as a context for other relationships,
+                    representing a "whole" composed of "parts". Designating a resource as a <code>h:Holon</code>
+                    indicates it can be the object of an <code>h:inHolon</code> triple.</dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-holonic-link" class="export">Holonic Link</dfn></dt>
-                <dd>An <code>owl:ObjectProperty</code> representing one of the five domain-independent holonic
-                    relationships
-                    (<code>h:contains</code>, <code>h:subordinateTo</code>, <code>h:memberOf</code>,
-                    <code>h:peerOf</code>, <code>h:dependsOn</code>). All holonic links are sub-properties of the
-                    generic
-                    <code>h:holonLink</code>, enabling unified querying and reasoning across link types.
+                <dt><dfn data-dfn-type="dfn" id="dfn-inholon-property" class="export">h:inHolon</dfn></dt>
+                <dd>An object property that links a reified triple (a relationship) to the holon it is a constituent
+                    part of. The subject of this property is a quoted triple, and the object is the containing holon.
+                    The <code>rdfs:range</code> of this property is <code>h:Holon</code>.
                 </dd>
-
-                <dt><dfn data-dfn-type="dfn" id="dfn-holonic-graph" class="export">Holonic Graph</dfn></dt>
-                <dd>An RDF graph containing holons and holonic links. Formally, a holonic graph is defined as a pair of
-                    a set
-                    of RDF triples and a set of holonic link instances (triples). It may also include boundary graphs
-                    that
-                    annotate link instances with contextual metadata.</dd>
-
-                <dt><dfn data-dfn-type="dfn" id="dfn-boundary-graph" class="export">Boundary Graph</dfn></dt>
-                <dd>An RDF graph providing metadata about a specific holonic link instance. Attached via RDF-star quoted
-                    triples, a boundary graph can capture temporal, provenance, policy, or other contextual information
-                    about the relationship itself, decoupled from the properties of either holon.</dd>
-
-                <dt><dfn data-dfn-type="dfn" id="dfn-holarchy" class="export">Holarchy</dfn></dt>
-                <dd>The directed-acyclic network formed by the transitive closure of all holonic links
-                    (<code>h:holonLink</code>)
-                    within a holonic graph, resulting in a forest of DAGs that captures the structural, hierarchical,
-                    group, peer,
-                    and dependency relationships among holons.</dd>
             </dl>
         </section>
 
-    </section>
-    <section id="holonic-link-taxonomy">
-        <h2>Holonic Link Taxonomy</h2>
-        <p>RDF-H extends beyond mere containment by defining a standardized taxonomy of <strong>holonic link
-                primitives</strong> to capture the diverse relationships between holons in a holarchy. Each primitive is
-            modeled as an <code>owl:ObjectProperty</code> and a sub-property of the generic <code>h:holonLink</code>,
-            ensuring consistent reasoning across link types.</p>
-        <dl>
-            <dt><code>h:contains</code> / <code>h:isContainedIn</code></dt>
-            <dd>Enduring part–whole relationships.<br><em>Characteristics:</em> Transitive, Irreflexive.</dd>
+        <section id="part-of-hierarchy">
+            <h3>The Part-Of Hierarchy</h3>
+            <p>To provide semantic precision, RDF-H defines a hierarchy of part-whole relationships using
+                <code>rdfs:subPropertyOf</code> and <code>owl:inverseOf</code>. This allows modelers to be specific
+                while allowing queries to be general. The top-level <code>h:partOf</code> property is transitive, but its
+                sub-properties are not, preventing incorrect inferences across holarchic levels. [[OEP-PARTWHOLE]]</p>
+            <dl>
+                <dt><code>h:partOf</code> / <code>h:hasPart</code></dt>
+                <dd>The top-level, transitive super-property for all part-whole relations. <code>h:hasPart</code> is the
+                    inverse of <code>h:partOf</code>.
+                    <br><strong>Characteristics:</strong> Transitive.
+                </dd>
 
-            <dt><code>h:hierarchyParent</code> / <code>h:hierarchyChild</code></dt>
-            <dd>
-                General-purpose hierarchical link capturing authority, specialization, or classification. Covers
-                patterns such as manager/subordinate and broader/narrower concept schemes.<br>
-                <em>Characteristics:</em> Transitive, Irreflexive, Asymmetric (i.e., strict partial order).<br>
-                <em>Inverse:</em> <code>h:hierarchyChild</code> is the inverse of <code>h:hierarchyParent</code>.<br>
-            </dd>
+                <dt><code>h:componentOf</code> / <code>h:hasComponent</code></dt>
+                <dd>A sub-property of <code>h:partOf</code> for functional or structural parts (e.g., an engine is a
+                    component of a car). This relationship is essential for preserving the distinct levels of a holarchy.
+                    <code>h:hasComponent</code> is the inverse of <code>h:componentOf</code>.
+                    <br><strong>Characteristics:</strong> Non-transitive.
+                </dd>
 
+                <dt><code>h:memberOf</code> / <code>h:hasMember</code></dt>
+                <dd>A sub-property of <code>h:partOf</code> for elements in a collection or group where the whole is an
+                    aggregate of its members (e.g., a player is a member of a team). <code>h:hasMember</code> is the
+                    inverse of <code>h:memberOf</code>.
+                    <br><strong>Characteristics:</strong> Non-transitive.
+                </dd>
 
-            <dt><code>h:memberOf</code> / <code>h:hasMember</code></dt>
-            <dd>Group membership or loose association.<br><em>Characteristics:</em> Many‑to‑many.</dd>
+                <dt><code>h:substanceOf</code> / <code>h:hasSubstance</code></dt>
+                <dd>A sub-property of <code>h:partOf</code> for material composition (e.g., clay is a substance of a
+                    brick). A part of the substance is also a part of the whole. <code>h:hasSubstance</code> is the
+                    inverse of <code>h:substanceOf</code>.
+                    <br><strong>Characteristics:</strong> Transitive.
+                </dd>
 
-            <dt><code>h:peerOf</code></dt>
-            <dd>Lateral, symmetric coordination.<br><em>Characteristics:</em> Symmetric, Irreflexive.</dd>
-
-            <dt><code>h:dependsOn</code> / <code>h:requiredBy</code></dt>
-            <dd>Functional or temporal dependency.<br><em>Characteristics:</em> Asymmetric.</dd>
-        </dl>
-        <p>
-            By standardizing these primitives, RDF-H supports fine‑grained queries and reasoning over structural,
-            hierarchical, membership, peer, and dependency relationships—all without bloating the core ontology.
-        </p>
-        <p>
-            <strong>Classification Hierarchies (Broader/Narrower):</strong> Taxonomic relationships (e.g., SKOS
-            <code>broader</code>/<code>narrower</code>) naturally align with <code>h:hierarchyParent</code> /
-            <code>h:hierarchyChild</code>. No additional holonic link type is needed. For interoperability with SKOS,
-            declare:
-        </p>
-        <pre class="nohighlight turtle">
-skos:broader   rdfs:subPropertyOf h:hierarchyParent .
-skos:narrower  rdfs:subPropertyOf h:hierarchyChild .
-    </pre>
-        </p>
-    </section>
-    <section id="link-types">
-        <h2>Primitive Holonic Link Types</h2>
-
-        <p>
-            RDF-H recognises <strong>five</strong> domain-independent link primitives.
-            Each is an <code>owl:ObjectProperty</code> and a sub-property of the generic
-            <code>h:holonLink</code>.
-        </p>
-
-        <table class="def">
-            <thead>
-                <tr>
-                    <th>Property</th>
-                    <th>Inverse</th>
-                    <th>Semantics</th>
-                    <th>OWL Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>h:contains</code></td>
-                    <td><code>h:isContainedIn</code></td>
-                    <td>Enduring part–whole containment</td>
-                    <td>Transitive, Irreflexive</td>
-                </tr>
-                <tr>
-                    <td><code>h:hierarchyParent</code></td>
-                    <td><code>h:hierarchyChild</code></td>
-                    <td>
-                        Hierarchical relationships covering authority, classification, and taxonomic structures
-                        (e.g., supervisor/subordinate, broader/narrower, general/specific).
-                    </td>
-                    <td>Transitive, Irreflexive, Asymmetric (strict partial order)</td>
-                </tr>
-                <tr>
-                    <td><code>h:memberOf</code></td>
-                    <td><code>h:hasMember</code></td>
-                    <td>Membership in a group, collection, or community</td>
-                    <td>Many-to-many</td>
-                </tr>
-                <tr>
-                    <td><code>h:peerOf</code></td>
-                    <td>— (symmetric)</td>
-                    <td>Lateral coordination among equals</td>
-                    <td>Symmetric, Irreflexive</td>
-                </tr>
-                <tr>
-                    <td><code>h:dependsOn</code></td>
-                    <td><code>h:requiredBy</code></td>
-                    <td>Functional or temporal prerequisite / dependency</td>
-                    <td>Asymmetric</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>
-            All future domain-specific relations (e.g.&nbsp;<code>ex:feedsEnergyTo</code>)
-            <strong>SHOULD</strong> be declared as sub-properties of one of the five primitives
-            to preserve tool interoperability.
-        </p>
-    </section>
-
-
-    <section>
-        <h3>Namespace</h3>
-        <p>The permanent namespace URI for terms defined in this specification is
-            <code>https://w3id.org/rdf-h#</code>. This specification uses the prefix <code>h:</code> to refer to
-            terms in this namespace. Until this namespace is configured to resolve directly, the formal vocabulary
-            definition in Turtle format can be found at its development location: <a
-                href="https://raw.githubusercontent.com/geoknoesis/rdf-holon/refs/heads/main/rdfh.ttl">rdfh.ttl</a>.
-        </p>
-    </section>
-
-    <section>
-        <h3>Formal Definition of Holonic Graphs and Datasets</h3>
-        <p>The abstract data model of RDF 1.2 is extended as follows:</p>
-        <ol>
-            <li>
-                An <strong>RDF-H Term</strong> is an IRI, a literal, a blank node, or a quoted triple, as defined in
-                [[RDF12-CONCEPTS]].
-            </li>
-            <li>
-                A <strong>Holon</strong> is an RDF-H Term that is an IRI or a blank node. A holon may act as both a
-                <em>whole</em> and a <em>part</em> in a holarchy.
-            </li>
-            <li>
-                A <strong>Holonic Link</strong> is an ordered pair
-                <code>(<var>H<sub>1</sub></var>, <var>p</var>, <var>H<sub>2</sub></var>)</code>
-                where <var>H<sub>1</sub></var> and <var>H<sub>2</sub></var> are holons (or RDF-H terms) and
-                <var>p</var> is an IRI denoting one of the primitive link properties
-                (<code>h:contains</code>, <code>h:hierarchyParent</code>, <code>h:memberOf</code>,
-                <code>h:peerOf</code>, <code>h:dependsOn</code>) or their inverses.
-                This may be written in triple notation as
-                <code><var>H<sub>1</sub></var> <var>p</var> <var>H<sub>2</sub></var></code>.
-            </li>
-            <li>
-                A <strong>Boundary Graph</strong> is an RDF graph providing metadata about a specific holonic link,
-                attached using RDF-star quoted triples. It may annotate the link with temporal, provenance, policy,
-                or security context.
-            </li>
-            <li>
-                An <strong>RDF-H Triple</strong> is an RDF triple as defined in [[RDF12-CONCEPTS]].
-            </li>
-            <li>
-                An <strong>RDF-H Graph</strong> (or Holonic Graph) is a pair
-                <code>(<var>G<sub>h</sub></var>, (T, L))</code>, where:
-                <ul>
-                    <li><var>T</var> is a set of RDF-H Triples.</li>
-                    <li><var>L</var> is a set of Holonic Links, optionally annotated by boundary graphs.</li>
-                </ul>
-            </li>
-            <li>
-                An <strong>RDF-H Dataset</strong> is a collection of RDF-H Graphs, comprising exactly one default
-                graph and zero or more named graphs. Each named graph is a pair of an IRI or blank node
-                (the graph name) and an RDF-H Graph. This structure extends the RDF 1.1 Dataset definition to
-                incorporate holons, holonic links, and boundary graphs.
-            </li>
-        </ol>
-    </section>
-
-    <section>
-        <h3>The Holon Primitive</h3>
-        <p>Any resource identified by an IRI or a blank node <em class="rfc2119" title="MAY">MAY</em> be designated
-            as a holon. This designation is made by asserting a triple of the form:</p>
-        <p><code>&lt;H&gt; rdf:type h:Holon.</code></p>
-        <p>where <code>&lt;H&gt;</code> is the IRI or blank node identifier for the holon. The class
-            <code>h:Holon</code> is a new primitive class defined in the <code>h:</code> vocabulary. It is a
-            subclass of <code>rdfs:Resource</code>. A resource can have multiple types; being a holon does not
-            preclude it from being an instance of other classes. For example, a resource <code>ex:Car1</code> can be
-            both a <code>h:Holon</code> (if it contains parts or participates in holonic links) and an
-            <code>ex:Vehicle</code>.
-        </p>
-        <p>The act of designating a resource as a holon indicates that it may serve as the subject or object of a
-            <em>holonic link</em> (e.g., <code>h:contains</code>, <code>h:hierarchyParent</code>,
-            <code>h:memberOf</code>, <code>h:peerOf</code>, <code>h:dependsOn</code>).
-            Thus, holons are the fundamental building blocks of holarchies.
-        </p>
-    </section>
-
-    <section>
-        <h3>Formal Properties of Holonic Links</h3>
-        <p>Holonic links are primitive relationships in the RDF-H model. They are represented as IRIs in the
-            <code>h:</code> namespace, but their semantics are treated as built-in by conformant RDF-H processors.
-            Each link type defines constraints that <em class="rfc2119" title="MUST">MUST</em> be enforced
-            to preserve the integrity of holarchies.
-        </p>
-        <table class="def">
-            <thead>
-                <tr>
-                    <th>Link Primitive</th>
-                    <th>Formal Properties</th>
-                    <th>Implications</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>h:contains</code> / <code>h:isContainedIn</code></td>
-                    <td>Transitive, Irreflexive, Asymmetric</td>
-                    <td>Defines enduring part–whole containment. Prevents cycles, ensuring that a part of a part is also
-                        part of the whole.</td>
-                </tr>
-                <tr>
-                    <td><code>h:hierarchyParent</code> / <code>h:hierarchyChild</code></td>
-                    <td>Transitive, Irreflexive, Asymmetric (strict partial order)</td>
-                    <td>Defines hierarchical or classificatory relationships, covering both authority chains and
-                        taxonomic broader/narrower semantics.</td>
-                </tr>
-                <tr>
-                    <td><code>h:memberOf</code> / <code>h:hasMember</code></td>
-                    <td>Many‑to‑many (no transitivity enforced)</td>
-                    <td>Represents group or community membership. Holons may belong to multiple groups simultaneously.
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>h:peerOf</code></td>
-                    <td>Symmetric, Irreflexive</td>
-                    <td>Represents lateral coordination among equals, e.g., sibling components in a system.</td>
-                </tr>
-                <tr>
-                    <td><code>h:dependsOn</code> / <code>h:requiredBy</code></td>
-                    <td>Asymmetric</td>
-                    <td>Represents functional or temporal prerequisites. Prevents mutual dependency cycles.</td>
-                </tr>
-            </tbody>
-        </table>
-        <p>Holarchies constructed from these links <em class="rfc2119" title="MUST">MUST</em> remain
-            Directed Acyclic Graphs (DAGs) for the transitive link types (<code>h:contains</code> and
-            <code>h:hierarchyParent</code>) to ensure well-foundedness and prevent logical paradoxes.
-        </p>
-    </section>
-
-    <section>
-        <h3>Boundary Graphs: Scoping and Semantics</h3>
-        <p>
-            A simple holonic statement such as <code>ex:sensor1 h:contains ex:engine1</code> or
-            <code>ex:worker1 h:hierarchyChild ex:manager1</code> asserts a structural, hierarchical, or functional
-            relationship.
-            However, it is often necessary to qualify this relationship. For example, a sensor might only be part of the
-            engine
-            during a specific time interval, or a hierarchical link may only apply under a given contract or policy.
-            This metadata pertains to the <em>act of linking</em> itself, i.e., to the holonic edge.
-        </p>
-
-        <p>
-            To model this, each holonic edge can be reified using RDF-star.
-            While the semantics of holonic links are built-in primitives, they can be expressed for the purpose of
-            annotation
-            via their IRI-based representation (e.g., <code>h:contains</code>, <code>h:hierarchyParent</code>,
-            <code>h:dependsOn</code>).
-            The reified triple can then serve as the subject of additional triples to attach a <strong>Boundary
-                Graph</strong>.
-        </p>
-
-        <p>
-            A <strong>Boundary Graph</strong> is an RDF graph that provides metadata about a holonic link instance.
-            It uses the RDF-star quoting mechanism to annotate the relationship itself, independent of the holons it
-            connects.
-        </p>
-
-        <div class="example">
-            <p><strong>Example:</strong> To state that <code>ex:sensor1</code> is contained in
-                <code>ex:engine1</code> and attach a temporal validity period, one would assert:
-            </p>
-            <pre class="nohighlight turtle">
-@prefix ex: &lt;http://example.org/&gt; .
-@prefix h:  &lt;https://w3id.org/rdf-h#&gt; .
-@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
-
-&lt;&lt; ex:sensor1 h:contains ex:engine1 &gt;&gt;
-    h:validFrom  "2025-01-01T00:00:00Z"^^xsd:dateTime ;
-    h:validUntil "2026-01-01T00:00:00Z"^^xsd:dateTime .
-        </pre>
-        </div>
-
-        <div class="example">
-            <p><strong>Example:</strong> To qualify a hierarchical link by attaching provenance and policy metadata:
-            </p>
-            <pre class="nohighlight turtle">
-@prefix ex:   &lt;http://example.org/&gt; .
-@prefix h:    &lt;https://w3id.org/rdf-h#&gt; .
-@prefix prov: &lt;http://www.w3.org/ns/prov#&gt; .
-
-&lt;&lt; ex:worker1 h:hierarchyChild ex:manager1 &gt;&gt;
-    prov:wasAttributedTo ex:HRPolicy42 ;
-    h:validFrom "2025-05-01T00:00:00Z"^^xsd:dateTime .
-        </pre>
-        </div>
-
-        <p>
-            The semantics of properties within a boundary graph (e.g., <code>h:validFrom</code>,
-            <code>prov:wasAttributedTo</code>) are not defined by this specification and are left to
-            application-specific vocabularies and entailment
-            regimes (such as temporal reasoners, provenance frameworks, or access control systems).
-        </p>
-
-        <p>This approach has two key advantages:</p>
-        <ol>
-            <li>It reuses the well‑understood RDF-star mechanism for statement annotation.</li>
-            <li>It ensures metadata is correctly associated with the <em>relationship</em> rather than with the holons
-                themselves.</li>
-        </ol>
-    </section>
-
-
-    <section>
-        <h3>Interaction with RDF-star Quoted Triples</h3>
-        <p>
-            The holonic link mechanism in RDF-H is orthogonal to and fully compatible with the quoted triple mechanism
-            of
-            RDF-star. They operate at different levels of granularity and can be composed freely. RDF-star is used for
-            annotating statements, while RDF-H provides structural and relational grouping of holons.
-        </p>
-        <ul>
-            <li>
-                <strong>A quoted triple can participate in a holonic link:</strong>
-                A statement itself can be treated as a holon part of a larger context.
-                <ul>
-                    <li><code>&lt;&lt; :s :p :o &gt;&gt; h:memberOf :H1.</code></li>
-                    <li>
-                        This means the proposition expressed by <code>&lt;:s :p :o&gt;</code> is considered to belong
-                        to holon <code>:H1</code>, allowing contexts to group or scope entire propositions.
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <strong>A holonic link can be annotated:</strong>
-                As shown in the Boundary Graphs section, the reified form of a holonic edge can be the subject of
-                RDF-star annotations.
-                <ul>
-                    <li><code>&lt;&lt; :r h:hierarchyChild :H1 &gt;&gt; :confidence 0.9.</code></li>
-                    <li>
-                        This attaches metadata (e.g., confidence) to the specific hierarchical relationship
-                        without altering the semantics of the holons themselves.
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <strong>A holon can contain triples, including RDF-star triples:</strong>
-                <ul>
-                    <li>
-                        <code>@holon :H1 { :a :b :c. &lt;&lt; :x :y :z &gt;&gt; :annotates :x. }</code>
-                    </li>
-                    <li>
-                        This asserts that both the simple triple <code>:a :b :c</code> and the RDF-star triple
-                        <code>&lt;&lt; :x :y :z &gt;&gt; :annotates :x</code> are scoped within holon <code>:H1</code>.
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <p>
-            This compositional power allows for rich, multi‑level modeling: holonic links provide macro‑level
-            structural, hierarchical, group, peer, or dependency relationships, while RDF-star enables
-            micro‑level annotation of statements and links within or about those structures.
-        </p>
-    </section>
-    <section id="semantics">
-        <h2>Formal Semantics and Entailment</h2>
-        <p>
-            This section provides a formal model-theoretic semantics for <strong>RDF-H</strong>,
-            defining the precise meaning of holonic graphs and the conditions under which entailments hold.
-            The semantics is a conservative extension of the [[RDF12-SEMANTICS]].
-        </p>
-
-        <section>
-            <h3>H-Interpretations: Extending the RDF 1.2 Semantics</h3>
-            <p>
-                The model theory for <strong>RDF-H</strong> extends the notion of an interpretation from
-                [[RDF12-SEMANTICS]] by introducing explicit support for holons and holonic links.
-            </p>
-            <p>
-                A <strong>simple H-interpretation</strong> <code>I</code> is an RDF 1.2 simple interpretation
-                <code>I_rdf = (IR, IP, IEXT, IS, IL, RE)</code> defined in [[RDF12-SEMANTICS]], augmented with two
-                additional components:
-            </p>
-            <ol>
-                <li>
-                    A distinguished subset <code>$IH ⊆ IR$</code>, which is the extension of the class
-                    <code>h:Holon</code>.
-                </li>
-                <li>
-                    For each primitive holonic link property <code>L ∈ {h:contains, h:isContainedIn, h:hierarchyParent, 
-                h:hierarchyChild, h:memberOf, h:hasMember, h:peerOf, h:dependsOn, h:requiredBy}</code>,
-                    a binary relation <code>$LEXT(L) ⊆ IR × IR$</code> giving its interpretation.
-                </li>
-            </ol>
-            <ul>
-                <li><code>IR</code> is a non-empty set of resources (the universe).</li>
-                <li><code>IP</code> is a set of properties.</li>
-                <li><code>IEXT: IP → 2^(IR × IR)</code> maps properties to sets of pairs of resources.</li>
-                <li><code>IS: IRIs → (IR ∪ IP)</code> maps IRIs to resources or properties.</li>
-                <li><code>IL: Literals → IR</code> is a partial mapping from literals to resources.</li>
-                <li><code>RE: (IR ∪ B) × IP × (IR ∪ L ∪ B) → IR</code> maps triple terms to resources.</li>
-            </ul>
-            <p>
-                An <strong>RDFS H-interpretation</strong> extends an RDFS-interpretation from [[RDF12-SEMANTICS]] in the
-                same manner, and similarly for other entailment regimes such as OWL.
-            </p>
-        </section>
-
-        <section>
-            <h3>Semantic Conditions for Holons and Holonic Links</h3>
-            <p>
-                An H-interpretation <code>I</code> <strong>satisfies</strong> a holonic graph
-                <code><var>G<sub>h</sub></var> = (T, L)</code> if and only if all of the following conditions hold:
-            </p>
-            <ol>
-                <li>
-                    <strong>Triple Satisfaction:</strong>
-                    <code>I</code> satisfies the set of triples <code>T</code> according to the underlying
-                    entailment regime (e.g., RDFS entailment).
-                    This includes the condition that for any triple
-                    <code>H rdf:type h:Holon</code> in <code>T</code>, it must be that
-                    <code>I(H) ∈ <var>IH</var></code>.
-                </li>
-                <li>
-                    <strong>Holonic Link Satisfaction:</strong>
-                    For every holonic link assertion <code>(t, L, H)</code> in <code>L</code>, the pair
-                    <code>(I(t), I(H))</code> <em class="rfc2119" title="MUST">MUST</em> be a member of the relation
-                    <code>LEXT(<var>L</var>)</code>.
-                </li>
-                <li>
-                    <strong>Semantic Constraints per Link Type:</strong>
-                    Each holonic link primitive <em class="rfc2119" title="MUST">MUST</em> satisfy its associated
-                    axioms:
-                    <ul>
-                        <li><code>h:contains</code> — Transitive, Irreflexive, Asymmetric.</li>
-                        <li><code>h:hierarchyParent / h:hierarchyChild</code> — Transitive, Irreflexive, Acyclic
-                            (partial order).</li>
-                        <li><code>h:memberOf / h:hasMember</code> — Many-to-many, no transitivity assumed.</li>
-                        <li><code>h:peerOf</code> — Symmetric, Irreflexive.</li>
-                        <li><code>h:dependsOn / h:requiredBy</code> — Asymmetric, not necessarily transitive.</li>
-                    </ul>
-                </li>
-            </ol>
-            <p>
-                The acyclicity condition applies to link types that represent strict partial orders (e.g.,
-                containment and hierarchy). This ensures the holarchy is a Directed Acyclic Graph (DAG)
-                wherever such ordering is intended.
-            </p>
-            <p>
-                The semantics of triples within a <strong>Boundary Graph</strong> follow the same satisfaction
-                conditions as any other triples in the dataset. This specification does not define additional semantic
-                conditions for boundary graph vocabularies (e.g., <code>h:validFrom</code>), as their interpretation
-                is application-dependent.
-            </p>
-        </section>
-    </section>
-
-    <section>
-        <h3>The H-Entailment Regime</h3>
-        <p>
-            The H-entailment regime builds upon a standard RDF 1.2 entailment regime
-            [[SPARQL11-ENTAILMENT]], such as RDFS-entailment or OWL 2 DL-entailment.
-        </p>
-        <p>
-            A holonic graph <code><var>G<sub>1</sub></var></code>
-            <strong>H-entails</strong> a holonic graph
-            <code><var>G<sub>2</sub></var></code>
-            (written <code><var>G<sub>1</sub></var> ⊨<sub>H</sub> <var>G<sub>2</sub></var></code>)
-            under a base entailment regime <code>E</code> (e.g., RDFS)
-            if every E-conformant H-interpretation that satisfies
-            <code><var>G<sub>1</sub></var></code> also satisfies
-            <code><var>G<sub>2</sub></var></code>.
-        </p>
-        <p>
-            This definition gives rise to a set of formal entailment rules
-            that can be implemented by reasoners.
-            For clarity, we use the predicate names of the holonic link taxonomy
-            (e.g., <code>h:containedIn</code>, <code>h:hierarchyChild</code>)
-            to represent their respective relations.
-        </p>
-
-        <h4>Containment Rules</h4>
-        <ul>
-            <li><strong>h-cont-trans (Transitivity)</strong>
-                <pre>
-IF:   ?a h:containedIn ?b .
-      ?b h:containedIn ?c .
-THEN: ?a h:containedIn ?c .
-            </pre>
-            </li>
-            <li><strong>h-cont-type (Holon typing)</strong>
-                <pre>
-IF:   ?a h:containedIn ?b .
-THEN: ?b rdf:type h:Holon .
-            </pre>
-            </li>
-        </ul>
-
-        <h4>Hierarchy Rules</h4>
-        <ul>
-            <li><strong>h-hier-trans (Transitivity)</strong>
-                <pre>
-IF:   ?a h:hierarchyChild ?b .
-      ?b h:hierarchyChild ?c .
-THEN: ?a h:hierarchyChild ?c .
-            </pre>
-            </li>
-            <li><strong>h-hier-inv (Inverse)</strong>
-                <pre>
-IF:   ?a h:hierarchyChild ?b .
-THEN: ?b h:hierarchyParent ?a .
-            </pre>
-            </li>
-            <li><strong>h-hier-type (Holon typing)</strong>
-                <pre>
-IF:   ?a h:hierarchyChild ?b .
-THEN: ?a rdf:type h:Holon .
-      ?b rdf:type h:Holon .
-            </pre>
-            </li>
-        </ul>
-
-        <h4>Membership Rules</h4>
-        <ul>
-            <li><strong>h-mem-inv (Inverse)</strong>
-                <pre>
-IF:   ?a h:memberOf ?g .
-THEN: ?g h:hasMember ?a .
-            </pre>
-            </li>
-            <li><strong>h-mem-type (Holon typing)</strong>
-                <pre>
-IF:   ?a h:memberOf ?g .
-THEN: ?a rdf:type h:Holon .
-      ?g rdf:type h:Holon .
-            </pre>
-            </li>
-        </ul>
-
-        <h4>Peer Rules</h4>
-        <ul>
-            <li><strong>h-peer-symm (Symmetry)</strong>
-                <pre>
-IF:   ?a h:peerOf ?b .
-THEN: ?b h:peerOf ?a .
-            </pre>
-            </li>
-            <li><strong>h-peer-type (Holon typing)</strong>
-                <pre>
-IF:   ?a h:peerOf ?b .
-THEN: ?a rdf:type h:Holon .
-      ?b rdf:type h:Holon .
-            </pre>
-            </li>
-        </ul>
-
-        <h4>Dependency Rules</h4>
-        <ul>
-            <li><strong>h-dep-inv (Inverse)</strong>
-                <pre>
-IF:   ?a h:dependsOn ?b .
-THEN: ?b h:requiredBy ?a .
-            </pre>
-            </li>
-            <li><strong>h-dep-type (Holon typing)</strong>
-                <pre>
-IF:   ?a h:dependsOn ?b .
-THEN: ?a rdf:type h:Holon .
-      ?b rdf:type h:Holon .
-            </pre>
-            </li>
-        </ul>
-
-        <p>
-            These rules capture the minimal entailment commitments of the H-entailment regime.
-            Implementers MAY extend them with domain-specific rules, but
-            conformant processors MUST at least support the above to ensure
-            interoperability across RDF-H datasets.
-        </p>
-    </section>
-
-
-    <section class="informative">
-        <h3>Acyclicity, Well-Foundedness, and the Prevention of Paradoxes</h3>
-        <p>
-            The requirement that holonic link relations such as <code>h:contains</code> and
-            <code>h:hierarchyChild</code> be acyclic is not merely a practical constraint
-            for simplifying traversal algorithms; it is a fundamental guarantee of the
-            logical soundness of the <strong>RDF-H</strong> data model.
-            Its importance is analogous to the Axiom of Foundation in
-            Zermelo–Fraenkel set theory.
-        </p>
-        <p>
-            Self-referential structures are the source of many well-known logical paradoxes.
-            For example, Russell's Paradox arises from considering the set of all sets
-            that do not contain themselves,
-            <code><var>R</var> = { x | x ∉ x }</code> [[SEP-SELFREF]].
-            Asking whether <code><var>R</var> ∈ <var>R</var></code> leads to a contradiction.
-            This paradox demonstrated that naive set theory, which allowed any definable property
-            to form a set, was inconsistent. The solution in modern set theory is to build the
-            universe of sets in a cumulative hierarchy, explicitly forbidding a set from
-            containing itself.
-        </p>
-        <p>
-            In the context of <strong>RDF-H</strong>, cyclic relations such as
-            <code>H1 h:contains H2</code> and <code>H2 h:contains H1</code> or
-            <code>C1 h:hierarchyChild C2</code> and <code>C2 h:hierarchyChild C1</code>
-            would be structural paradoxes. More complex cycles
-            (<code>H1 ⊂ H2 ⊂ … ⊂ Hn ⊂ H1</code> or
-            <code>C1 h:hierarchyChild … h:hierarchyChild Cn h:hierarchyChild C1</code>)
-            present the same logical incoherence. If such structures were permitted, the very
-            notion of "containment" or "hierarchy" would become incoherent, and the transitive
-            closure of these relations would be ill-defined.
-        </p>
-        <p>
-            By mandating that these relations be <strong>irreflexive</strong> and
-            <strong>acyclic</strong> (i.e., that holarchies formed from containment and
-            hierarchy links are well-founded Directed Acyclic Graphs),
-            this specification ensures that the holonic extension to RDF is free from
-            self-referential paradoxes. This condition generalizes beyond containment to
-            any holonic link declared as a strict partial order.
-        </p>
-        <p>
-            Therefore, a conformant <strong>RDF-H</strong> processor
-            <em class="rfc2119" title="MUST">MUST</em> detect and reject graphs containing
-            cycles in relations that are constrained to be partial orders.
-            Such a graph is not merely “malformed”; it is logically inconsistent with the
-            foundational axioms of the RDF-H data model.
-            This guarantee of well-foundedness is a cornerstone of the robustness of the
-            Semantic Holonic Graph model.
-        </p>
-    </section>
-
-    <section id="syntax">
-        <h2>Concrete Syntaxes for Holonic Graphs</h2>
-        <p>
-            This section defines concrete syntaxes for writing and exchanging <strong>RDF-H</strong> Holonic Graphs.
-            The primary syntax is Turtle-H, an extension of Turtle-star. Guidance for a JSON-LD representation
-            is also provided. Both syntaxes support expressing holons, their link types, and boundary graphs
-            in a compact, semantically precise way.
-        </p>
-
-        <section>
-            <h3>Turtle-H: A Holonic Extension to Turtle-star</h3>
-            <p>
-                Turtle-H extends the Turtle 1.2 (RDF-star) syntax [[RDF12-TURTLE]] with a dedicated
-                <code>@holon</code> block structure and an annotation-like syntax for describing
-                holonic link boundaries. Both containment (<code>h:contains</code>) and hierarchy links
-                (<code>h:hierarchyChild</code> / <code>h:hierarchyParent</code>) can be expressed.
-            </p>
-
-            <section>
-                <h4>The <code>@holon</code> Block</h4>
-                <p>
-                    A holon and its directly linked resources are defined using the <code>@holon</code> directive
-                    followed by an IRI or blank node identifier for the holon, and a block of Turtle statements
-                    enclosed in curly braces <code>{...}</code>.
-                </p>
+                <dt><code>h:portionOf</code> / <code>h:hasPortion</code></dt>
+                <dd>A sub-property of <code>h:partOf</code> for segments of a continuous whole (e.g., a slice is a
+                    portion of a pie). A part of the portion is also a part of the whole. <code>h:hasPortion</code> is the
+                    inverse of <code>h:portionOf</code>.
+                    <br><strong>Characteristics:</strong> Transitive.
+                </dd>
+            </dl>
+            <div class="example">
+                <p><strong>Ontology Definition (Turtle):</strong></p>
                 <pre class="nohighlight turtle">
-@prefix ex: &lt;http://example.org/&gt;.
-@prefix h: &lt;https://w3id.org/rdf-h#&gt;.
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
 
-@holon ex:BuildingA {
-    # ex:BuildingA is implicitly typed as h:Holon.
-    # All subjects defined here are contained in ex:BuildingA.
+# Top-level properties
+h:partOf a owl:ObjectProperty, owl:TransitiveProperty .
+h:hasPart a owl:ObjectProperty, owl:TransitiveProperty ;
+    owl:inverseOf h:partOf .
 
-    ex:Device1 a ex:Sensor ;
-               ex:location "First Floor".
+# Non-transitive sub-properties
+h:componentOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf h:partOf .
+h:hasComponent a owl:ObjectProperty ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:componentOf .
 
-    @holon ex:Device2 {
-        ex:SubComponent1 a ex:Processor.
-    }
+h:memberOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf h:partOf .
+h:hasMember a owl:ObjectProperty ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:memberOf .
 
-    # Express a hierarchy link
-    ex:Department1 h:hierarchyChild ex:DivisionA.
-}
+# Transitive sub-properties
+h:substanceOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:subPropertyOf h:partOf .
+h:hasSubstance a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:substanceOf .
+
+h:portionOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:subPropertyOf h:partOf .
+h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:portionOf .
 </pre>
-                <p>
-                    The <code>@holon &lt;H&gt; { G_turtle }</code> syntax expands to:
-                </p>
-                <ol>
-                    <li><code>&lt;H&gt; rdf:type h:Holon.</code> is asserted.</li>
-                    <li>All triples inside the <code>{...}</code> block are asserted into the graph.</li>
-                    <li>
-                        For each subject <code>r</code> defined inside the block,
-                        a holonic link (e.g., <code>r h:containedIn H</code>) is asserted.
-                    </li>
-                    <li>Nested <code>@holon</code> blocks recurse similarly.</li>
-                </ol>
-                <p>
-                    By transitivity, nested structures imply indirect containment:
-                    <code>ex:SubComponent1 ⊂ ex:BuildingA</code>.
-                </p>
-                <p>
-                    The full EBNF grammar for Turtle-H is provided in Appendix A.
-                </p>
-            </section>
-
-            <section>
-                <h4>Explicit Holonic Links and Boundary Annotations</h4>
-                <p>
-                    Explicit holonic links (containment, hierarchy, membership, dependency)
-                    may be annotated with boundary metadata using a Turtle-star–style block <code>{|...|}</code>.
-                </p>
-                <pre class="nohighlight turtle">
-@prefix ex: &lt;http://example.org/&gt;.
-@prefix h: &lt;https://w3id.org/rdf-h#&gt;.
-@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
-
-# Containment with boundary
-ex:SensorData h:containedIn ex:SecureEnclave {| 
-    acl:mode acl:Read ;
-    acl:agentClass &lt;http://xmlns.com/foaf/0.1/Person&gt; 
-|}.
-
-# Hierarchy with temporal boundary
-ex:DivisionA h:hierarchyChild ex:Department1 {|
-    h:validFrom "2025-01-01"^^xsd:date ;
-    h:validUntil "2026-01-01"^^xsd:date 
-|}.
-</pre>
-                <p>
-                    This is syntactic sugar for the equivalent RDF-star form:
-                </p>
-                <pre class="nohighlight turtle">
-ex:SensorData h:containedIn ex:SecureEnclave.
-
-&lt;&lt; ex:SensorData h:containedIn ex:SecureEnclave &gt;&gt;
-    acl:mode acl:Read ;
-    acl:agentClass &lt;http://xmlns.com/foaf/0.1/Person&gt;.
-</pre>
-                <p>
-                    The same pattern applies to hierarchy, membership, peer, or dependency links.
-                </p>
-            </section>
+            </div>
         </section>
-
-        <section class="informative">
-            <h3>JSON-LD-H: Representing Holons and Boundaries in JSON-LD</h3>
-            <p>
-                JSON-LD-H reuses the JSON-LD 1.1 [[JSON-LD11]] model, introducing
-                <code>@contains</code> for containment and supporting annotations
-                via JSON-LD-star [[JSON-LD-STAR]].
-            </p>
-
-            <section>
-                <h4>Containment via <code>@contains</code></h4>
-                <pre class="nohighlight json">
-{
-  "@context": {
-    "h": "https://w3id.org/rdf-h#",
-    "ex": "http://example.org/",
-    "@contains": {
-      "@id": "h:contains",
-      "@type": "@id",
-      "@container": "@graph"
-    }
-  },
-  "@id": "ex:BuildingA",
-  "@type": "h:Holon",
-  "@contains": [
-    {
-      "@id": "ex:Device1",
-      "ex:location": "First Floor"
-    }
-  ]
-}
-</pre>
-                <p>
-                    A JSON-LD-H processor interprets <code>@contains</code> as
-                    generating <code>h:containedIn</code> triples.
-                </p>
-            </section>
-
-            <section>
-                <h4>Boundaries with JSON-LD-star</h4>
-                <pre class="nohighlight json">
-{
-  "@context": {
-    "h": "https://w3id.org/rdf-h#",
-    "acl": "http://www.w3.org/ns/auth/acl#",
-    "foaf": "http://xmlns.com/foaf/0.1/"
-  },
-  "@id": "ex:SecureEnclave",
-  "@type": "h:Holon",
-  "h:hasMember": {
-    "@id": "ex:SensorData",
-    "@annotation": {
-      "acl:mode": { "@id": "acl:Read" },
-      "acl:agentClass": { "@id": "foaf:Person" }
-    }
-  }
-}
-</pre>
-                <p>
-                    Here, <code>@annotation</code> attaches boundary graph metadata
-                    to the holonic link. This pattern generalizes to hierarchy and
-                    dependency links as well.
-                </p>
-            </section>
-        </section>
-    </section>
-
-
-    <section>
-        <h3>Quad-based Serializations (N-Quads-H, TriG-H)</h3>
-        <p>
-            To support interoperability with existing quad-based infrastructure, this specification defines a
-            canonical mapping from the holonic data model to quad-based serializations such as
-            <strong>N-Quads</strong> and <strong>TriG</strong>.
-            The key requirement is to distinguish between triples <em>asserted within</em> a named graph and
-            statements <em>about</em> holonic links.
-        </p>
-        <p>
-            Any holonic link assertion (e.g., <code>h:contains</code>, <code>h:hierarchyParent</code>,
-            <code>h:memberOf</code>, <code>h:peerOf</code>, <code>h:dependsOn</code>)
-            is serialized as a quad placed in a reserved, well‑known graph IRI:
-            <code>h:HolonicLinksGraph</code>.
-        </p>
-        <pre class="nohighlight nquads">
-t h:contains H h:HolonicLinksGraph .
-t h:memberOf G h:HolonicLinksGraph .
-</pre>
-        <p>
-            A conformant <strong>RDF-H</strong> processor, when consuming such quads,
-            <em class="rfc2119" title="MUST">MUST</em> interpret each quad in the
-            <code>h:HolonicLinksGraph</code> not as a triple belonging to a named graph,
-            but as a direct assertion of a holonic link in the abstract RDF-H data model.
-        </p>
-        <p>
-            This approach ensures that all holonic links — including containment, hierarchy, membership,
-            peer, and dependency — are preserved during quad‑based serialization and exchange, while remaining
-            fully compatible with the RDF Dataset semantics defined in [[RDF11-DATASETS]].
-        </p>
-        <div class="example">
-            <p><strong>Example (TriG-H):</strong></p>
-            <pre class="nohighlight trig">
-@prefix ex: &lt;http://example.org/&gt;.
-@prefix h: &lt;https://w3id.org/rdf-h#&gt;.
-
-# Default graph
-ex:Engine1 a ex:Engine .
-
-# Reserved holonic links graph
-h:HolonicLinksGraph {
-    ex:Sensor1 h:contains ex:Engine1 .
-    ex:Sensor1 h:dependsOn ex:Battery1 .
-}
-</pre>
-        </div>
-    </section>
-
-    <section id="querying">
-        <h2>Querying Holonic Graphs: SPARQL-H</h2>
-        <p>
-            SPARQL 1.1 [[SPARQL11-QUERY]] is extended to support native traversal and querying of holonic structures.
-            The extension, <strong>SPARQL-H</strong>, introduces primitive property path operators
-            corresponding to the holonic link taxonomy, while leveraging existing SPARQL-star capabilities
-            for boundary filtering.
-        </p>
 
         <section>
-            <h3>Holonic Property Path Operators</h3>
+            <h3>Exclusion of Other Relationship Types</h3>
             <p>
-                Each holonic link primitive (<code>h:contains</code>, <code>h:hierarchyParent</code>,
-                <code>h:memberOf</code>, <code>h:peerOf</code>, <code>h:dependsOn</code>)
-                is available as a property path IRI. These can be combined with SPARQL’s
-                standard path operators (<code>*</code>, <code>+</code>, <code>?</code>,
-                <code>!</code>, <code>^</code>, <code>/</code>, <code>|</code>) for complex traversals.
+                It is a deliberate design choice for the RDF-H vocabulary to focus exclusively on composition
+                (<code>h:inHolon</code>) and mereology (the <code>h:partOf</code> hierarchy). Other important
+                relationship types, such as peer-to-peer, dependency, or hierarchical supervision, are considered
+                <strong>domain-specific</strong> and are intentionally excluded from this core vocabulary.
             </p>
             <p>
-                For readability, SPARQL-H defines <strong>syntactic sugar keywords</strong> (case-insensitive)
-                for the most common link patterns:
-            </p>
-            <table class="def">
-                <thead>
-                    <tr>
-                        <th>SPARQL-H Syntax</th>
-                        <th>Equivalent Path Expression</th>
-                        <th>Formal Meaning</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>?whole CONTAINS ?part</code></td>
-                        <td><code>?whole h:contains ?part</code></td>
-                        <td>Direct part–whole containment</td>
-                    </tr>
-                    <tr>
-                        <td><code>?whole CONTAINS+ ?part</code></td>
-                        <td><code>?whole h:contains+ ?part</code></td>
-                        <td>Transitive containment (one or more levels)</td>
-                    </tr>
-                    <tr>
-                        <td><code>?whole CONTAINS* ?part</code></td>
-                        <td><code>?whole h:contains* ?part</code></td>
-                        <td>Transitive, reflexive containment (zero or more levels)</td>
-                    </tr>
-                    <tr>
-                        <td><code>?part IS_CONTAINED_IN ?whole</code></td>
-                        <td><code>?part h:containedIn ?whole</code></td>
-                        <td>Direct inverse containment</td>
-                    </tr>
-                    <tr>
-                        <td><code>?child IS_SUBORDINATE_TO ?parent</code></td>
-                        <td><code>?child h:hierarchyChild ?parent</code></td>
-                        <td>Authority or classification hierarchy (child → parent)</td>
-                    </tr>
-                    <tr>
-                        <td><code>?node IS_MEMBER_OF ?group</code></td>
-                        <td><code>?node h:memberOf ?group</code></td>
-                        <td>Membership in a group or collection</td>
-                    </tr>
-                    <tr>
-                        <td><code>?x IS_PEER_OF ?y</code></td>
-                        <td><code>?x h:peerOf ?y</code></td>
-                        <td>Symmetric peer relationship</td>
-                    </tr>
-                    <tr>
-                        <td><code>?task DEPENDS_ON ?resource</code></td>
-                        <td><code>?task h:dependsOn ?resource</code></td>
-                        <td>Functional or temporal dependency</td>
-                    </tr>
-                </tbody>
-            </table>
-            <p>
-                An implementation <em class="rfc2119" title="MUST">MUST</em> recognize and
-                treat these keywords as equivalent to their corresponding <code>h:</code> path expressions
-                during query parsing and evaluation.
+                This design follows the principle of minimality. RDF-H provides the universal, structural primitives for
+                building holarchies. Modelers are encouraged to define their own domain-specific properties (e.g.,
+                <code>ex:isPeerOf</code>, <code>ex:dependsOn</code>) in their own ontologies. The RDF-H pattern is then
+                used to place these custom relationships within the context of a holon. This approach promotes a more
+                flexible and composable ecosystem, where the core RDF-H pattern can be applied to any relationship,
+                without the RDF-H vocabulary itself becoming an exhaustive and overly prescriptive ontology.
             </p>
             <div class="example">
-                <p><strong>Example Query:</strong> Find all subordinate employees in <code>ex:DepartmentA</code>.</p>
-                <pre class="nohighlight sparql">
-# Keyword form
-@prefix ex: &lt;http://example.org/&gt;.
+                <p><strong>Example of using a domain-specific property with RDF-H:</strong></p>
+                <pre class="nohighlight turtle">
+@prefix ex: &lt;http://example.org/network#&gt; .
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
 
+# A domain-specific property defined in an external ontology
+ex:isPeerOf a owl:ObjectProperty, owl:SymmetricProperty .
 
-SELECT ?employee WHERE {
-  ?employee IS_SUBORDINATE_TO+ ex:DepartmentA.
-  ?employee a ex:Employee.
-}
-
-# Equivalent path expression form
-@prefix ex: &lt;http://example.org/&gt;.
-@prefix h: &lt;https://w3id.org/rdf-h#&gt;.
-
-SELECT ?employee WHERE {
-  ?employee h:hierarchyChild+ ex:DepartmentA.
-  ?employee a ex:Employee.
+# Applying the RDF-H pattern to the domain-specific property
+ex:SystemCluster {
+    ex:ServiceA ex:isPeerOf ex:ServiceB .
 }
 </pre>
             </div>
         </section>
     </section>
 
-
-    <section>
-        <h3>Boundary Filtering with SPARQL-star Patterns</h3>
+    <section id="semantics">
+        <h2>Formal Semantics and Entailment</h2>
         <p>
-            The initial draft of this specification proposed a new <code>BOUNDARY</code> clause.
-            However, based on the revised data model (Section 4.5) where boundaries are
-            annotations on reified <em>holonic links</em>, a new clause is unnecessary and
-            undesirable. Instead, boundary filtering is accomplished using standard SPARQL 1.2
-            (RDF-star) query patterns.
+            The semantics of RDF-H are defined by the standard RDF 1.2 model-theoretic semantics [[RDF12-SEMANTICS]]
+            applied to graphs containing the RDF-H vocabulary. No new entailment regime is required; rather, standard
+            RDFS or OWL reasoners will produce the desired inferences based on the ontology.
         </p>
-        <p class="note">
-            This is a significant simplification and improvement, as it relies on an existing,
-            well-understood W3C Recommendation rather than introducing new, proprietary syntax.
-        </p>
-        <div class="example">
+
+        <section>
+            <h3>Holon Inference</h3>
             <p>
-                <strong>Example Query:</strong>
-                Find all subordinate employees of <code>ex:Manager1</code> where the hierarchy
-                link is marked with <code>h:status "active"</code>.
+                The primary inference in RDF-H is the typing of a resource as a <code>h:Holon</code>. This is achieved
+                via the <code>rdfs:range</code> axiom on the <code>h:inHolon</code> property.
             </p>
-            <pre class="nohighlight sparql">
-@prefix ex: &lt;http://example.org/&gt;.
-@prefix h: &lt;https://w3id.org/rdf-h#&gt;.
+            <div class="example">
+                <p><strong>Ontology Axiom (Turtle):</strong></p>
+                <pre class="nohighlight turtle">
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
 
-
-SELECT ?employee
-WHERE {
-  ?employee h:hierarchyChild ex:Manager1.
-  << ?employee h:hierarchyChild ex:Manager1 >> h:status "active".
-}
+h:inHolon rdfs:range h:Holon .
 </pre>
-        </div>
-        <p>
-            This query first finds all potential subordinates using the
-            <code>h:hierarchyChild</code> property path, and then filters them by checking for
-            the required annotation on the corresponding quoted triple. The same pattern applies
-            to any holonic link (<code>h:contains</code>, <code>h:memberOf</code>,
-            <code>h:peerOf</code>, <code>h:dependsOn</code>, etc.).
-        </p>
+                <p><strong>Entailment Rule (h-holon-type):</strong></p>
+                <pre>
+IF:   &lt;&lt; ?s ?p ?o &gt;&gt; h:inHolon ?c .
+THEN: ?c rdf:type h:Holon .
+                </pre>
+                <p>
+                    This rule means that any resource appearing as the object of an <code>h:inHolon</code> triple
+                    is inferred to be an instance of <code>h:Holon</code>.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h3>Part-Whole Inference</h3>
+            <p>
+                Queries for the general <code>h:partOf</code> property will entail results from all its
+                sub-properties.
+            </p>
+            <div class="example">
+                <p><strong>Data:</strong></p>
+                <pre class="nohighlight turtle">
+ex:Engine h:componentOf ex:Car .
+ex:Player h:memberOf ex:Team .
+</pre>
+                <p><strong>Query:</strong></p>
+                <pre class="nohighlight sparql">
+SELECT ?part ?whole WHERE { ?part h:partOf ?whole . }
+</pre>
+                <p>An RDFS-aware reasoner will return both the engine-car and player-team pairs, because it knows that
+                    <code>h:componentOf</code> and <code>h:memberOf</code> are sub-properties of <code>h:partOf</code>.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h3>Acyclicity and Well-Foundedness</h3>
+            <p>
+                The requirement that part-whole hierarchies be acyclic is a fundamental guarantee of the
+                logical soundness of any compositional model. It is analogous to the Axiom of Foundation in
+                Zermelo–Fraenkel set theory, which prevents self-referential paradoxes [[SEP-SELFREF]].
+            </p>
+            <p>
+                Therefore, a conformant <strong>RDF-H Graph</strong> <em class="rfc2119" title="MUST NOT">MUST
+                    NOT</em> contain cycles in its part-whole relationship paths (e.g.,
+                <code>H1 h:partOf H2 . H2 h:partOf H1 .</code>). Such a graph is logically inconsistent. This can be
+                enforced using SHACL, as described in <a href="#validation" class="sec-ref"></a>.
+            </p>
+        </section>
     </section>
 
-    <section>
-        <h3>Formal Algebra and Evaluation Semantics</h3>
+    <section id="syntax">
+        <h2>Turtle-H: A Syntactic Sugar for Turtle</h2>
         <p>
-            The SPARQL algebra is extended with evaluation rules for the new primitive holonic
-            property paths. The evaluation of a path expression is defined with respect to an
-            H-interpretation <code>I</code> and the link extension relations
-            <code>LEXT</code> for each primitive link type.
+            To simplify the authoring of holonic structures, this specification proposes <strong>Turtle-H</strong>, a
+            syntactic sugar for Turtle that introduces a block-style syntax for defining a holon's context. A conformant
+            RDF-H processor <em class="rfc2119" title="SHOULD">SHOULD</em> support this syntax.
         </p>
-        <p>
-            Let <code>eval(P, G)</code> be the function that evaluates a property path
-            <code>P</code> against a graph <code>G</code>. For a holonic link predicate
-            <code>L</code>:
-        </p>
-        <p>
-            <code>eval(Path(L), G) = { (I(a), I(b)) | (a, b) ∈ LEXT(L) }</code>
-        </p>
-        <p>
-            where <code>LEXT(L)</code> is the extension of the link <code>L</code> in the
-            H-interpretation of <code>G</code>. For example:
-        </p>
-        <ul>
-            <li><code>h:contains</code> is defined as <code>^h:containedIn</code> (inverse).</li>
-            <li><code>h:peerOf</code> must satisfy symmetry:
-                <code>(a, b) ∈ LEXT(h:peerOf) ⇒ (b, a) ∈ LEXT(h:peerOf)</code>.
-            </li>
-            <li><code>h:hierarchyChild</code> must satisfy partial order constraints (transitive, acyclic).</li>
-            <li><code>h:dependsOn</code> must satisfy asymmetry.</li>
-        </ul>
-        <p>
-            The evaluation of complex paths involving these primitives follows the standard
-            SPARQL 1.1 property path semantics, with the additional constraints enforced by the
-            holonic link axioms.
-        </p>
+
+        <section>
+            <h3>The Holon Context Block <code>{...}</code></h3>
+            <p>
+                A holon and its constituent relationships can be defined by stating the holon's identifier (IRI or blank
+                node) followed by a block of Turtle statements enclosed in curly braces <code>{...}</code>.
+            </p>
+            <p class="note">
+                It is important to note that this block-style syntax is <strong>not</strong> part of the standard Turtle
+                or Turtle-star specifications. It is a proposed syntactic sugar for RDF-H designed to improve usability.
+                In standard Turtle, a developer would be required to manually write two separate triples: the relationship
+                itself, and the RDF-star annotation linking it to the holon. The proposed <code>{...}</code> block
+                simplifies this by allowing the developer to write the relationship only once; a Turtle-H-aware parser
+                then automatically generates both required triples.
+            </p>
+            <div class="example">
+                <p><strong>Example using Turtle-H Syntax:</strong></p>
+                <pre class="nohighlight turtle">
+@prefix ex: &lt;http://example.org/&gt; .
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+
+ex:Car_123 {
+    ex:Engine_456 h:componentOf ex:Car_123 .
+
+    ex:Engine_456 {
+        ex:Piston_789 h:componentOf ex:Engine_456 .
+    }
+}
+</pre>
+            </div>
+            <p>
+                This concise syntax is syntactic sugar for the more verbose standard RDF-star representation. A Turtle-H
+                parser <em class="rfc2119" title="MUST">MUST</em> translate the block syntax into the equivalent set of
+                standard triples.
+            </p>
+            <p>The block <code>:H { :s :p :o . }</code> "desugars" into the following two standard triples:</p>
+            <ol>
+                <li><strong>The Base Fact:</strong> The relationship itself is asserted.
+                    <br><code>:s :p :o .</code>
+                </li>
+                <li><strong>The Context Fact:</strong> The relationship is linked to its containing holon.
+                    <br><code>&lt;&lt; :s :p :o &gt;&gt; h:inHolon :H .</code>
+                </li>
+            </ol>
+            <div class="example">
+                <p><strong>Standard RDF-star Equivalent of the Turtle-H Example:</strong></p>
+                <pre class="nohighlight turtle">
+@prefix ex: &lt;http://example.org/&gt; .
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+
+# Triples generated from the ex:Car_123 context
+ex:Engine_456 h:componentOf ex:Car_123 .
+&lt;&lt; ex:Engine_456 h:componentOf ex:Car_123 &gt;&gt; h:inHolon ex:Car_123 .
+
+# Triples generated from the nested ex:Engine_456 context
+ex:Piston_789 h:componentOf ex:Engine_456 .
+&lt;&lt; ex:Piston_789 h:componentOf ex:Engine_456 &gt;&gt; h:inHolon ex:Engine_456 .
+</pre>
+            </div>
+            <p>
+                This syntactic sugar dramatically improves readability and writability, making the holonic structure
+                visually apparent while remaining 100% compatible with the standard RDF 1.2 data model.
+            </p>
+        </section>
     </section>
 
-    <section class="informative">
-        <h3>Advanced Query Patterns and Examples</h3>
+    <section id="querying">
+        <h2>Querying Holonic Graphs with SPARQL</h2>
         <p>
-            The combination of holonic traversal and standard SPARQL features enables powerful queries.
-            The following examples illustrate how different holonic link types can be used in practice.
+            Querying RDF-H graphs does not require any extension to SPARQL. All holonic structures can be queried using
+            standard SPARQL 1.1 [[SPARQL11-QUERY]] combined with SPARQL-star patterns.
         </p>
 
-        <div class="example">
-            <p><strong>Example 1: Find the root holon(s) for a given component.</strong></p>
-            <p>
-                This query finds the top-level container(s) for <code>ex:SubComponentX</code>, i.e.,
-                holons that contain it (transitively) but are not themselves contained in any other holon.
-            </p>
-            <pre class="nohighlight sparql">
-PREFIX ex: <http://example.org/>
-PREFIX h:  <https://w3id.org/rdf-h#>
+        <section>
+            <h3>Querying Holonic Context</h3>
+            <p>The core pattern for querying within a holon's context involves finding relationships linked to it via
+                <code>h:inHolon</code>.</p>
+            <div class="example">
+                <p><strong>Example Query:</strong> Find all component relationships defined within the context of
+                    <code>ex:Engine_456</code>.</p>
+                <pre class="nohighlight sparql">
+PREFIX ex: &lt;http://example.org/&gt;
+PREFIX h:  &lt;https://w3id.org/rdf-h#&gt;
 
-SELECT ?root
+SELECT ?part ?engine
 WHERE {
-  ex:SubComponentX h:containedIn+ ?root.
-  FILTER NOT EXISTS { ?root h:containedIn ?superRoot. }
+    &lt;&lt; ?part h:componentOf ?engine &gt;&gt; h:inHolon ex:Engine_456 .
 }
 </pre>
-        </div>
+            </div>
+        </section>
 
-        <div class="example">
-            <p><strong>Example 2: Aggregate properties from all parts.</strong></p>
-            <p>
-                This query calculates the total weight of a composite object by summing the weights of
-                all its directly contained parts.
-            </p>
-            <pre class="nohighlight sparql">
-PREFIX ex: <http://example.org/>
-PREFIX h:  <https://w3id.org/rdf-h#>
+        <section>
+            <h3>Querying Across the Part-Of Hierarchy</h3>
+            <p>Standard property paths can be used to query for specific or general part-whole relationships.</p>
+            <div class="example">
+                <p><strong>Example Query:</strong> Find all components, direct and indirect, of
+                    <code>ex:Car_123</code>.</p>
+                <pre class="nohighlight sparql">
+PREFIX ex: &lt;http://example.org/&gt;
+PREFIX h:  &lt;https://w3id.org/rdf-h#&gt;
 
-SELECT (SUM(?partWeight) AS ?totalWeight)
+# This query uses a property path on the specific 'componentOf' relation.
+SELECT ?component
 WHERE {
-  ex:Assembly123 h:contains ?part.
-  ?part ex:weight ?partWeight.
+  ?component h:componentOf+ ex:Car_123 .
 }
 </pre>
-        </div>
+            </div>
+            <div class="example">
+                <p><strong>Example Query:</strong> Find all parts of <code>ex:Car_123</code>, regardless of the
+                    specific relationship type (component, member, etc.).</p>
+                <pre class="nohighlight sparql">
+PREFIX ex: &lt;http://example.org/&gt;
+PREFIX h:  &lt;https://w3id.org/rdf-h#&gt;
 
-        <div class="example">
-            <p><strong>Example 3: Find all active subordinates of a manager.</strong></p>
-            <p>
-                This query retrieves all employees subordinate to <code>ex:Manager1</code>,
-                filtering on a boundary annotation that marks the relationship as active.
-            </p>
-            <pre class="nohighlight sparql">
-PREFIX ex: <http://example.org/>
-PREFIX h:  <https://w3id.org/rdf-h#>
-
-SELECT ?employee
+# This query uses the general 'partOf' relation. An RDFS-aware engine will
+# traverse across all its sub-properties.
+SELECT ?part
 WHERE {
-  ?employee h:hierarchyChild ex:Manager1.
-  << ?employee h:hierarchyChild ex:Manager1 >> h:status "active".
+  ?part h:partOf+ ex:Car_123 .
 }
 </pre>
-        </div>
-
-        <div class="example">
-            <p><strong>Example 4: Find all members of a project team.</strong></p>
-            <p>
-                This query lists the holons that are members of <code>ex:ProjectTeamA</code>.
-            </p>
-            <pre class="nohighlight sparql">
-PREFIX ex: <http://example.org/>
-PREFIX h:  <https://w3id.org/rdf-h#>
-
-SELECT ?member
-WHERE {
-  ?member h:memberOf ex:ProjectTeamA.
-}
-</pre>
-        </div>
-
-        <div class="example">
-            <p><strong>Example 5: Find peers collaborating with a given holon.</strong></p>
-            <p>
-                This query identifies all holons that are peers of <code>ex:ServiceNode1</code>.
-            </p>
-            <pre class="nohighlight sparql">
-PREFIX ex: <http://example.org/>
-PREFIX h:  <https://w3id.org/rdf-h#>
-
-SELECT ?peer
-WHERE {
-  ex:ServiceNode1 h:peerOf ?peer.
-}
-</pre>
-        </div>
-
-        <div class="example">
-            <p><strong>Example 6: Trace dependencies of a service.</strong></p>
-            <p>
-                This query finds all services that <code>ex:ServiceA</code> depends on,
-                including transitive dependencies.
-            </p>
-            <pre class="nohighlight sparql">
-PREFIX ex: <http://example.org/>
-PREFIX h:  <https://w3id.org/rdf-h#>
-
-SELECT ?dependency
-WHERE {
-  ex:ServiceA h:dependsOn+ ?dependency.
-}
-</pre>
-        </div>
-
-        <p>
-            These examples demonstrate that SPARQL-H provides an expressive and intuitive language
-            for querying structural, hierarchical, membership, peer, and dependency relationships
-            in holonic graphs. Together, they illustrate the holistic power of RDF-H.
-        </p>
+            </div>
+        </section>
     </section>
 
     <section id="validation">
-        <h2>Validation with SHACL-H</h2>
+        <h2>Validation with SHACL</h2>
         <p>
-            The Shapes Constraint Language (SHACL) is a W3C Recommendation for validating RDF graphs against a set of
-            conditions, called shapes [[SHACL]]. To support the validation of Holonic Graphs, this specification defines
-            <strong>SHACL-H</strong>, an extension introducing new constraint components specific to holonic structures.
-            A processor that claims SHACL-H conformance <em class="rfc2119" title="MUST">MUST</em> support these new
-            components in addition to SHACL Core and SHACL-SPARQL.
+            The Shapes Constraint Language (SHACL) [[SHACL]] is the standard mechanism for validating RDF graphs. To
+            facilitate the validation of holonic graphs, the RDF-H vocabulary includes two built-in
+            <strong>Constraint Components</strong>. These components encapsulate the core structural integrity rules of
+            the RDF-H pattern, making it simpler to write robust and reusable SHACL shapes. A conformant SHACL-H
+            processor <em class="rfc2119" title="SHOULD">SHOULD</em> recognize and implement these components.
         </p>
 
         <section>
-            <h3>Core Holon Constraint Components</h3>
+            <h3>Built-in Constraint Component: AcyclicPartConstraintComponent</h3>
             <p>
-                SHACL-H provides built-in constraint components to enforce the unique structural properties of holonic
-                links
-                across containment, hierarchy, membership, peer, and dependency relationships.
-            </p>
-
-            <section>
-                <h4><code>h:AcyclicHolonConstraintComponent</code></h4>
-                <p>
-                    Enforces the acyclicity of holonic links that must form Directed Acyclic Graphs (DAGs),
-                    including <code>h:contains</code> and <code>h:hierarchyParent</code>.
-                </p>
-                <ul>
-                    <li><strong>IRI:</strong> <code>h:AcyclicHolonConstraintComponent</code></li>
-                    <li><strong>Parameters:</strong> None</li>
-                    <li><strong>Constraint:</strong> A focus node <code>f</code> violates this constraint if there
-                        exists
-                        a non-empty property path of an acyclic holonic link from <code>f</code> back to <code>f</code>.
-                    </li>
-                </ul>
-                <pre class="nohighlight turtle">
-ex:HolonShape a sh:NodeShape ;
-    sh:targetClass h:Holon ;
-    sh:constraint h:AcyclicHolonConstraintComponent.
-</pre>
-            </section>
-
-            <section>
-                <h4><code>h:HolonDeclarationConstraintComponent</code></h4>
-                <p>
-                    Ensures that any resource acting as the object of a holonic link is explicitly declared a holon.
-                </p>
-                <ul>
-                    <li><strong>IRI:</strong> <code>h:HolonDeclarationConstraintComponent</code></li>
-                    <li><strong>Parameters:</strong> None</li>
-                    <li><strong>Constraint:</strong> A focus node <code>f</code> that is the object of any
-                        <code>h:holonLink</code> triple violates this constraint if <code>rdf:type h:Holon</code>
-                        is not asserted for <code>f</code>.
-                    </li>
-                </ul>
-                <pre class="nohighlight turtle">
-ex:ContainedResourceShape a sh:NodeShape ;
-    sh:targetObjectsOf h:holonLink ;
-    sh:constraint h:HolonDeclarationConstraintComponent.
-</pre>
-            </section>
-        </section>
-
-        <section class="informative">
-            <h3>Defining Shape Constraints for Boundaries and Emergent Properties</h3>
-            <p>
-                Beyond the built-in components, SHACL Core and SHACL-SPARQL can validate contextual boundaries
-                and emergent properties of holons.
-            </p>
-
-            <section>
-                <h4>Constraining Boundary Graphs</h4>
-                <p>
-                    Since boundary graphs are attached as annotations on holonic links using RDF-star,
-                    they can be validated by targeting reified statements.
-                </p>
-                <div class="example">
-                    <p><strong>Example:</strong> Validate that an active boundary specifies a valid time interval.</p>
-                    <pre class="nohighlight turtle">
-ex:BoundaryShape a sh:NodeShape ;
-    sh:targetSubjectsOf h:status ; # Target reified holonic links with a status
-    sh:filterShape [ sh:hasValue "active" ] ;
-    sh:property [
-        sh:path h:validFrom ;
-        sh:datatype xsd:dateTime ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-    ] ;
-    sh:property [
-        sh:path h:validUntil ;
-        sh:datatype xsd:dateTime ;
-        sh:maxCount 1 ;
-    ].
-</pre>
-                </div>
-            </section>
-
-            <section>
-                <h4>Constraining Holon Contents and Emergent Properties</h4>
-                <p>
-                    SHACL can restrict which resources may appear within a holon or validate properties
-                    that emerge from the composition of its parts.
-                </p>
-                <div class="example">
-                    <p><strong>Example:</strong> Require every <code>ex:Engine</code> holon to contain at least one
-                        <code>ex:Cylinder</code>.
-                    </p>
-                    <pre class="nohighlight turtle">
-ex:EngineShape a sh:NodeShape ;
-    sh:targetClass ex:Engine ;
-    sh:property [
-        sh:path h:contains ;
-        sh:class ex:Cylinder ;
-        sh:qualifiedMinCount 1 ;
-        sh:qualifiedValueShape [ sh:class ex:Cylinder ]
-    ].
-</pre>
-                </div>
-                <div class="example">
-                    <p><strong>Example:</strong> Validate that the total weight of a holon equals the sum of its parts.
-                    </p>
-                    <pre class="nohighlight turtle">
-ex:WeightConstraintShape a sh:NodeShape ;
-    sh:targetClass h:Holon ;
-    sh:sparql [
-        sh:message "Holon weight must equal the sum of its parts' weights." ;
-        sh:select """
-            SELECT ?this
-            WHERE {
-              ?this ex:weight ?total .
-              {
-                SELECT ?this (SUM(?partWeight) AS ?computed)
-                WHERE {
-                  ?this h:contains ?part .
-                  ?part ex:weight ?partWeight .
-                } GROUP BY ?this
-              }
-              FILTER (?total != ?computed)
-            }
-        """ ;
-    ].
-</pre>
-                </div>
-            </section>
-        </section>
-    </section>
-
-
-    <section id="use-cases" class="informative">
-        <h2>Use Cases and Non-Normative Guidance</h2>
-        <p>
-            This section provides non-normative examples and guidance on how the holon primitive and holonic link
-            taxonomy can be applied to solve common modeling problems in access control, contextual reasoning,
-            and graph interoperability.
-        </p>
-
-        <section>
-            <h3>Modeling Pattern: Fine-Grained Access Control</h3>
-            <p>
-                Holons and their boundary graphs provide a graph-native mechanism for implementing fine-grained
-                access control (FGAC). Unlike traditional RDF access control models, which often operate at the
-                dataset or named-graph level, RDF-H allows <strong>resource-centric policies</strong> to be
-                expressed directly on holonic links.
-            </p>
-            <p>Consider a multi-tenant system where data for different projects must be segregated. Each project
-                is represented as a holon:</p>
-            <pre class="nohighlight turtle">
-@holon ex:ProjectA {
-    ex:SpecDoc1 a ex:Document.
-    ex:Task3 a ex:Task.
-}
-@holon ex:ProjectB {
-    ex:SpecDoc2 a ex:Document.
-}
-</pre>
-            <p>
-                Access control metadata can then be attached to holonic link assertions connecting users to project
-                holons:
-            </p>
-            <pre class="nohighlight turtle">
-ex:UserAlice h:memberOf ex:ProjectA {| acl:mode acl:Read, acl:Write |}.
-ex:UserBob   h:memberOf ex:ProjectA {| acl:mode acl:Read |}.
-ex:UserBob   h:memberOf ex:ProjectB {| acl:mode acl:Read, acl:Write |}.
-</pre>
-            <p>
-                A query processor can enforce access by filtering based on the boundaries:
-            </p>
-            <pre class="nohighlight sparql">
-# Query rewritten by the access control layer for Alice
-PREFIX acl: <http://www.w3.org/ns/auth/acl#>
-SELECT ?doc WHERE {
-  ex:UserAlice h:memberOf ?project.
-  << ex:UserAlice h:memberOf ?project >> acl:mode acl:Read.
-  ?project CONTAINS* ?doc.
-  ?doc a ex:Document.
-}
-</pre>
-            <p>
-                This approach enables fine-grained policies that can vary by project, role, or even specific
-                holonic edges, avoiding the limitations of coarse-grained named graph ACLs.
-            </p>
-        </section>
-
-        <section>
-            <h3>Modeling Pattern: Temporal, Modal, and Provenance Contexts</h3>
-            <p>
-                Boundary graphs qualify holonic links with contextual information, enabling nuanced modeling
-                of time, modality, and provenance. These contexts attach to the <em>relationship</em> rather
-                than the part or whole.
+                This component validates the most critical structural rule: that the part-whole hierarchy must be
+                acyclic. A holon cannot be a part of itself, either directly or indirectly.
             </p>
             <ul>
-                <li>
-                    <strong>Temporal Context:</strong> Annotating a link with <code>h:validFrom</code> and
-                    <code>h:validUntil</code> captures when a part is validly contained in a holon.
-                </li>
-                <li>
-                    <strong>Modal Context:</strong> Mark a link as <code>h:modality "potential"</code>
-                    versus <code>"actual"</code> to differentiate hypothetical vs. realized assemblies.
-                </li>
-                <li>
-                    <strong>Provenance Context:</strong> Use PROV-O properties to indicate who asserted a
-                    holonic link and with what confidence.
-                </li>
+                <li><strong>IRI:</strong> <code>h:AcyclicPartConstraintComponent</code></li>
+                <li><strong>Constraint:</strong> A focus node violates this constraint if there exists a non-empty
+                    property path of <code>h:partOf</code> from the focus node back to itself.</li>
             </ul>
-            <pre class="nohighlight turtle">
-<< ex:SensorA h:containedIn ex:Engine1 >>
-    h:validFrom "2025-01-01T00:00:00Z"^^xsd:dateTime ;
-    h:modality "actual" ;
-    prov:wasAttributedTo ex:MaintenanceSystem42 .
+            <div class="example">
+                <p><strong>Example SHACL Shape using the component:</strong></p>
+                <pre class="nohighlight turtle">
+ex:AcyclicPartShape
+    a sh:NodeShape ;
+    sh:targetClass h:Holon ;
+    sh:constraint [
+        a h:AcyclicPartConstraintComponent ;
+        sh:message "The holon participates in a part-of cycle." ;
+    ] .
 </pre>
-            <p>
-                This approach avoids overloading named graphs for contextual metadata, providing
-                precise qualification of holonic relationships.
-            </p>
+            </div>
+            <div class="example">
+                <p><strong>Formal Definition of the Validator:</strong></p>
+                <pre class="nohighlight turtle">
+h:AcyclicPartConstraintComponent a sh:ConstraintComponent ;
+    sh:validator h:AcyclicPartValidator .
+
+h:AcyclicPartValidator a sh:SPARQLValidator ;
+    sh:message "The focus node participates in a part-of cycle."@en ;
+    sh:select """
+        PREFIX h: <https://w3id.org/rdf-h#>
+        SELECT $this
+        WHERE {
+            $this h:partOf+ $this .
+        }
+    """ .
+</pre>
+            </div>
         </section>
 
         <section>
-            <h3>A Comparative Look: Holonic Graphs vs. Labeled Property Graphs (LPGs)</h3>
+            <h3>Built-in Constraint Component: HolonIntegrityConstraintComponent</h3>
             <p>
-                Developers familiar with Labeled Property Graphs (LPGs), such as Neo4j, will recognize parallels
-                in how RDF-H holonic links model hierarchies and dependencies. Like LPG edges, holonic links
-                enable traversal queries with arbitrary depth.
-            </p>
-            <p>
-                However, <strong>RDF-H</strong> introduces these capabilities with significant advantages:
+                This component validates that any resource acting as a holon (i.e., as the object of an
+                <code>h:inHolon</code> property) is explicitly declared to be of type <code>h:Holon</code>.
             </p>
             <ul>
-                <li><strong>Formal Semantics:</strong> Holonic links are backed by model-theoretic semantics
-                    [[RDF12-SEMANTICS]], ensuring consistent interpretation and reasoning across systems.</li>
-                <li><strong>Global Identity:</strong> IRIs provide globally unique identifiers, supporting web-scale
-                    federation, unlike many LPGs that rely on local IDs.</li>
-                <li><strong>Standards-Based Interoperability:</strong> RDF-H extends the W3C RDF ecosystem
-                    (SPARQL-H, SHACL-H) rather than creating a siloed query model.</li>
-                <li><strong>Rich Entailment:</strong> RDF-H holarchies compose with RDFS and OWL reasoning,
-                    enabling inferences about class membership, property hierarchies, and structural containment
-                    simultaneously.</li>
+                <li><strong>IRI:</strong> <code>h:HolonIntegrityConstraintComponent</code></li>
+                <li><strong>Constraint:</strong> A focus node violates this constraint if it is the object of an
+                    <code>h:inHolon</code> triple but is not explicitly declared as an <code>rdf:type</code> of
+                    <code>h:Holon</code>.
+                </li>
             </ul>
-            <p>
-                In short, RDF-H combines the intuitive DAG-style traversal of property graphs with the
-                rigor, interoperability, and reasoning of the Semantic Web stack.
-            </p>
-        </section>
-    </section>
+            <div class="example">
+                <p><strong>Example SHACL Shape using the component:</strong></p>
+                <pre class="nohighlight turtle">
+ex:HolonIntegrityShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf h:inHolon ;
+    sh:constraint [
+        a h:HolonIntegrityConstraintComponent ;
+        sh:message "This resource is used as a holon but is not typed as h:Holon." ;
+    ] .
+</pre>
+            </div>
+            <div class="example">
+                <p><strong>Formal Definition of the Validator:</strong></p>
+                <pre class="nohighlight turtle">
+h:HolonIntegrityConstraintComponent a sh:ConstraintComponent ;
+    sh:validator h:HolonIntegrityValidator .
 
-    <section id="security" class="informative">
-        <h2>Security and Privacy Considerations</h2>
-        <p>
-            The introduction of holons and the transitivity of holonic links has significant implications for
-            security and privacy that implementers and data modelers <em class="rfc2119" title="MUST">MUST</em>
-            consider.
-            Because holonic graphs encode deeply connected structures, careless design can lead to unintended
-            data exposure, privilege escalation, or denial of service.
-        </p>
-        <ul>
-            <li>
-                <strong>Transitive Access and Data Aggregation:</strong>
-                Granting access to a holon <code>H</code> may, due to transitivity of links such as
-                <code>h:contains</code> or <code>h:hierarchyParent</code>, imply access to all nested parts
-                or subordinate holons. This can unintentionally expose sensitive resources many levels deep.
-                Access control systems built on <strong>RDF-H</strong>
-                <em class="rfc2119" title="SHOULD NOT">SHOULD NOT</em> assume that access to a whole
-                implies access to all its parts or descendants.
-                Policies <em class="rfc2119" title="SHOULD">SHOULD</em> explicitly define whether rights
-                propagate down holonic structures. Boundary graphs allow these rules to be set on a
-                per-link basis.
-            </li>
-            <li>
-                <strong>Inference and Data Leakage:</strong>
-                The combination of H-entailment with RDFS or OWL can reveal information that was
-                not directly asserted. For example, if a policy states that only
-                <code>ex:Admin</code> resources may be <code>h:memberOf</code> <code>ex:AdminHolon</code>,
-                and a user observes <code>ex:Bob h:memberOf ex:AdminHolon</code>,
-                they can infer <code>ex:Bob a ex:Admin</code>, even if that triple is not explicitly visible.
-                Implementers <em class="rfc2119" title="MUST">MUST</em> analyze the potential for such leakage
-                and decide whether boundary graphs or restricted reasoning regimes are necessary.
-            </li>
-            <li>
-                <strong>Boundary Graph Security:</strong>
-                Boundary graphs carry sensitive contextual data, such as access control policies,
-                temporal scopes, or provenance. If an attacker can tamper with a boundary graph
-                (e.g., changing <code>acl:mode acl:Read</code> to <code>acl:mode acl:Write</code>
-                on a holonic link), they can escalate privileges. Implementations
-                <em class="rfc2119" title="SHOULD">SHOULD</em> treat boundary graph data as highly sensitive
-                and enforce strong integrity and access control mechanisms around it.
-            </li>
-            <li>
-                <strong>Cross-Link Amplification:</strong>
-                Holonic graphs may contain multiple link types (<code>h:contains</code>,
-                <code>h:memberOf</code>, <code>h:dependsOn</code>, etc.). An attacker might exploit
-                combinations of these to infer access paths or sensitive dependencies
-                not visible from a single link type. Reasoners and query processors
-                <em class="rfc2119" title="MUST">MUST</em> carefully analyze combined link semantics
-                when enforcing policies.
-            </li>
-            <li>
-                <strong>Denial of Service:</strong>
-                The requirement to validate acyclicity and other structural constraints
-                introduces a possible denial-of-service vector. A malicious user could
-                submit a graph with a very large or intentionally convoluted holarchy.
-                Implementations <em class="rfc2119" title="SHOULD">SHOULD</em> employ
-                efficient cycle detection algorithms, impose traversal depth limits,
-                and validate inputs incrementally to mitigate this risk.
-            </li>
-        </ul>
-        <p>
-            In summary, RDF-H expands the expressive power of RDF but also
-            expands the attack surface. Implementers <em class="rfc2119" title="MUST">MUST</em>
-            combine holonic link semantics with robust boundary graph validation and
-            careful reasoning policies to ensure secure deployments.
-        </p>
+h:HolonIntegrityValidator a sh:SPARQLValidator ;
+    sh:message "The focus node is used as a holon (object of h:inHolon) but is not typed as h:Holon."@en ;
+    sh:select """
+        PREFIX h: <https://w3id.org/rdf-h#>
+        SELECT $this
+        WHERE {
+            ?s h:inHolon $this .
+            FILTER NOT EXISTS { $this a h:Holon . }
+        }
+    """ .
+</pre>
+            </div>
+        </section>
     </section>
 
 
     <section id="conclusion" class="informative">
         <h2>Conclusion</h2>
         <p>
-            This specification introduces <strong>RDF-H</strong>, a conservative yet powerful extension
-            to the Resource Description Framework that elevates the <strong>holon</strong> to a native
-            data model primitive. Holons and holonic links provide a semantically sound and structurally
-            first-class mechanism for representing not only containment, but also hierarchy, membership,
-            peer coordination, and dependency within a single, coherent framework.
-        </p>
-        <p>
-            Unlike the verbosity of traditional reification, the statement-level focus of RDF-star,
-            or the coarse partitioning of named graphs, <strong>RDF-H</strong> delivers a resource-centric,
-            mereologically grounded, and natively traversable approach to modeling "wholes-within-wholes."
-            By defining holonic links with clear formal semantics and ensuring acyclicity where appropriate,
-            RDF-H guarantees well-foundedness and prevents paradoxes, providing a logically rigorous basis
-            for structural reasoning across diverse domains.
-        </p>
-        <p>
-            The integration of <em>H-interpretations</em> and the <em>H-entailment regime</em> ensures that
-            holonic structures compose cleanly with existing RDF semantics, enabling interoperable reasoning
-            across standard entailment regimes such as RDFS and OWL. Meanwhile, the accompanying concrete
-            syntaxes (Turtle-H, JSON-LD-H, N-Quads-H/TriG-H) and query/validation languages (SPARQL-H, SHACL-H)
-            make the model both practical and accessible to implementers. By leveraging existing standards like
-            RDF-star for annotation, RDF-H avoids unnecessary reinvention while significantly extending
-            expressive power.
-        </p>
-        <p>
-            <strong>RDF-H</strong> thus bridges a crucial gap between the property graph and RDF worlds:
-            it offers the intuitive hierarchical and dependency modeling capabilities of property graphs,
-            while retaining RDF’s formal semantics, global identifiers, and reasoning ecosystem. This makes
-            it an ideal foundation for next-generation knowledge graphs in domains such as
-            <em>digital twins</em>, <em>systems engineering</em>, <em>contextual AI</em>,
-            <em>cyber-physical systems</em>, and the <em>Spatial Web</em>. By faithfully capturing
-            complex, interconnected structures, RDF-H empowers a more accurate, secure, and
-            interoperable representation of our increasingly holonic world.
+            This specification introduces <strong>RDF-H</strong>, a powerful and flexible modeling pattern for
+            representing compositional structures in RDF. By leveraging the existing capabilities of RDF 1.2 and
+            RDF-star, it provides a semantically sound and structurally intuitive method for modeling "wholes-within-wholes."
+            The core vocabulary, centered on <code>h:inHolon</code> and a formal mereological hierarchy, is both
+            simple and expressive. The proposed Turtle-H syntactic sugar makes the pattern highly accessible to
+            developers, bridging the gap between the intuitive feel of property graphs and the formal rigor of RDF.
+            RDF-H provides a robust, standards-based foundation for the next generation of knowledge graphs in domains
+            such as digital twins, systems engineering, contextual AI, and the Spatial Web.
         </p>
     </section>
 
