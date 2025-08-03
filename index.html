@@ -538,6 +538,7 @@ skos:narrower  rdfs:subPropertyOf h:hierarchyChild .
                 href="https://raw.githubusercontent.com/geoknoesis/rdf-holon/refs/heads/main/rdfh.ttl">rdfh.ttl</a>.
         </p>
     </section>
+
     <section>
         <h3>Formal Definition of Holonic Graphs and Datasets</h3>
         <p>The abstract data model of RDF 1.2 is extended as follows:</p>
@@ -551,12 +552,14 @@ skos:narrower  rdfs:subPropertyOf h:hierarchyChild .
                 <em>whole</em> and a <em>part</em> in a holarchy.
             </li>
             <li>
-                A <strong>Holonic Link</strong> is an ordered pair <code>(H₁, p, H₂)</code> where
-                <code>H₁</code> and <code>H₂</code> are holons (or RDF-H terms) and
-                <code>p</code> is an IRI denoting one of the primitive link properties
+                A <strong>Holonic Link</strong> is an ordered pair
+                <code>(<var>H<sub>1</sub></var>, <var>p</var>, <var>H<sub>2</sub></var>)</code>
+                where <var>H<sub>1</sub></var> and <var>H<sub>2</sub></var> are holons (or RDF-H terms) and
+                <var>p</var> is an IRI denoting one of the primitive link properties
                 (<code>h:contains</code>, <code>h:hierarchyParent</code>, <code>h:memberOf</code>,
                 <code>h:peerOf</code>, <code>h:dependsOn</code>) or their inverses.
-                This may be written in triple notation as <code>H₁ p H₂</code>.
+                This may be written in triple notation as
+                <code><var>H<sub>1</sub></var> <var>p</var> <var>H<sub>2</sub></var></code>.
             </li>
             <li>
                 A <strong>Boundary Graph</strong> is an RDF graph providing metadata about a specific holonic link,
@@ -567,10 +570,11 @@ skos:narrower  rdfs:subPropertyOf h:hierarchyChild .
                 An <strong>RDF-H Triple</strong> is an RDF triple as defined in [[RDF12-CONCEPTS]].
             </li>
             <li>
-                An <strong>RDF-H Graph</strong> (or Holonic Graph) is a pair <code>$G_h = (T, L)$</code>, where:
+                An <strong>RDF-H Graph</strong> (or Holonic Graph) is a pair
+                <code>(<var>G<sub>h</sub></var>, (T, L))</code>, where:
                 <ul>
-                    <li><code>$T$</code> is a set of RDF-H Triples.</li>
-                    <li><code>$L$</code> is a set of Holonic Links, optionally annotated by boundary graphs.</li>
+                    <li><var>T</var> is a set of RDF-H Triples.</li>
+                    <li><var>L</var> is a set of Holonic Links, optionally annotated by boundary graphs.</li>
                 </ul>
             </li>
             <li>
