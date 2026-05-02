@@ -1129,12 +1129,12 @@ h:HolonIntegrityValidator a sh:SPARQLValidator ;
 @prefix ex:   &lt;https://example.org/twin/&gt; .
 @prefix h:    &lt;https://w3id.org/rdf-h#&gt; .
 @prefix owl:  &lt;http://www.w3.org/2002/07/owl#&gt; .
-@prefix xsd:  &lt;http://www.w3.org/2001/XMLSchema#&gt; .
 
 # --- Domain-specific vocabulary (external ontology) ---
 bldg:monitors        a owl:ObjectProperty .
 bldg:occupies        a owl:ObjectProperty .
 bldg:cooledBy        a owl:ObjectProperty .
+bldg:address         a owl:DatatypeProperty .
 
 # --- Holon declarations (explicit typing recommended for portability) ---
 ex:Building_A         a h:Holon ; bldg:address "1 Market St, San Francisco, CA" .
@@ -1215,9 +1215,21 @@ SELECT DISTINCT ?part WHERE {
                 <p>
                     Expected results (under RDFS entailment): <code>ex:Floor_3</code>,
                     <code>ex:Floor_4</code>, <code>ex:Tenant_Acme</code>,
-                    <code>ex:AnnualEnergy_2026</code>, <code>ex:Room_301</code>, <code>ex:Room_302</code>,
+                    <code>ex:Room_301</code>, <code>ex:Room_302</code>,
                     <code>ex:HVAC_F3</code>, <code>ex:Compressor_F3</code>,
                     <code>ex:DuctNetwork_F3</code>, <code>ex:Refrigerant_R410A</code>.
+                </p>
+                <p>
+                    Note that <code>ex:AnnualEnergy_2026</code> is <em>not</em> in the result, even
+                    though it appears inside the <code>@holon ex:Building_A</code> block: it is
+                    declared <code>h:portionOf ex:Building_A_EnergyHistory</code> rather than of
+                    <code>ex:Building_A</code> itself. The example deliberately illustrates that
+                    inclusion in a holon's <em>context</em> (via <code>h:inHolon</code>) is
+                    independent of inclusion in its <em>part hierarchy</em> (via
+                    <code>h:partOf</code>). Similarly, <code>ex:Concrete_Mix_C30</code> is the
+                    substance of <code>ex:Room_301_NorthWall</code>, but the wall itself is not
+                    declared as a part of <code>ex:Room_301</code>, so the concrete is also outside
+                    the building's part closure.
                 </p>
             </div>
             <div class="example">
