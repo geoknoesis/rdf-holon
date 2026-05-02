@@ -20,25 +20,27 @@
                 company: "Geoknoesis LLC",
                 companyURL: "https://geoknoesis.com"
             }],
-            version: "0.3",
+            version: "0.5",
             github: "https://github.com/geoknoesis/rdf-holon",
             copyrightStart: "2025",
-            license: "w3c-software-doc",
             localBiblio: {
                 "RDF12-CONCEPTS": {
                     title: "RDF 1.2 Concepts and Abstract Syntax",
                     href: "https://www.w3.org/TR/rdf12-concepts/",
-                    publisher: "W3C"
+                    publisher: "W3C",
+                    status: "Candidate Recommendation"
                 },
                 "RDF12-SEMANTICS": {
                     title: "RDF 1.2 Semantics",
                     href: "https://www.w3.org/TR/rdf12-semantics/",
-                    publisher: "W3C"
+                    publisher: "W3C",
+                    status: "Candidate Recommendation"
                 },
                 "RDF12-TURTLE": {
                     title: "RDF 1.2 Turtle",
                     href: "https://www.w3.org/TR/rdf12-turtle/",
-                    publisher: "W3C"
+                    publisher: "W3C",
+                    status: "Candidate Recommendation"
                 },
                 "RDF11-CONCEPTS": {
                     title: "RDF 1.1 Concepts and Abstract Syntax",
@@ -65,15 +67,10 @@
                     href: "https://www.w3.org/TR/shacl/",
                     publisher: "W3C"
                 },
-                "JSON-LD11": {
-                    title: "JSON-LD 1.1",
-                    href: "https://www.w3.org/TR/json-ld11/",
+                "TRIG": {
+                    title: "RDF 1.1 TriG",
+                    href: "https://www.w3.org/TR/trig/",
                     publisher: "W3C"
-                },
-                "JSON-LD-STAR": {
-                    title: "JSON-LD-star",
-                    href: "https://json-ld.github.io/json-ld-star/",
-                    publisher: "JSON for Linking Data Community Group"
                 },
                 "RFC2119": {
                     title: "Key words for use in RFCs to Indicate Requirement Levels",
@@ -85,6 +82,16 @@
                 "OEP-PARTWHOLE": {
                     title: "Simple Part-Whole Relations in OWL Ontologies",
                     href: "https://www.w3.org/2001/sw/BestPractices/OEP/SimplePartWhole/",
+                    publisher: "W3C"
+                },
+                "OWL2-SYNTAX": {
+                    title: "OWL 2 Web Ontology Language Structural Specification and Functional-Style Syntax (Second Edition)",
+                    href: "https://www.w3.org/TR/owl2-syntax/",
+                    publisher: "W3C"
+                },
+                "OWL2-DIRECT-SEMANTICS": {
+                    title: "OWL 2 Web Ontology Language Direct Semantics (Second Edition)",
+                    href: "https://www.w3.org/TR/owl2-direct-semantics/",
                     publisher: "W3C"
                 },
                 "SEP-SELFREF": {
@@ -108,16 +115,19 @@
     <section id="abstract">
         <p>
             This document specifies <strong>RDF-H</strong>, a vocabulary and modeling pattern for representing
-            holarchic structures within the Resource Description Framework 1.2. A holarchy is a system of
-            <strong>holons</strong>, where each holon is a resource that is simultaneously a whole in itself and a part
-            of a larger whole. RDF-H provides a semantically precise and structurally native method for representing
-            nested, contextual, and compositional knowledge by leveraging the capabilities of RDF-star. It introduces a
-            core vocabulary centered on the <code>h:inHolon</code> property to link relationships to their
-            containing holon, and a formal mereological hierarchy of part-whole relations. This specification also
-            proposes <strong>Turtle-H</strong>, a syntactic extension to Turtle providing a concise block-style syntax
-            for defining holons, making the pattern intuitive and easy to use. By grounding containment in formal
-            mereology and ensuring full backward compatibility with RDF 1.2, RDF-H enables the robust modeling of
-            digital twins, cyber-physical systems, fine-grained access control policies, and other domains requiring a
+            holarchic structures within the Resource Description Framework 1.2 [[RDF12-CONCEPTS]]. A
+            <dfn class="export" id="dfn-holarchy" data-lt="holarchic">holarchy</dfn> is a system of
+            <dfn class="export" id="dfn-holon" data-lt="holons">holons</dfn>, where each holon is a resource
+            that is simultaneously a whole in itself and a part of a larger whole. RDF-H provides a semantically precise and
+            structurally native method for representing nested, contextual, and compositional knowledge by
+            building directly on the RDF 1.2 reifier model (<code>rdf:reifies</code> and triple terms). It
+            introduces a core vocabulary centered on the <code>h:inHolon</code> property — which links a
+            triple-occurrence's reifier to the holon that contains it — together with a formal mereological
+            hierarchy of part-whole relations. The specification also proposes <strong>Turtle-H</strong>, a
+            syntactic sugar over Turtle 1.2 [[RDF12-TURTLE]] providing a concise <code>@holon</code>
+            directive for defining holons. By grounding containment in formal mereology and remaining fully
+            within the RDF 1.2 abstract syntax, RDF-H enables the robust modeling of digital twins,
+            cyber-physical systems, fine-grained access control policies, and other domains requiring a
             native understanding of "wholes-within-wholes."
         </p>
     </section>
@@ -128,6 +138,23 @@
             specification produced by the W3C, nor is it an official work item of any W3C Group. This document is
             published with the aim of gathering feedback from the community for potential future submission to and
             standardization by the W3C.
+        </p>
+        <p>
+            This proposal builds on the <strong>RDF 1.2 family of specifications</strong>
+            ([[RDF12-CONCEPTS]], [[RDF12-SEMANTICS]], [[RDF12-TURTLE]]), which are at <em>Candidate
+            Recommendation</em> status at the time of writing. In particular, RDF-H depends on the RDF 1.2
+            <em>reifier</em> model, the <code>rdf:reifies</code> predicate, the triple-term syntax
+            <code>&lt;&lt;( s p o )&gt;&gt;</code>, and the Turtle 1.2 reified-triple sugar
+            <code>&lt;&lt; s p o &gt;&gt;</code> and annotation syntax <code>{| ... |}</code>. Should
+            those RDF 1.2 designs change before final Recommendation, this document will be updated
+            accordingly.
+        </p>
+        <p>
+            <strong>License.</strong> This document, the accompanying RDF-H vocabulary
+            (<code>rdfh.ttl</code>), and all other content in the
+            <a href="https://github.com/geoknoesis/rdf-holon">geoknoesis/rdf-holon</a> repository are
+            published under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License,
+            Version 2.0</a>. See the <code>LICENSE</code> file in the repository for the full text.
         </p>
     </section>
 
@@ -176,27 +203,43 @@
                 mechanisms for grouping, contextualizing, and annotating data.
             </p>
             <section>
-                <h4>Standard Reification</h4>
+                <h4>Standard (Legacy) Reification</h4>
                 <p>
-                    The original RDF specification provided a vocabulary for reification, allowing a statement to be
-                    treated as a resource. This approach has several well-documented drawbacks, including verbosity (four
-                    extra triples per annotation) and weak semantics (asserting the reification does not assert the
-                    original triple).
+                    The original RDF specification provided a vocabulary
+                    (<code>rdf:Statement</code>, <code>rdf:subject</code>, <code>rdf:predicate</code>,
+                    <code>rdf:object</code>) for reification, allowing a statement to be treated as a resource.
+                    This approach has several well-documented drawbacks, including verbosity (four extra triples
+                    per annotation) and weak semantics (asserting the reification does not assert the original
+                    triple).
+                </p>
+                <p class="note">
+                    In RDF 1.2 [[RDF12-CONCEPTS]] this legacy reification vocabulary has been effectively
+                    superseded by the <em>reifier</em> model — a single <code>rdf:reifies</code> predicate
+                    linking a reifier (an IRI or blank node) to a triple term. The legacy
+                    <code>rdf:Statement</code> vocabulary remains in the namespace for backward compatibility
+                    but is independent of, and not used by, the RDF 1.2 reifier machinery on which RDF-H is
+                    built.
                 </p>
             </section>
             <section>
-                <h4>RDF-star (RDF 1.2)</h4>
+                <h4>RDF 1.2 Triple Terms and Reifiers</h4>
                 <p>
-                    RDF-star, now integrated into RDF 1.2, was a major breakthrough that addressed the verbosity of
-                    reification by introducing quoted (or embedded) triples as a new type of RDF term
-                    [[RDF12-CONCEPTS]]. While immensely useful, RDF-star provides a <strong>mechanism</strong>, not a
-                    <strong>pattern</strong>. It is designed to attach metadata to <em>individual edges</em> in the
-                    graph, answering the question, "What can be said about this specific relationship?" However, it does
-                    not, by itself, provide a standardized way to group a <em>set of relationships</em> into a
-                    containing whole. Without a standard like RDF-H, developers would use the RDF-star mechanism with
-                    different, incompatible properties (e.g., <code>ex:hasContext</code>, <code>ex:isAbout</code>,
-                    <code>ex:partOfGroup</code>) to achieve the same goal, leading to a fragmented ecosystem where graphs
-                    cannot be reliably merged or queried. RDF-H solves this by proposing a single, standard vocabulary
+                    RDF 1.2 introduces <em>triple terms</em> (terms that denote a triple, written
+                    <code>&lt;&lt;( s p o )&gt;&gt;</code> in Turtle 1.2 and constrained to the object position)
+                    together with the <code>rdf:reifies</code> predicate, which links a <em>reifier</em> (an
+                    ordinary IRI or blank node) to a triple term [[RDF12-CONCEPTS]]. This machinery makes it
+                    possible to attach metadata to a particular occurrence of an asserted triple without using
+                    the older <code>rdf:Statement</code> reification vocabulary.
+                </p>
+                <p>
+                    While immensely useful, this is a <strong>mechanism</strong>, not a
+                    <strong>pattern</strong>. It is designed to attach metadata to <em>individual edges</em> in
+                    the graph, answering "What can be said about this specific relationship?" It does not, by
+                    itself, provide a standardized way to group a <em>set of relationships</em> into a
+                    containing whole. Without a standard like RDF-H, developers would attach reifiers to
+                    different, incompatible properties (e.g., <code>ex:hasContext</code>,
+                    <code>ex:isAbout</code>, <code>ex:partOfGroup</code>) to achieve the same goal, fragmenting
+                    the ecosystem. RDF-H proposes a single, standard reifier-attached property
                     (<code>h:inHolon</code>) for this purpose.
                 </p>
             </section>
@@ -227,7 +270,7 @@
                         <tr>
                             <th>Feature</th>
                             <th>Standard Reification</th>
-                            <th>RDF-star (RDF 1.2)</th>
+                            <th>Triple Terms / Reifiers (RDF 1.2)</th>
                             <th>Named Graphs (RDF 1.1)</th>
                             <th><strong>RDF-H Pattern</strong></th>
                         </tr>
@@ -252,19 +295,19 @@
                             <td>High (4 extra triples)</td>
                             <td>Low (<code>&lt;&lt;...&gt;&gt;</code>)</td>
                             <td>Moderate (quads)</td>
-                            <td>Low (proposed <code>{...}</code> syntax)</td>
+                            <td>Low (proposed <code>@holon IRI {...}</code> directive)</td>
                         </tr>
                         <tr>
                             <td><strong>Querying Paradigm</strong></td>
                             <td>Complex Joins</td>
-                            <td>SPARQL-star Patterns</td>
+                            <td>SPARQL 1.2 reified-triple patterns</td>
                             <td><code>GRAPH</code> Clause (Scope Change)</td>
                             <td>Property Path Traversal</td>
                         </tr>
                         <tr>
                             <td><strong>Core Use Case</strong></td>
                             <td>Provenance of a statement token</td>
-                            <td>Metadata on a statement</td>
+                            <td>Metadata on a triple-occurrence</td>
                             <td>Dataset management, provenance</td>
                             <td>Modeling structural composition</td>
                         </tr>
@@ -279,19 +322,38 @@
         <p>This specification defines two classes of conformance.</p>
         <p>A conformant <strong>RDF-H Processor</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
         <ol>
-            <li>Satisfy all conformance criteria for a fully conformant RDF 1.2 processor, including support for RDF 1.2
-                Datasets and the RDF-star data model and syntaxes.</li>
+            <li>Satisfy all conformance criteria for a fully conformant RDF 1.2 processor [[RDF12-CONCEPTS]],
+                including support for triple terms, the <code>rdf:reifies</code> predicate, and the Turtle 1.2
+                syntactic forms for reified triples and annotation blocks [[RDF12-TURTLE]].</li>
             <li>Correctly parse and serialize the Turtle-H syntax defined in <a href="#syntax" class="sec-ref"></a>,
-                translating it to and from the standard RDF-star representation.</li>
-            <li>Support an entailment regime that respects the RDFS and OWL semantics of the RDF-H vocabulary defined in
-                <a href="#semantics" class="sec-ref"></a>.</li>
+                translating it to and from its standard RDF 1.2 representation.</li>
+            <li><em class="rfc2119" title="SHOULD">SHOULD</em> support an entailment regime that respects the
+                RDFS and OWL semantics of the RDF-H vocabulary defined in
+                <a href="#semantics" class="sec-ref"></a>. At minimum, an RDF-H processor
+                <em class="rfc2119" title="SHOULD">SHOULD</em> implement the <code>h-holon-type</code>
+                entailment rule (see <a href="#semantics" class="sec-ref"></a>) and
+                <code>rdfs:subPropertyOf</code> traversal for the <code>h:partOf</code> hierarchy.</li>
         </ol>
         <p>A conformant <strong>RDF-H Graph</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
         <ol>
             <li>Be a valid RDF 1.2 graph.</li>
             <li>Adhere to the modeling patterns defined in this specification.</li>
-            <li>Not contain any cycles in its part-whole relationship hierarchies.</li>
+            <li>Not contain any cycles in its part-whole relationship hierarchies. This requirement
+                is operationalized by the <code>h:AcyclicPartConstraintComponent</code> defined in
+                <a href="#validation" class="sec-ref"></a>; a graph is non-conformant if that
+                constraint reports any violation when applied to its <code>h:Holon</code> instances
+                under the entailment regime supported by the validating processor.</li>
         </ol>
+        <p>
+            The acyclicity requirement is also captured at the OWL DL level for the strict
+            (non-transitive) immediate-part properties: <code>h:directlyPartOf</code> and its
+            sub-properties <code>h:componentOf</code> and <code>h:memberOf</code> are declared
+            <code>owl:AsymmetricProperty</code> and <code>owl:IrreflexiveProperty</code>, so any graph
+            containing a cycle in those properties is OWL-inconsistent. Acyclicity of the transitive
+            properties (<code>h:partOf</code>, <code>h:substanceOf</code>, <code>h:portionOf</code>)
+            cannot be expressed in OWL DL — see <a href="#part-of-hierarchy" class="sec-ref"></a>
+            for the rationale — and is enforced by the SHACL component referenced above.
+        </p>
     </section>
 
     <section id="vocabulary">
@@ -304,57 +366,134 @@
             <h3>Core Class and Property</h3>
             <dl>
                 <dt><dfn data-dfn-type="dfn" id="dfn-holon-class" class="export">h:Holon</dfn></dt>
-                <dd>The class of all holons. A holon is a resource that acts as a context for other relationships,
-                    representing a "whole" composed of "parts". Designating a resource as a <code>h:Holon</code>
-                    indicates it can be the object of an <code>h:inHolon</code> triple.</dd>
+                <dd>
+                    The class of all holons. Membership in <code>h:Holon</code> means precisely that the
+                    resource is permitted to appear as the object of an <code>h:inHolon</code> triple — i.e.,
+                    that it may serve as a containing whole for one or more triple-occurrences (each
+                    represented by a reifier in the sense of [[RDF12-CONCEPTS]]). Class membership is also
+                    entailed by the <code>rdfs:range</code> axiom on <code>h:inHolon</code>:
+                    <code>?h</code> is inferred to be an <code>h:Holon</code> whenever
+                    <code>?r h:inHolon ?h</code> appears in the graph (see
+                    <a href="#semantics" class="sec-ref"></a>).
+                </dd>
+                <dd>
+                    Conceptually, a holon is a resource that is simultaneously a whole composed of parts and
+                    (typically) a part of a larger whole — but no axiom of <code>h:Holon</code> requires
+                    either: a holon may be empty (containing no <code>h:inHolon</code>-linked relationships)
+                    or top-level (not itself a part of any other holon).
+                </dd>
 
                 <dt><dfn data-dfn-type="dfn" id="dfn-inholon-property" class="export">h:inHolon</dfn></dt>
-                <dd>An object property that links a reified triple (a relationship) to the holon it is a constituent
-                    part of. The subject of this property is a quoted triple, and the object is the containing holon.
-                    The <code>rdfs:range</code> of this property is <code>h:Holon</code>.
+                <dd>An object property that links an RDF 1.2 <em>reifier</em> — an IRI or blank node related
+                    to a triple term via <code>rdf:reifies</code> — to the holon that contains the corresponding
+                    triple-occurrence. The subject of <code>h:inHolon</code> is therefore the reifier (which
+                    identifies one occurrence of an asserted triple); the object is the containing holon.
+                    Its <code>rdfs:range</code> is <code>h:Holon</code>. No <code>rdfs:domain</code> is
+                    declared, because RDF 1.2 places no class restriction on reifiers
+                    [[RDF12-CONCEPTS]]. Note that this property does <em>not</em> use the older
+                    <code>rdf:Statement</code> reification vocabulary, which is independent of the RDF 1.2
+                    reifies / triple-term machinery.
+                </dd>
+                <dd>
+                    In Turtle 1.2 [[RDF12-TURTLE]] the bare-brace syntax <code>&lt;&lt; :s :p :o &gt;&gt;</code>
+                    (a <em>reified triple</em>) expands to a fresh blank-node reifier
+                    <code>_:b rdf:reifies &lt;&lt;( :s :p :o )&gt;&gt;</code>; only triple terms — written
+                    <code>&lt;&lt;( s p o )&gt;&gt;</code> with parentheses — appear as objects, never as
+                    subjects. RDF-H reuses this reifier sugar so that <code>h:inHolon</code> is always
+                    asserted on an IRI or blank node.
                 </dd>
             </dl>
         </section>
 
         <section id="part-of-hierarchy">
             <h3>The Part-Of Hierarchy</h3>
+            <p class="note">
+                <strong>Future direction.</strong> The mereology vocabulary defined in this section
+                (<code>h:partOf</code>, <code>h:hasPart</code>, <code>h:directlyPartOf</code>,
+                <code>h:hasDirectPart</code>, and the <code>component</code>/<code>member</code>/<code>substance</code>/<code>portion</code>
+                sub-properties) is logically separable from the holon machinery defined in the rest of this
+                document. A future revision MAY extract it into a standalone mereology vocabulary
+                specification at a sibling namespace, with RDF-H then importing it. The IRIs and semantics
+                defined here are intended to remain stable across that potential extraction; in particular,
+                the namespace IRI of any extracted vocabulary will be chosen so that simple IRI rewriting
+                suffices for migration. Community feedback on whether to perform that extraction — and on a
+                preferred sibling namespace — is explicitly invited.
+            </p>
             <p>To provide semantic precision, RDF-H defines a hierarchy of part-whole relationships using
-                <code>rdfs:subPropertyOf</code> and <code>owl:inverseOf</code>. This allows modelers to be specific
-                while allowing queries to be general. The top-level <code>h:partOf</code> property is transitive, but its
-                sub-properties are not, preventing incorrect inferences across holarchic levels. [[OEP-PARTWHOLE]]</p>
+                <code>rdfs:subPropertyOf</code> and <code>owl:inverseOf</code>. This lets modelers be specific
+                while keeping queries general. [[OEP-PARTWHOLE]]
+            </p>
+            <p>
+                Two top-level properties anchor the hierarchy:
+            </p>
+            <ul>
+                <li><code>h:partOf</code> is <strong>transitive</strong>, providing the closure used for
+                    "is somewhere in the part hierarchy of" queries.</li>
+                <li><code>h:directlyPartOf</code> is <strong>non-transitive</strong>, <strong>asymmetric</strong>,
+                    and <strong>irreflexive</strong>, capturing the immediate (one-step) part relation between a
+                    whole and a part. It is a sub-property of <code>h:partOf</code>.</li>
+            </ul>
+            <p class="note">
+                <strong>Why two top-level properties?</strong>
+                OWL 2 DL forbids combining <code>owl:TransitiveProperty</code> with
+                <code>owl:AsymmetricProperty</code> or <code>owl:IrreflexiveProperty</code> on the same
+                property (see the global restrictions on simple roles in [[OWL2-SYNTAX]] and
+                [[OWL2-DIRECT-SEMANTICS]]). To remain in OWL DL while still expressing the
+                full mereological intent, RDF-H separates the closure-providing property
+                (<code>h:partOf</code>, transitive) from the strict immediate-part relation
+                (<code>h:directlyPartOf</code>, asymmetric and irreflexive). Acyclicity of
+                <code>h:partOf</code> itself — and of its transitive sub-properties
+                <code>h:substanceOf</code> and <code>h:portionOf</code> — is enforced by SHACL
+                (see <a href="#validation" class="sec-ref"></a>) rather than by an OWL axiom.
+            </p>
+            <p class="note">
+                Property characteristics such as <code>owl:TransitiveProperty</code>,
+                <code>owl:AsymmetricProperty</code>, and <code>owl:IrreflexiveProperty</code> are
+                <em>not</em> inherited via <code>rdfs:subPropertyOf</code> in OWL. Each property in the
+                hierarchy therefore declares its own characteristics explicitly.
+            </p>
             <dl>
                 <dt><code>h:partOf</code> / <code>h:hasPart</code></dt>
-                <dd>The top-level, transitive super-property for all part-whole relations. <code>h:hasPart</code> is the
-                    inverse of <code>h:partOf</code>.
-                    <br><strong>Characteristics:</strong> Transitive.
+                <dd>The top-level super-property for all part-whole relations. Use it to query the transitive
+                    closure of the part hierarchy. <code>h:hasPart</code> is the inverse of
+                    <code>h:partOf</code>.
+                    <br><strong>Characteristics:</strong> Transitive. (Acyclicity enforced by SHACL.)
+                </dd>
+
+                <dt><code>h:directlyPartOf</code> / <code>h:hasDirectPart</code></dt>
+                <dd>The immediate-part relation between a part and the whole that contains it directly. Use this
+                    when you want to assert a one-step containment without engaging transitive closure semantics.
+                    <code>h:hasDirectPart</code> is the inverse of <code>h:directlyPartOf</code>.
+                    <br><strong>Characteristics:</strong> Non-transitive, asymmetric, irreflexive.
                 </dd>
 
                 <dt><code>h:componentOf</code> / <code>h:hasComponent</code></dt>
-                <dd>A sub-property of <code>h:partOf</code> for functional or structural parts (e.g., an engine is a
-                    component of a car). This relationship is essential for preserving the distinct levels of a holarchy.
-                    <code>h:hasComponent</code> is the inverse of <code>h:componentOf</code>.
-                    <br><strong>Characteristics:</strong> Non-transitive.
+                <dd>A sub-property of <code>h:directlyPartOf</code> for functional or structural parts (e.g., an
+                    engine is a component of a car). This relationship is essential for preserving the distinct
+                    levels of a holarchy. <code>h:hasComponent</code> is the inverse of
+                    <code>h:componentOf</code>.
+                    <br><strong>Characteristics:</strong> Non-transitive, asymmetric, irreflexive.
                 </dd>
 
                 <dt><code>h:memberOf</code> / <code>h:hasMember</code></dt>
-                <dd>A sub-property of <code>h:partOf</code> for elements in a collection or group where the whole is an
-                    aggregate of its members (e.g., a player is a member of a team). <code>h:hasMember</code> is the
-                    inverse of <code>h:memberOf</code>.
-                    <br><strong>Characteristics:</strong> Non-transitive.
+                <dd>A sub-property of <code>h:directlyPartOf</code> for elements in a collection or group where
+                    the whole is an aggregate of its members (e.g., a player is a member of a team).
+                    <code>h:hasMember</code> is the inverse of <code>h:memberOf</code>.
+                    <br><strong>Characteristics:</strong> Non-transitive, asymmetric, irreflexive.
                 </dd>
 
                 <dt><code>h:substanceOf</code> / <code>h:hasSubstance</code></dt>
-                <dd>A sub-property of <code>h:partOf</code> for material composition (e.g., clay is a substance of a
-                    brick). A part of the substance is also a part of the whole. <code>h:hasSubstance</code> is the
-                    inverse of <code>h:substanceOf</code>.
-                    <br><strong>Characteristics:</strong> Transitive.
+                <dd>A sub-property of <code>h:partOf</code> for material composition (e.g., clay is a substance
+                    of a brick). A part of the substance is also a part of the whole. <code>h:hasSubstance</code>
+                    is the inverse of <code>h:substanceOf</code>.
+                    <br><strong>Characteristics:</strong> Transitive. (Acyclicity enforced by SHACL.)
                 </dd>
 
                 <dt><code>h:portionOf</code> / <code>h:hasPortion</code></dt>
-                <dd>A sub-property of <code>h:partOf</code> for segments of a continuous whole (e.g., a slice is a
-                    portion of a pie). A part of the portion is also a part of the whole. <code>h:hasPortion</code> is the
-                    inverse of <code>h:portionOf</code>.
-                    <br><strong>Characteristics:</strong> Transitive.
+                <dd>A sub-property of <code>h:partOf</code> for segments of a continuous whole (e.g., a slice is
+                    a portion of a pie). A part of the portion is also a part of the whole.
+                    <code>h:hasPortion</code> is the inverse of <code>h:portionOf</code>.
+                    <br><strong>Characteristics:</strong> Transitive. (Acyclicity enforced by SHACL.)
                 </dd>
             </dl>
             <div class="example">
@@ -364,25 +503,45 @@
 @prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
 @prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
 
-# Top-level properties
+# Top-level transitive part-of (closure for queries; acyclic via SHACL)
 h:partOf a owl:ObjectProperty, owl:TransitiveProperty .
 h:hasPart a owl:ObjectProperty, owl:TransitiveProperty ;
     owl:inverseOf h:partOf .
 
-# Non-transitive sub-properties
-h:componentOf a owl:ObjectProperty ;
+# Direct (immediate) part — non-transitive, asymmetric, irreflexive
+# (DL-safe complement to the transitive h:partOf)
+h:directlyPartOf a owl:ObjectProperty,
+        owl:AsymmetricProperty,
+        owl:IrreflexiveProperty ;
     rdfs:subPropertyOf h:partOf .
-h:hasComponent a owl:ObjectProperty ;
+h:hasDirectPart a owl:ObjectProperty,
+        owl:AsymmetricProperty,
+        owl:IrreflexiveProperty ;
     rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:directlyPartOf .
+
+# Non-transitive sub-properties of h:directlyPartOf
+h:componentOf a owl:ObjectProperty,
+        owl:AsymmetricProperty,
+        owl:IrreflexiveProperty ;
+    rdfs:subPropertyOf h:directlyPartOf .
+h:hasComponent a owl:ObjectProperty,
+        owl:AsymmetricProperty,
+        owl:IrreflexiveProperty ;
+    rdfs:subPropertyOf h:hasDirectPart ;
     owl:inverseOf h:componentOf .
 
-h:memberOf a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:partOf .
-h:hasMember a owl:ObjectProperty ;
-    rdfs:subPropertyOf h:hasPart ;
+h:memberOf a owl:ObjectProperty,
+        owl:AsymmetricProperty,
+        owl:IrreflexiveProperty ;
+    rdfs:subPropertyOf h:directlyPartOf .
+h:hasMember a owl:ObjectProperty,
+        owl:AsymmetricProperty,
+        owl:IrreflexiveProperty ;
+    rdfs:subPropertyOf h:hasDirectPart ;
     owl:inverseOf h:memberOf .
 
-# Transitive sub-properties
+# Transitive sub-properties of h:partOf (acyclic via SHACL, like h:partOf)
 h:substanceOf a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:subPropertyOf h:partOf .
 h:hasSubstance a owl:ObjectProperty, owl:TransitiveProperty ;
@@ -417,14 +576,19 @@ h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
             <div class="example">
                 <p><strong>Example of using a domain-specific property with RDF-H:</strong></p>
                 <pre class="nohighlight turtle">
-@prefix ex: &lt;http://example.org/network#&gt; .
-@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+@prefix ex:  &lt;http://example.org/network#&gt; .
+@prefix h:   &lt;https://w3id.org/rdf-h#&gt; .
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
 
 # A domain-specific property defined in an external ontology
 ex:isPeerOf a owl:ObjectProperty, owl:SymmetricProperty .
 
+# The holon resource. Explicit typing is RECOMMENDED for portability,
+# even though h:inHolon's range axiom would entail it under RDFS.
+ex:SystemCluster a h:Holon .
+
 # Applying the RDF-H pattern to the domain-specific property
-ex:SystemCluster {
+@holon ex:SystemCluster {
     ex:ServiceA ex:isPeerOf ex:ServiceB .
 }
 </pre>
@@ -456,14 +620,22 @@ h:inHolon rdfs:range h:Holon .
 </pre>
                 <p><strong>Entailment Rule (h-holon-type):</strong></p>
                 <pre>
-IF:   &lt;&lt; ?s ?p ?o &gt;&gt; h:inHolon ?c .
+IF:   ?r h:inHolon ?c .
 THEN: ?c rdf:type h:Holon .
                 </pre>
                 <p>
                     This rule means that any resource appearing as the object of an <code>h:inHolon</code> triple
-                    is inferred to be an instance of <code>h:Holon</code>.
+                    is inferred to be an instance of <code>h:Holon</code>. The subject <code>?r</code> is a
+                    <em>reifier</em> — an IRI or blank node that, in the RDF 1.2 reifies model, identifies a
+                    particular occurrence of an asserted triple.
                 </p>
             </div>
+            <p class="note">
+                Because this typing is only an entailment, it may not be visible to consumers that do not apply
+                RDFS reasoning. The <code>h:HolonIntegrityConstraintComponent</code> defined in
+                <a href="#validation" class="sec-ref"></a> surfaces holons whose typing relies on this
+                entailment, and modelers SHOULD declare <code>h:Holon</code> explicitly for portability.
+            </p>
         </section>
 
         <section>
@@ -492,39 +664,62 @@ SELECT ?part ?whole WHERE { ?part h:partOf ?whole . }
             <h3>Acyclicity and Well-Foundedness</h3>
             <p>
                 The requirement that part-whole hierarchies be acyclic is a fundamental guarantee of the
-                logical soundness of any compositional model. It is analogous to the Axiom of Foundation in
-                Zermelo–Fraenkel set theory, which prevents self-referential paradoxes [[SEP-SELFREF]].
-            </p>
-            <p>
-                Therefore, a conformant <strong>RDF-H Graph</strong> <em class="rfc2119" title="MUST NOT">MUST
-                    NOT</em> contain cycles in its part-whole relationship paths (e.g.,
-                <code>H1 h:partOf H2 . H2 h:partOf H1 .</code>). Such a graph is logically inconsistent. This can be
-                enforced using SHACL, as described in <a href="#validation" class="sec-ref"></a>.
+                logical soundness of any compositional model — analogous to the Axiom of Foundation in
+                Zermelo&ndash;Fraenkel set theory [[SEP-SELFREF]]. The normative MUST-NOT statement of this
+                requirement appears in <a href="#conformance" class="sec-ref"></a>; the OWL- and
+                SHACL-level enforcement mechanisms are described in
+                <a href="#part-of-hierarchy" class="sec-ref"></a> and
+                <a href="#validation" class="sec-ref"></a> respectively.
             </p>
         </section>
     </section>
 
     <section id="syntax">
         <h2>Turtle-H: A Syntactic Sugar for Turtle</h2>
+        <p class="note">
+            <strong>Future direction.</strong> Turtle-H — the <code>@holon</code> directive defined in this
+            section — is logically separable from the rest of RDF-H: it is a Turtle 1.2 surface-syntax
+            extension whose only specified semantics is its desugaring (see the
+            <a href="#turtle-h-desugaring">desugaring rules</a> below). A future revision MAY extract
+            Turtle-H into a standalone companion specification — for example, a "Turtle-H Surface Syntax"
+            document that the core RDF-H specification merely references — or, if the Turtle 1.2 Working
+            Group finds the construct broadly useful, MAY propose its integration into a future revision
+            of Turtle itself. The <code>@holon</code> token, the EBNF productions in
+            <a href="#grammar" class="sec-ref"></a>, and the desugaring rules are intended to remain
+            stable across either path. Community feedback is invited (see
+            <a href="#issue-turtle-h-status">Open Issue 6</a>).
+        </p>
         <p>
             To simplify the authoring of holonic structures, this specification proposes <strong>Turtle-H</strong>, a
-            syntactic sugar for Turtle that introduces a block-style syntax for defining a holon's context. A conformant
-            RDF-H processor <em class="rfc2119" title="SHOULD">SHOULD</em> support this syntax.
+            syntactic sugar for Turtle that introduces a directive-led block syntax for defining a holon's context.
+            A conformant RDF-H processor <em class="rfc2119" title="SHOULD">SHOULD</em> support this syntax.
         </p>
 
         <section>
-            <h3>The Holon Context Block <code>{...}</code></h3>
+            <h3>The <code>@holon</code> Directive</h3>
             <p>
-                A holon and its constituent relationships can be defined by stating the holon's identifier (IRI or blank
-                node) followed by a block of Turtle statements enclosed in curly braces <code>{...}</code>.
+                A holon and its constituent relationships are defined by the <code>@holon</code> directive, followed
+                by the holon's identifier (IRI or blank node) and a block of Turtle statements enclosed in curly braces:
+            </p>
+            <pre class="nohighlight turtle">
+@holon &lt;holon-iri&gt; {
+    # Turtle statements that are constituents of this holon
+}
+</pre>
+            <p class="note">
+                <strong>Why a directive (and not a bare <code>IRI { ... }</code> block)?</strong>
+                The bare-brace form <code>&lt;iri&gt; { ... }</code> already has a defined meaning in TriG [[TRIG]],
+                where it denotes a named graph. Reusing that surface syntax for an unrelated semantics
+                (holonic context) would silently misparse Turtle-H input under any TriG-aware parser, and
+                vice versa. The <code>@holon</code> keyword makes Turtle-H grammatically distinct from TriG
+                and unambiguous to a single parser pass.
             </p>
             <p class="note">
-                It is important to note that this block-style syntax is <strong>not</strong> part of the standard Turtle
-                or Turtle-star specifications. It is a proposed syntactic sugar for RDF-H designed to improve usability.
-                In standard Turtle, a developer would be required to manually write two separate triples: the relationship
-                itself, and the RDF-star annotation linking it to the holon. The proposed <code>{...}</code> block
-                simplifies this by allowing the developer to write the relationship only once; a Turtle-H-aware parser
-                then automatically generates both required triples.
+                Turtle-H is <strong>not</strong> part of the standard Turtle 1.2 specification [[RDF12-TURTLE]].
+                It is a proposed syntactic sugar for RDF-H. In standard Turtle 1.2 a developer must write two
+                separate constructs — the asserted triple, and an annotation block (or a separate reifier triple)
+                linking it to the holon. The <code>@holon</code> block lets the developer write the relationship
+                once; a Turtle-H-aware parser generates both required triples.
             </p>
             <div class="example">
                 <p><strong>Example using Turtle-H Syntax:</strong></p>
@@ -532,34 +727,49 @@ SELECT ?part ?whole WHERE { ?part h:partOf ?whole . }
 @prefix ex: &lt;http://example.org/&gt; .
 @prefix h: &lt;https://w3id.org/rdf-h#&gt; .
 
-ex:Car_123 {
+ex:Car_123 a h:Holon .
+ex:Engine_456 a h:Holon .
+
+@holon ex:Car_123 {
     ex:Engine_456 h:componentOf ex:Car_123 .
 
-    ex:Engine_456 {
+    @holon ex:Engine_456 {
         ex:Piston_789 h:componentOf ex:Engine_456 .
     }
 }
 </pre>
             </div>
             <p>
-                This concise syntax is syntactic sugar for the more verbose standard RDF-star representation. A Turtle-H
-                parser <em class="rfc2119" title="MUST">MUST</em> translate the block syntax into the equivalent set of
-                standard triples.
+                This concise syntax is syntactic sugar for the standard RDF 1.2 representation. A Turtle-H
+                parser <em class="rfc2119" title="MUST">MUST</em> translate the block syntax into the equivalent
+                set of standard triples.
             </p>
-            <p>The block <code>:H { :s :p :o . }</code> "desugars" into the following two standard triples:</p>
+            <p id="turtle-h-desugaring">The block <code>@holon :H { :s :p :o . }</code> desugars
+                <em>per Turtle-H</em> into:</p>
             <ol>
                 <li><strong>The Base Fact:</strong> The relationship itself is asserted.
                     <br><code>:s :p :o .</code>
                 </li>
-                <li><strong>The Context Fact:</strong> The relationship is linked to its containing holon.
+                <li><strong>The Context Fact:</strong> The relationship's reifier is linked to its
+                    containing holon.
                     <br><code>&lt;&lt; :s :p :o &gt;&gt; h:inHolon :H .</code>
                 </li>
             </ol>
+            <p>
+                The reified-triple form <code>&lt;&lt; :s :p :o &gt;&gt;</code> is itself sugar in
+                Turtle 1.2 [[RDF12-TURTLE]] — it allocates a fresh blank-node reifier related to the
+                triple term <code>&lt;&lt;( :s :p :o )&gt;&gt;</code> via <code>rdf:reifies</code>. The
+                fully-expanded RDF 1.2 form is therefore three triples per
+                <code>@holon</code>-enclosed statement, as shown below.
+            </p>
             <div class="example">
-                <p><strong>Standard RDF-star Equivalent of the Turtle-H Example:</strong></p>
+                <p><strong>RDF 1.2 Equivalent of the Turtle-H Example (using reified-triple sugar):</strong></p>
                 <pre class="nohighlight turtle">
 @prefix ex: &lt;http://example.org/&gt; .
 @prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+
+ex:Car_123 a h:Holon .
+ex:Engine_456 a h:Holon .
 
 # Triples generated from the ex:Car_123 context
 ex:Engine_456 h:componentOf ex:Car_123 .
@@ -570,9 +780,133 @@ ex:Piston_789 h:componentOf ex:Engine_456 .
 &lt;&lt; ex:Piston_789 h:componentOf ex:Engine_456 &gt;&gt; h:inHolon ex:Engine_456 .
 </pre>
             </div>
+            <div class="example">
+                <p><strong>Fully-expanded RDF 1.2 form (no syntactic sugar):</strong></p>
+                <pre class="nohighlight turtle">
+@prefix ex:  &lt;http://example.org/&gt; .
+@prefix h:   &lt;https://w3id.org/rdf-h#&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+
+ex:Car_123    a h:Holon .
+ex:Engine_456 a h:Holon .
+
+ex:Engine_456 h:componentOf ex:Car_123 .
+_:r1 rdf:reifies &lt;&lt;( ex:Engine_456 h:componentOf ex:Car_123 )&gt;&gt; .
+_:r1 h:inHolon ex:Car_123 .
+
+ex:Piston_789 h:componentOf ex:Engine_456 .
+_:r2 rdf:reifies &lt;&lt;( ex:Piston_789 h:componentOf ex:Engine_456 )&gt;&gt; .
+_:r2 h:inHolon ex:Engine_456 .
+</pre>
+            </div>
             <p>
-                This syntactic sugar dramatically improves readability and writability, making the holonic structure
-                visually apparent while remaining 100% compatible with the standard RDF 1.2 data model.
+                This syntactic sugar improves readability and writability while remaining fully compatible with the
+                standard RDF 1.2 data model.
+            </p>
+        </section>
+
+        <section id="assertion-semantics">
+            <h3>Assertion Semantics: Reifiers, Triple Terms, and Asserted Triples</h3>
+            <p>
+                RDF 1.2 distinguishes three things that are easy to conflate [[RDF12-CONCEPTS]]:
+            </p>
+            <ul>
+                <li>An <strong>asserted triple</strong> <code>:s :p :o .</code> claims that the relationship
+                    holds.</li>
+                <li>A <strong>triple term</strong> <code>&lt;&lt;( :s :p :o )&gt;&gt;</code> is an RDF term
+                    that <em>denotes</em> the triple <code>(:s, :p, :o)</code>; in RDF 1.2 a triple term may
+                    appear only as the object of another triple, never as a subject.</li>
+                <li>A <strong>reifier</strong> is an IRI or blank node that is related to a triple term via
+                    <code>rdf:reifies</code>; the reifier identifies a particular <em>occurrence</em> of the
+                    underlying triple and is itself an ordinary RDF resource that may appear as either subject
+                    or object.</li>
+            </ul>
+            <p>
+                In Turtle 1.2 [[RDF12-TURTLE]] the bare-brace form <code>&lt;&lt; :s :p :o &gt;&gt;</code> is
+                <em>syntactic sugar</em> for a fresh blank-node reifier together with the
+                <code>rdf:reifies</code> triple that ties it to the underlying triple term. Concretely,
+                <code>&lt;&lt; :s :p :o &gt;&gt; h:inHolon :H .</code> expands to
+                <code>_:b rdf:reifies &lt;&lt;( :s :p :o )&gt;&gt; . _:b h:inHolon :H .</code>
+                Asserting this <em>does not</em> by itself assert <code>:s :p :o</code> — it only asserts that
+                a reifier of that triple is in holon <code>:H</code>.
+            </p>
+            <p>
+                RDF-H therefore imposes the following normative requirement:
+            </p>
+            <ul>
+                <li>For every reifier <code>?r</code> with <code>?r h:inHolon :H</code> in a conformant
+                    RDF-H graph, if <code>?r rdf:reifies &lt;&lt;( :s :p :o )&gt;&gt;</code> holds, then the
+                    base triple <code>:s :p :o</code> <em class="rfc2119" title="MUST">MUST</em> also be
+                    asserted in the same graph.</li>
+                <li>The <code>@holon</code> directive of Turtle-H satisfies this requirement automatically by
+                    emitting both the asserted triple and the reifier-with-<code>h:inHolon</code> on
+                    desugaring (see the <a href="#turtle-h-desugaring">desugaring rules</a>).</li>
+            </ul>
+            <p>
+                "Being in a holon" is therefore an annotation on a relationship that is already claimed to
+                hold; it never substitutes for the assertion itself.
+            </p>
+            <p class="note">
+                This requirement is necessary because RDF 1.2 Semantics [[RDF12-SEMANTICS]] places no
+                truth-preserving constraint on <code>rdf:reifies</code>: asserting that a reifier reifies a
+                triple term carries no model-theoretic commitment to the truth of the underlying triple.
+                Without the explicit RDF-H rule above, an RDF-H graph could legitimately contain
+                <code>?r h:inHolon :H</code> for a reifier of a triple that is not itself asserted, which
+                would make holons unsound containers for the relationships they purport to gather. RDF 1.2
+                Semantics likewise places no identity constraint on reifiers of the same triple term, which
+                is what enables the multiple-holons-per-triple pattern shown below.
+            </p>
+
+            <h4>Equivalent forms</h4>
+            <p>
+                Because <code>&lt;&lt; ... &gt;&gt; h:inHolon :H</code> reduces to a reifier carrying
+                <code>h:inHolon :H</code>, it is equivalent to using the standard Turtle 1.2 annotation
+                syntax <code>{| h:inHolon :H |}</code> directly:
+            </p>
+            <div class="example">
+                <p>The following three Turtle 1.2 fragments are all equivalent in RDF 1.2:</p>
+                <pre class="nohighlight turtle">
+# (a) Annotation syntax — most idiomatic in Turtle 1.2
+ex:Engine_456 h:componentOf ex:Car_123 {| h:inHolon ex:Car_123 |} .
+
+# (b) Reified-triple sugar — what Turtle-H @holon desugars to
+ex:Engine_456 h:componentOf ex:Car_123 .
+&lt;&lt; ex:Engine_456 h:componentOf ex:Car_123 &gt;&gt; h:inHolon ex:Car_123 .
+
+# (c) Fully expanded — no syntactic sugar
+ex:Engine_456 h:componentOf ex:Car_123 .
+_:b rdf:reifies &lt;&lt;( ex:Engine_456 h:componentOf ex:Car_123 )&gt;&gt; .
+_:b h:inHolon ex:Car_123 .
+</pre>
+            </div>
+
+            <h4>The same triple in multiple holons</h4>
+            <p>
+                A single base triple <em class="rfc2119" title="MAY">MAY</em> appear in more than one holon.
+                Each additional containing holon is recorded by an additional reifier carrying its own
+                <code>h:inHolon</code>. There is no implicit relationship between the holons that share a
+                triple.
+            </p>
+            <div class="example">
+                <pre class="nohighlight turtle">
+@prefix ex: &lt;http://example.org/&gt; .
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+
+ex:Engine_456 h:componentOf ex:Car_123
+    {| h:inHolon ex:Car_123 |}
+    {| h:inHolon ex:DriveTrain_789 |} .
+</pre>
+            </div>
+
+            <h4>Distinction from named graphs</h4>
+            <p>
+                A holon is a <em>resource within</em> a graph; an RDF-H graph is a single, unified RDF 1.2 graph
+                in which holonic structure is encoded by reifiers carrying <code>h:inHolon</code> triples. This
+                is fundamentally different from a TriG named graph [[TRIG]], which partitions a dataset into
+                separately addressable graphs. A Turtle-H processor
+                <em class="rfc2119" title="MUST NOT">MUST NOT</em> treat an <code>@holon</code> block as a
+                named graph, and a TriG processor <em class="rfc2119" title="MUST NOT">MUST NOT</em> treat a
+                TriG <code>&lt;iri&gt; { ... }</code> block as a holon block.
             </p>
         </section>
     </section>
@@ -580,14 +914,18 @@ ex:Piston_789 h:componentOf ex:Engine_456 .
     <section id="querying">
         <h2>Querying Holonic Graphs with SPARQL</h2>
         <p>
-            Querying RDF-H graphs does not require any extension to SPARQL. All holonic structures can be queried using
-            standard SPARQL 1.1 [[SPARQL11-QUERY]] combined with SPARQL-star patterns.
+            Querying RDF-H graphs does not require any extension to SPARQL. All holonic structures can be queried
+            using standard SPARQL 1.1 [[SPARQL11-QUERY]] together with the SPARQL 1.2 reified-triple patterns
+            and triple-term syntax that accompany the RDF 1.2 reifier model [[RDF12-CONCEPTS]].
         </p>
 
         <section>
             <h3>Querying Holonic Context</h3>
-            <p>The core pattern for querying within a holon's context involves finding relationships linked to it via
-                <code>h:inHolon</code>.</p>
+            <p>The core pattern for querying within a holon's context involves finding the reifiers linked to
+                it via <code>h:inHolon</code>, and matching the triple they reify. The SPARQL 1.2 reified-triple
+                pattern <code>&lt;&lt; ?s ?p ?o &gt;&gt;</code> matches any reifier of a triple with that
+                shape, so it composes directly with <code>h:inHolon</code>.
+            </p>
             <div class="example">
                 <p><strong>Example Query:</strong> Find all component relationships defined within the context of
                     <code>ex:Engine_456</code>.</p>
@@ -598,6 +936,18 @@ PREFIX h:  &lt;https://w3id.org/rdf-h#&gt;
 SELECT ?part ?engine
 WHERE {
     &lt;&lt; ?part h:componentOf ?engine &gt;&gt; h:inHolon ex:Engine_456 .
+}
+</pre>
+                <p>Equivalently, the fully-expanded RDF 1.2 form makes the reifier explicit:</p>
+                <pre class="nohighlight sparql">
+PREFIX ex:  &lt;http://example.org/&gt;
+PREFIX h:   &lt;https://w3id.org/rdf-h#&gt;
+PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+
+SELECT ?part ?engine
+WHERE {
+    ?r rdf:reifies &lt;&lt;( ?part h:componentOf ?engine )&gt;&gt; .
+    ?r h:inHolon ex:Engine_456 .
 }
 </pre>
             </div>
@@ -644,8 +994,9 @@ WHERE {
             The Shapes Constraint Language (SHACL) [[SHACL]] is the standard mechanism for validating RDF graphs. To
             facilitate the validation of holonic graphs, the RDF-H vocabulary includes two built-in
             <strong>Constraint Components</strong>. These components encapsulate the core structural integrity rules of
-            the RDF-H pattern, making it simpler to write robust and reusable SHACL shapes. A conformant SHACL-H
-            processor <em class="rfc2119" title="SHOULD">SHOULD</em> recognize and implement these components.
+            the RDF-H pattern, making it simpler to write robust and reusable SHACL shapes. A conformant RDF-H
+            processor that performs SHACL validation <em class="rfc2119" title="SHOULD">SHOULD</em> recognize and
+            implement these components.
         </p>
 
         <section>
@@ -683,24 +1034,40 @@ h:AcyclicPartValidator a sh:SPARQLValidator ;
         PREFIX h: <https://w3id.org/rdf-h#>
         SELECT $this
         WHERE {
-            $this h:partOf+ $this .
+            $this (h:partOf|h:directlyPartOf|h:componentOf|h:memberOf|h:substanceOf|h:portionOf)+ $this .
         }
     """ .
 </pre>
             </div>
+            <p class="note">
+                The validator alternates explicitly over <code>h:partOf</code> and its declared
+                sub-properties because SPARQL property paths do not traverse
+                <code>rdfs:subPropertyOf</code> without RDFS entailment. Under a SHACL engine that
+                applies RDFS entailment [[SPARQL11-ENTAILMENT]], the simpler form
+                <code>$this h:partOf+ $this</code> is equivalent.
+            </p>
         </section>
 
         <section>
             <h3>Built-in Constraint Component: HolonIntegrityConstraintComponent</h3>
             <p>
                 This component validates that any resource acting as a holon (i.e., as the object of an
-                <code>h:inHolon</code> property) is explicitly declared to be of type <code>h:Holon</code>.
+                <code>h:inHolon</code> property) is <em>explicitly</em> declared to be of type
+                <code>h:Holon</code>.
+            </p>
+            <p class="note">
+                Because <code>h:inHolon</code> declares <code>rdfs:range h:Holon</code>, any RDFS-aware
+                processor will <em>infer</em> the <code>h:Holon</code> type for every object of
+                <code>h:inHolon</code>; under such an engine the constraint is trivially satisfied. The
+                component therefore acts as a portability / quality check: it surfaces holons whose typing
+                relies on entailment and that would consequently appear untyped to a non-inferring consumer.
+                Modelers SHOULD declare <code>h:Holon</code> explicitly for every holon.
             </p>
             <ul>
                 <li><strong>IRI:</strong> <code>h:HolonIntegrityConstraintComponent</code></li>
-                <li><strong>Constraint:</strong> A focus node violates this constraint if it is the object of an
-                    <code>h:inHolon</code> triple but is not explicitly declared as an <code>rdf:type</code> of
-                    <code>h:Holon</code>.
+                <li><strong>Constraint:</strong> Under a non-inferring SHACL engine, a focus node violates
+                    this constraint if it is the object of an <code>h:inHolon</code> triple but is not
+                    explicitly declared as an <code>rdf:type</code> of <code>h:Holon</code>.
                 </li>
             </ul>
             <div class="example">
@@ -722,7 +1089,7 @@ h:HolonIntegrityConstraintComponent a sh:ConstraintComponent ;
     sh:validator h:HolonIntegrityValidator .
 
 h:HolonIntegrityValidator a sh:SPARQLValidator ;
-    sh:message "The focus node is used as a holon (object of h:inHolon) but is not typed as h:Holon."@en ;
+    sh:message "The focus node is used as a holon (object of h:inHolon) but is not explicitly typed as h:Holon."@en ;
     sh:select """
         PREFIX h: <https://w3id.org/rdf-h#>
         SELECT $this
@@ -737,12 +1104,399 @@ h:HolonIntegrityValidator a sh:SPARQLValidator ;
     </section>
 
 
+    <section id="worked-example" class="informative">
+        <h2>Worked Example: Smart Building Digital Twin</h2>
+        <p>
+            This section presents a realistic, end-to-end RDF-H example: a digital twin of a single floor
+            of an office building, including its HVAC subsystem, occupants, and material composition. The
+            example exercises every part-of sub-property (<code>h:componentOf</code>,
+            <code>h:memberOf</code>, <code>h:substanceOf</code>, <code>h:portionOf</code>), nested holons,
+            domain-specific predicates within a holon's context, SPARQL queries against the resulting
+            graph, and SHACL validation.
+        </p>
+        <p>
+            The example uses two namespace prefixes in addition to the RDF-H prefix:
+            <code>bldg:</code> for building-domain vocabulary defined in an external ontology, and
+            <code>ex:</code> for the instance data.
+        </p>
+
+        <section>
+            <h3>The Data</h3>
+            <div class="example">
+                <p><strong>Turtle-H source:</strong></p>
+                <pre class="nohighlight turtle">
+@prefix bldg: &lt;https://example.org/bldg#&gt; .
+@prefix ex:   &lt;https://example.org/twin/&gt; .
+@prefix h:    &lt;https://w3id.org/rdf-h#&gt; .
+@prefix owl:  &lt;http://www.w3.org/2002/07/owl#&gt; .
+@prefix xsd:  &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+
+# --- Domain-specific vocabulary (external ontology) ---
+bldg:monitors        a owl:ObjectProperty .
+bldg:occupies        a owl:ObjectProperty .
+bldg:cooledBy        a owl:ObjectProperty .
+
+# --- Holon declarations (explicit typing recommended for portability) ---
+ex:Building_A         a h:Holon ; bldg:address "1 Market St, San Francisco, CA" .
+ex:Floor_3            a h:Holon .
+ex:HVAC_F3            a h:Holon .
+ex:Compressor_F3      a h:Holon .
+ex:Room_301           a h:Holon .
+
+# --- Top-level holon: the building, with its floors and tenant ---
+@holon ex:Building_A {
+    ex:Floor_3        h:componentOf ex:Building_A .
+    ex:Floor_4        h:componentOf ex:Building_A .
+    ex:Tenant_Acme    h:memberOf    ex:Building_A .
+    ex:AnnualEnergy_2026 h:portionOf ex:Building_A_EnergyHistory .
+}
+
+# --- Floor 3, with its rooms and shared HVAC subsystem ---
+@holon ex:Floor_3 {
+    ex:Room_301       h:componentOf ex:Floor_3 .
+    ex:Room_302       h:componentOf ex:Floor_3 .
+    ex:HVAC_F3        h:componentOf ex:Floor_3 .
+
+    # A domain-specific relationship placed within the floor's holonic context
+    ex:Room_301       bldg:cooledBy ex:HVAC_F3 .
+    ex:Room_302       bldg:cooledBy ex:HVAC_F3 .
+}
+
+# --- Room 301: occupants and the wall material ---
+@holon ex:Room_301 {
+    ex:Person_Smith   bldg:occupies ex:Room_301 .
+    ex:Person_Jones   bldg:occupies ex:Room_301 .
+    ex:Concrete_Mix_C30 h:substanceOf ex:Room_301_NorthWall .
+}
+
+# --- HVAC subsystem: components and a domain-specific monitoring relation ---
+@holon ex:HVAC_F3 {
+    ex:Compressor_F3  h:componentOf ex:HVAC_F3 .
+    ex:DuctNetwork_F3 h:componentOf ex:HVAC_F3 .
+    ex:TempSensor_F3  bldg:monitors ex:HVAC_F3 .
+}
+
+# --- Compressor: refrigerant is substance, transitive via h:partOf ---
+@holon ex:Compressor_F3 {
+    ex:Refrigerant_R410A h:substanceOf ex:Compressor_F3 .
+}
+</pre>
+            </div>
+            <p>
+                After the Turtle-H parser desugars the <code>@holon</code> directives, the resulting graph
+                contains the original assertions plus, for each statement enclosed in a holon block, an
+                <code>h:inHolon</code> annotation on its reifier. For instance, the line
+                <code>ex:Room_301 bldg:cooledBy ex:HVAC_F3 .</code> inside
+                <code>@holon ex:Floor_3</code> expands to that asserted triple plus
+                <code>&lt;&lt; ex:Room_301 bldg:cooledBy ex:HVAC_F3 &gt;&gt; h:inHolon ex:Floor_3 .</code>
+                (which itself further expands to a fresh blank-node reifier with
+                <code>rdf:reifies</code> — see the <a href="#turtle-h-desugaring">desugaring rules</a>).
+            </p>
+        </section>
+
+        <section>
+            <h3>Querying the Graph</h3>
+            <p>
+                The following queries illustrate the kinds of questions the holonic structure makes
+                straightforward to answer.
+            </p>
+            <div class="example">
+                <p><strong>Query 1:</strong> List every part of <code>ex:Building_A</code>, at any depth,
+                    regardless of part-of sub-type. RDFS-aware engines traverse all sub-properties of
+                    <code>h:partOf</code>.</p>
+                <pre class="nohighlight sparql">
+PREFIX ex: &lt;https://example.org/twin/&gt;
+PREFIX h:  &lt;https://w3id.org/rdf-h#&gt;
+
+SELECT DISTINCT ?part WHERE {
+    ?part h:partOf+ ex:Building_A .
+}
+</pre>
+                <p>
+                    Expected results (under RDFS entailment): <code>ex:Floor_3</code>,
+                    <code>ex:Floor_4</code>, <code>ex:Tenant_Acme</code>,
+                    <code>ex:AnnualEnergy_2026</code>, <code>ex:Room_301</code>, <code>ex:Room_302</code>,
+                    <code>ex:HVAC_F3</code>, <code>ex:Compressor_F3</code>,
+                    <code>ex:DuctNetwork_F3</code>, <code>ex:Refrigerant_R410A</code>.
+                </p>
+            </div>
+            <div class="example">
+                <p><strong>Query 2:</strong> What relationships are scoped to the floor's holonic context?
+                    This finds every triple-occurrence whose reifier is <code>h:inHolon ex:Floor_3</code>.
+                </p>
+                <pre class="nohighlight sparql">
+PREFIX ex: &lt;https://example.org/twin/&gt;
+PREFIX h:  &lt;https://w3id.org/rdf-h#&gt;
+
+SELECT ?s ?p ?o WHERE {
+    &lt;&lt; ?s ?p ?o &gt;&gt; h:inHolon ex:Floor_3 .
+}
+</pre>
+                <p>
+                    Returns the five statements asserted inside <code>@holon ex:Floor_3</code>: the three
+                    <code>h:componentOf</code> triples and the two <code>bldg:cooledBy</code> triples.
+                    Crucially, the <em>same</em> <code>bldg:cooledBy</code> assertions made elsewhere
+                    (e.g., inside another building's floor holon) would not be returned, even if the
+                    triples themselves were structurally identical, because each assertion has its own
+                    reifier.
+                </p>
+            </div>
+            <div class="example">
+                <p><strong>Query 3:</strong> Find every temperature sensor that monitors an HVAC
+                    subsystem somewhere in <code>ex:Building_A</code>, joining a domain-specific
+                    relationship with the holonic structure.</p>
+                <pre class="nohighlight sparql">
+PREFIX bldg: &lt;https://example.org/bldg#&gt;
+PREFIX ex:   &lt;https://example.org/twin/&gt;
+PREFIX h:    &lt;https://w3id.org/rdf-h#&gt;
+
+SELECT ?sensor ?hvac WHERE {
+    ?sensor bldg:monitors ?hvac .
+    ?hvac   h:partOf+      ex:Building_A .
+}
+</pre>
+                <p>
+                    Returns <code>(ex:TempSensor_F3, ex:HVAC_F3)</code>. Note that the query does not
+                    need to mention floors, rooms, or the holonic structure explicitly; the transitive
+                    <code>h:partOf+</code> traversal does the work.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h3>Validation</h3>
+            <p>
+                Applying the SHACL shapes from <a href="#validation" class="sec-ref"></a> to the example
+                graph produces no violations — the part-of hierarchy is acyclic, and every holon used
+                as the object of <code>h:inHolon</code> is explicitly typed as <code>h:Holon</code>.
+            </p>
+            <div class="example">
+                <p>
+                    To illustrate detection, consider the following <em>invalid</em> addition to the
+                    graph:
+                </p>
+                <pre class="nohighlight turtle">
+# A bug: the building is mistakenly declared a component of one of its own floors.
+ex:Building_A h:componentOf ex:Floor_3 .
+</pre>
+                <p>
+                    With this triple added, the
+                    <code>h:AcyclicPartConstraintComponent</code> reports a violation on
+                    <code>ex:Building_A</code>: there now exists a part-of cycle
+                    <code>ex:Building_A → ex:Floor_3 → ex:Building_A</code> via the alternation over
+                    <code>h:componentOf</code> and the transitive closure under
+                    <code>h:partOf</code>. An OWL DL reasoner would also flag the graph as
+                    inconsistent, since <code>h:componentOf</code> is declared
+                    <code>owl:AsymmetricProperty</code> and the two <code>h:componentOf</code> triples
+                    contradict each other.
+                </p>
+            </div>
+        </section>
+    </section>
+
+    <section id="grammar" class="appendix">
+        <h2>Appendix A: Turtle-H Grammar</h2>
+        <p>
+            This appendix specifies the additional grammar productions that Turtle-H introduces over
+            Turtle 1.2 [[RDF12-TURTLE]]. The notation follows the EBNF style used by the Turtle 1.2
+            specification. Production names that appear in italics (e.g., <em>iri</em>,
+            <em>BlankNode</em>, <em>triples</em>) refer to the corresponding productions in Turtle 1.2 and
+            are not redefined here.
+        </p>
+        <p>
+            A Turtle-H document is a Turtle 1.2 document extended with the <code>@holon</code> directive.
+            Concretely, the <em>statement</em> production of Turtle 1.2 is extended with one additional
+            alternative:
+        </p>
+        <pre>
+[H1]   statement       ::=  directive | triples '.' | <em>holonBlock</em>
+
+[H2]   <em>holonBlock</em>     ::=  '@holon' <em>holonId</em> '{' <em>holonContent</em>* '}'
+
+[H3]   <em>holonId</em>        ::=  <em>iri</em> | <em>BlankNode</em>
+
+[H4]   <em>holonContent</em>   ::=  triples '.' | <em>holonBlock</em>
+</pre>
+        <p>
+            Whitespace and comments are permitted between any two tokens, as in Turtle 1.2. The
+            <code>@holon</code> keyword is case-sensitive.
+        </p>
+        <p>
+            <strong>Desugaring (informative).</strong> A parser that accepts Turtle-H
+            <em class="rfc2119" title="MUST">MUST</em> translate each <em>holonBlock</em> into the equivalent
+            Turtle 1.2 triples described in the <a href="#turtle-h-desugaring">desugaring rules</a>. For each
+            <em>holonContent</em> that is itself a <code>triples '.'</code> production with subject
+            <code>:s</code>, predicate <code>:p</code> and object <code>:o</code>, and for the enclosing
+            <em>holonId</em> <code>:H</code>, the parser emits:
+        </p>
+        <pre>
+:s :p :o .
+&lt;&lt; :s :p :o &gt;&gt; h:inHolon :H .
+</pre>
+        <p>
+            For predicate-object lists (multiple objects per subject) and object lists (multiple
+            <code>p o</code> pairs per subject) the parser emits one <code>h:inHolon</code> annotation
+            per generated triple. Nested <em>holonBlock</em>s desugar recursively, with each nested
+            block producing <code>h:inHolon</code> annotations against its own enclosing
+            <em>holonId</em> rather than the outer one.
+        </p>
+        <p>
+            <strong>Disambiguation from TriG.</strong> The <em>holonBlock</em> production starts
+            unambiguously with the keyword <code>@holon</code>, which is not a valid token at the same
+            grammatical position in either Turtle 1.2 or TriG [[TRIG]]. A parser
+            <em class="rfc2119" title="MUST NOT">MUST NOT</em> treat a TriG named-graph block
+            (<code>iri '{' triples '}'</code>) as a <em>holonBlock</em>, and vice versa.
+        </p>
+    </section>
+
+    <section id="open-issues" class="informative">
+        <h2>Appendix B: Open Issues</h2>
+        <p>
+            The editors invite community feedback on the following design questions. Each is intended to be
+            resolved before a v1.0 milestone of this specification.
+        </p>
+        <dl>
+            <dt id="issue-mereology-extraction">Issue 1: Extraction of the mereology vocabulary</dt>
+            <dd>
+                As noted in <a href="#part-of-hierarchy" class="sec-ref"></a>, the
+                <code>h:partOf</code> hierarchy is logically separable from the holon machinery and may
+                be extracted into a standalone vocabulary at a sibling namespace. Feedback is sought on
+                (a) whether the extraction should happen, (b) the preferred sibling namespace
+                (e.g., <code>https://w3id.org/rdf-mereo#</code>), and (c) whether the extracted
+                vocabulary should also publish migration guidance for graphs authored against the
+                bundled v0.x form.
+            </dd>
+
+            <dt id="issue-w3id-redirect">Issue 2: Status of the <code>w3id.org</code> namespace redirect</dt>
+            <dd>
+                The vocabulary IRI <code>https://w3id.org/rdf-h#</code> requires a redirect entry in the
+                <a href="https://github.com/perma-id/w3id.org">perma-id/w3id.org</a> registry before any
+                published consumer can dereference it. Until that redirect is in place, citations to
+                RDF-H IRIs are not resolvable on the open web.
+            </dd>
+
+            <dt id="issue-owl-profile">Issue 3: OWL profile choice</dt>
+            <dd>
+                Option (c) was selected for the part-of hierarchy (split <code>h:partOf</code> /
+                <code>h:directlyPartOf</code>) to keep the vocabulary in OWL DL. Feedback is sought on
+                whether OWL DL conformance is the right target — alternatives include (a) accepting OWL
+                Full and declaring all part-of properties transitive + asymmetric + irreflexive on a
+                single property, or (b) dropping asymmetry/irreflexivity from OWL entirely and
+                relying on SHACL alone.
+            </dd>
+
+            <dt id="issue-holon-empty">Issue 4: Empty and singleton holons</dt>
+            <dd>
+                The current vocabulary permits a resource to be typed as <code>h:Holon</code> without
+                any <code>h:inHolon</code>-linked relationships. Should the spec require non-emptiness
+                of holons, or is the permissive interpretation correct? The current draft favors
+                permissiveness on the grounds that empty holons may legitimately be created in
+                anticipation of future content.
+            </dd>
+
+            <dt id="issue-holon-closure">Issue 5: Closed-world holon contents</dt>
+            <dd>
+                There is currently no way to assert "these triples — and only these triples — are in
+                holon <code>:H</code>." Should the spec define a closure mechanism (e.g., a
+                <code>h:closed</code> annotation, or a SHACL-based pattern), or is the open-world
+                interpretation sufficient?
+            </dd>
+
+            <dt id="issue-turtle-h-status">Issue 6: Turtle-H normative status and venue</dt>
+            <dd>
+                Turtle-H is currently bundled into this document as a
+                <em class="rfc2119" title="SHOULD">SHOULD</em>-level optional syntactic sugar. Three
+                independent questions are open for community feedback:
+                <ol>
+                    <li><strong>Normative level.</strong> Should Turtle-H remain
+                        <em class="rfc2119" title="SHOULD">SHOULD</em>-level optional, or be promoted
+                        to <em class="rfc2119" title="MUST">MUST</em>-level required syntax for a
+                        conformant RDF-H processor?</li>
+                    <li><strong>Document venue.</strong> Should Turtle-H stay bundled in this
+                        specification, or be extracted into a standalone companion document
+                        ("Turtle-H Surface Syntax") that the core RDF-H specification merely
+                        references? Extraction would parallel the proposed treatment of the mereology
+                        vocabulary (see <a href="#issue-mereology-extraction">Open Issue 1</a>).</li>
+                    <li><strong>Upstream integration.</strong> Should the editors propose the
+                        <code>@holon</code> directive — or a generalization of it — to the Turtle
+                        Working Group for integration into a future revision of Turtle 1.2 itself? The
+                        construct is RDF-H-specific in its desugaring (it emits an
+                        <code>h:inHolon</code> annotation), but a generalized form (e.g., a
+                        per-block annotation directive parameterized by an arbitrary predicate) might
+                        be of broader interest to the Turtle community.</li>
+                </ol>
+            </dd>
+        </dl>
+    </section>
+
+    <section id="security" class="informative">
+        <h2>Appendix C: Security and Privacy Considerations</h2>
+        <p>
+            RDF-H introduces no new security or privacy considerations beyond those of the underlying
+            specifications it depends on ([[RDF12-CONCEPTS]], [[RDF12-SEMANTICS]], [[RDF12-TURTLE]],
+            [[SPARQL11-QUERY]], [[SHACL]]). Implementers and consumers of RDF-H graphs should however be
+            aware of the following:
+        </p>
+        <ul>
+            <li><strong>Triple-occurrence leakage.</strong> Because <code>h:inHolon</code> annotations
+                identify <em>occurrences</em> of triples (via reifiers), an RDF-H graph may carry more
+                identifying or contextual information about a triple than a flat RDF graph would. When
+                merging or publishing RDF-H graphs that originated from access-controlled subgraphs,
+                publishers SHOULD review which holons are exposed and whether the resulting
+                triple-occurrence metadata constitutes an information leak.</li>
+            <li><strong>Cycle-checking cost.</strong> The acyclicity validator described in
+                <a href="#validation" class="sec-ref"></a> evaluates a transitive property path over
+                potentially large graphs. Engines processing untrusted input SHOULD apply standard
+                resource limits to bound query evaluation cost.</li>
+            <li><strong>Reifier identity.</strong> Reifiers that are blank nodes (the default form
+                produced by the Turtle 1.2 reified-triple sugar and by the <code>@holon</code> directive)
+                are not stable across graph serializations. Applications that rely on reifier identity
+                across exchanges SHOULD use IRI reifiers explicitly.</li>
+        </ul>
+    </section>
+
+    <section id="changelog" class="appendix">
+        <h2>Appendix D: Change Log</h2>
+        <dl>
+            <dt>Version 0.5 (current)</dt>
+            <dd>
+                <ul>
+                    <li>Aligned terminology and semantics with the RDF 1.2 Candidate Recommendation
+                        family ([[RDF12-CONCEPTS]], [[RDF12-SEMANTICS]], [[RDF12-TURTLE]]). The spec
+                        now uses <em>triple term</em>, <em>reifier</em>, and <code>rdf:reifies</code>
+                        consistently and no longer references the obsolete "RDF-star" terminology or
+                        the non-existent <code>rdf:TripleTerm</code> class.</li>
+                    <li>Split the part-of hierarchy into a transitive top-level <code>h:partOf</code>
+                        and a non-transitive, asymmetric, irreflexive <code>h:directlyPartOf</code>,
+                        keeping the vocabulary within OWL 2 DL.</li>
+                    <li>Replaced the bare-brace <code>IRI { ... }</code> Turtle-H block with the
+                        <code>@holon</code> directive to eliminate the TriG syntactic collision.</li>
+                    <li>Added the §<a href="#assertion-semantics">Assertion Semantics</a> section
+                        with a normative MUST tying <code>h:inHolon</code> annotations to the assertion
+                        of the underlying base triple, and motivating the requirement from RDF 1.2
+                        Semantics.</li>
+                    <li>Added Appendix A (Turtle-H grammar), Appendix B (Open Issues), Appendix C
+                        (Security and Privacy Considerations), and this Change Log.</li>
+                    <li>Marked the mereology vocabulary as a candidate for future extraction into a
+                        sibling specification.</li>
+                </ul>
+            </dd>
+            <dt>Version 0.3</dt>
+            <dd>
+                Simplified the specification: removed the built-in graph notion, simplified holonic
+                relationships, and improved the Turtle-H syntactic sugar. (See the repository commit
+                history for details.)
+            </dd>
+        </dl>
+    </section>
+
     <section id="conclusion" class="informative">
         <h2>Conclusion</h2>
         <p>
             This specification introduces <strong>RDF-H</strong>, a powerful and flexible modeling pattern for
-            representing compositional structures in RDF. By leveraging the existing capabilities of RDF 1.2 and
-            RDF-star, it provides a semantically sound and structurally intuitive method for modeling "wholes-within-wholes."
+            representing compositional structures in RDF. By building directly on the RDF 1.2 reifier model and
+            triple terms, it provides a semantically sound and structurally intuitive method for modeling
+            "wholes-within-wholes."
             The core vocabulary, centered on <code>h:inHolon</code> and a formal mereological hierarchy, is both
             simple and expressive. The proposed Turtle-H syntactic sugar makes the pattern highly accessible to
             developers, bridging the gap between the intuitive feel of property graphs and the formal rigor of RDF.
@@ -753,8 +1507,7 @@ h:HolonIntegrityValidator a sh:SPARQLValidator ;
 
     <section id="acknowledgements" class="appendix">
         <h2>Acknowledgements</h2>
-        <p>The editors thank the RDF-star Community Group and the wider RDF-Dev community for early feedback and
-            valuable discussions that have shaped this specification.</p>
+        <p>The editors thank the Spatial Web Foundation for early feedback and discussions that have shaped this specification.</p>
     </section>
 </body>
 
