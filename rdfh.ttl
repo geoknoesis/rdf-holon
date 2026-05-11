@@ -12,23 +12,29 @@
 #################################################################
 
 <https://w3id.org/rdf-h#> a owl:Ontology ;
-    rdfs:label "RDF-H - A Holonic Modeling Pattern Vocabulary"@en ;
-    rdfs:comment "This vocabulary defines the core classes, properties, and SHACL constraint components for representing and validating holarchic structures in RDF."@en ;
-    owl:versionIRI <https://w3id.org/rdf-h#0.5> ;
-    owl:versionInfo "0.5" ;
+    rdfs:label "RDF-H — A Holonic Modeling Pattern Vocabulary"@en ;
+    rdfs:comment "This vocabulary defines the core class, properties, and SHACL constraint components for representing and validating holarchic structures in RDF 1.2."@en ;
+    owl:versionIRI <https://w3id.org/rdf-h#0.6> ;
+    owl:versionInfo "0.6" ;
+    owl:priorVersion <https://w3id.org/rdf-h#0.5> ;
+    dct:created "2025-01-01"^^xsd:date ;
+    dct:modified "2026-05-10"^^xsd:date ;
+    dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
     dct:creator [
         a foaf:Person ;
         foaf:name "Stephane Fellah" ;
         foaf:workplaceHomepage <https://geoknoesis.com>
-    ] .
+    ] ;
+    rdfs:seeAlso <https://geoknoesis.github.io/rdf-holon/> .
 
 #################################################################
-# Core Classes
+# Core Class
 #################################################################
 
 h:Holon a owl:Class, rdfs:Class ;
     rdfs:label "Holon"@en ;
-    rdfs:comment "A resource that acts as a context for a set of relationships, representing a 'whole' that is itself composed of parts and may be a part of larger wholes."@en .
+    rdfs:comment "A resource that acts as a context for a set of relationships, representing a 'whole' that is itself composed of parts and may be a part of larger wholes. Membership in h:Holon means precisely that the resource is permitted to appear as the object of an h:inHolon triple. Class membership is also entailed by the rdfs:range axiom on h:inHolon under RDFS entailment."@en ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 #################################################################
 # Core Holon Property
@@ -41,136 +47,163 @@ h:Holon a owl:Class, rdfs:Class ;
 # declares no rdfs:domain. It MUST NOT be confused with the older
 # rdf:Statement reification vocabulary, which is independent of the
 # RDF 1.2 reifies / triple-term machinery.
+#
+# The owl:ObjectProperty declaration commits, under OWL 2 DL
+# semantics, every resource appearing in the subject position of
+# h:inHolon to be an individual; this is strictly stronger than the
+# RDF 1.2 baseline (which deliberately leaves reifiers untyped).
 h:inHolon a owl:ObjectProperty ;
     rdfs:label "in holon"@en ;
     rdfs:comment "Links the reifier of a triple-occurrence (an IRI or blank node related to a triple term via rdf:reifies, in the sense of RDF 1.2) to the holon that contains the occurrence. The subject is the reifier; the object is the containing holon."@en ;
-    rdfs:range h:Holon .
+    rdfs:range h:Holon ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 #################################################################
 # Part-Of Hierarchy
 #################################################################
 #
-# OWL DL forbids combining owl:TransitiveProperty with
-# owl:AsymmetricProperty or owl:IrreflexiveProperty on the same
-# property (OWL 2 Direct Semantics, Section 11). RDF-H therefore
-# splits the part-whole relation into two top-level properties:
+# v0.6 simplifies the hierarchy compared to v0.5: the separate
+# h:directlyPartOf / h:hasDirectPart top-level properties have been
+# removed. h:componentOf and h:memberOf are now direct sub-properties
+# of h:partOf and retain their asymmetric / irreflexive characteristics.
 #
 #   * h:partOf       — transitive (closes over the hierarchy);
-#                      acyclicity is NOT a DL axiom on this
-#                      property — it is enforced by the
-#                      h:AcyclicPartConstraintComponent SHACL shape.
+#                      acyclicity is enforced by the
+#                      h:AcyclicPartConstraintComponent SHACL shape
+#                      under RDFS entailment, not by an OWL axiom.
+#                      OWL 2 DL forbids combining
+#                      owl:TransitiveProperty with
+#                      owl:AsymmetricProperty / owl:IrreflexiveProperty.
 #
-#   * h:directlyPartOf — non-transitive, asymmetric, irreflexive;
-#                        DL-safely captures the immediate-part
-#                        relation. Sub-property of h:partOf.
+#   * h:componentOf — non-transitive, asymmetric, irreflexive;
+#   * h:memberOf    — non-transitive, asymmetric, irreflexive;
+#                     both are sub-properties of h:partOf and remain
+#                     OWL 2 DL "simple" roles because neither is
+#                     itself transitive nor has a transitive
+#                     sub-property. The fact that their super-property
+#                     h:partOf is transitive does not violate the
+#                     simple-role restriction (which is downward, not
+#                     upward).
 #
-# The non-transitive sub-properties h:componentOf and h:memberOf
-# are sub-properties of h:directlyPartOf and inherit asymmetry /
-# irreflexivity by intent (OWL does not propagate property
-# characteristics across rdfs:subPropertyOf — they are also
-# declared explicitly).
+#   * h:substanceOf, h:portionOf — transitive sub-properties of
+#                     h:partOf; their acyclicity, like that of
+#                     h:partOf itself, is an integrity constraint
+#                     enforced only by SHACL.
 #
-# The transitive sub-properties h:substanceOf and h:portionOf
-# remain sub-properties of h:partOf; their acyclicity, like that
-# of h:partOf itself, is an integrity constraint enforced only
-# by SHACL.
+# Extension constraint: ontology extensions MUST NOT introduce
+# transitive sub-properties of h:componentOf, h:memberOf,
+# h:hasComponent, or h:hasMember, since doing so would invalidate
+# their AsymmetricProperty / IrreflexiveProperty axioms under OWL 2 DL
+# (see §11 of OWL 2 Structural Specification).
 #################################################################
 
-# Top-Level Part-Of Properties
+# Top-level transitive part-of (closure for queries; acyclic via SHACL)
 h:partOf a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "part of"@en ;
-    rdfs:comment "The top-level transitive super-property for all part-whole relations. Acyclicity is enforced by SHACL (h:AcyclicPartConstraintComponent), not by an OWL axiom, because OWL DL forbids combining TransitiveProperty with IrreflexiveProperty / AsymmetricProperty."@en .
+    rdfs:comment "The top-level transitive super-property for all part-whole relations. Acyclicity is enforced by SHACL (h:AcyclicPartConstraintComponent), not by an OWL axiom, because OWL DL forbids combining TransitiveProperty with AsymmetricProperty or IrreflexiveProperty."@en ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:hasPart a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "has part"@en ;
     rdfs:comment "The top-level transitive super-property for all whole-part relations. Inverse of h:partOf."@en ;
-    owl:inverseOf h:partOf .
+    owl:inverseOf h:partOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
-# Direct (Immediate) Part Properties
-h:directlyPartOf a owl:ObjectProperty,
-        owl:AsymmetricProperty,
-        owl:IrreflexiveProperty ;
-    rdfs:label "directly part of"@en ;
-    rdfs:comment "The non-transitive, asymmetric, irreflexive sub-property of h:partOf for immediate (one-step) part-whole relations. DL-safe complement to the transitive h:partOf."@en ;
-    rdfs:subPropertyOf h:partOf .
-
-h:hasDirectPart a owl:ObjectProperty,
-        owl:AsymmetricProperty,
-        owl:IrreflexiveProperty ;
-    rdfs:label "has direct part"@en ;
-    rdfs:comment "The inverse of h:directlyPartOf."@en ;
-    rdfs:subPropertyOf h:hasPart ;
-    owl:inverseOf h:directlyPartOf .
-
-# Sub-Property: Component
+# Sub-Property: Component (non-transitive, asymmetric, irreflexive)
 h:componentOf a owl:ObjectProperty,
         owl:AsymmetricProperty,
         owl:IrreflexiveProperty ;
     rdfs:label "component of"@en ;
-    rdfs:comment "A non-transitive sub-property of h:directlyPartOf for functional or structural parts."@en ;
-    rdfs:subPropertyOf h:directlyPartOf .
+    rdfs:comment "A non-transitive, asymmetric, irreflexive sub-property of h:partOf for functional or structural parts (e.g., an engine is a component of a car)."@en ;
+    rdfs:subPropertyOf h:partOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:hasComponent a owl:ObjectProperty,
         owl:AsymmetricProperty,
         owl:IrreflexiveProperty ;
     rdfs:label "has component"@en ;
     rdfs:comment "The inverse of h:componentOf."@en ;
-    rdfs:subPropertyOf h:hasDirectPart ;
-    owl:inverseOf h:componentOf .
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:componentOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
-# Sub-Property: Member
+# Sub-Property: Member (non-transitive, asymmetric, irreflexive)
 h:memberOf a owl:ObjectProperty,
         owl:AsymmetricProperty,
         owl:IrreflexiveProperty ;
     rdfs:label "member of"@en ;
-    rdfs:comment "A non-transitive sub-property of h:directlyPartOf for elements in a collection or group."@en ;
-    rdfs:subPropertyOf h:directlyPartOf .
+    rdfs:comment "A non-transitive, asymmetric, irreflexive sub-property of h:partOf for elements in a collection or group where the whole is an aggregate of its members (e.g., a player is a member of a team)."@en ;
+    rdfs:subPropertyOf h:partOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:hasMember a owl:ObjectProperty,
         owl:AsymmetricProperty,
         owl:IrreflexiveProperty ;
     rdfs:label "has member"@en ;
     rdfs:comment "The inverse of h:memberOf."@en ;
-    rdfs:subPropertyOf h:hasDirectPart ;
-    owl:inverseOf h:memberOf .
+    rdfs:subPropertyOf h:hasPart ;
+    owl:inverseOf h:memberOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 # Sub-Property: Substance (transitive)
 h:substanceOf a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "substance of"@en ;
-    rdfs:comment "A transitive sub-property of h:partOf for material composition. Like h:partOf, its acyclicity is enforced by SHACL rather than an OWL axiom."@en ;
-    rdfs:subPropertyOf h:partOf .
+    rdfs:comment "A transitive sub-property of h:partOf for material composition (e.g., clay is a substance of a brick). A part of the substance is also a part of the whole. Like h:partOf, its acyclicity is enforced by SHACL rather than an OWL axiom."@en ;
+    rdfs:subPropertyOf h:partOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:hasSubstance a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "has substance"@en ;
     rdfs:comment "The inverse of h:substanceOf."@en ;
     rdfs:subPropertyOf h:hasPart ;
-    owl:inverseOf h:substanceOf .
+    owl:inverseOf h:substanceOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 # Sub-Property: Portion (transitive)
 h:portionOf a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "portion of"@en ;
-    rdfs:comment "A transitive sub-property of h:partOf for segments of a continuous whole. Like h:partOf, its acyclicity is enforced by SHACL rather than an OWL axiom."@en ;
-    rdfs:subPropertyOf h:partOf .
+    rdfs:comment "A transitive sub-property of h:partOf for segments of a continuous whole (e.g., a slice is a portion of a pie). A part of the portion is also a part of the whole. Like h:partOf, its acyclicity is enforced by SHACL rather than an OWL axiom."@en ;
+    rdfs:subPropertyOf h:partOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "has portion"@en ;
     rdfs:comment "The inverse of h:portionOf."@en ;
     rdfs:subPropertyOf h:hasPart ;
-    owl:inverseOf h:portionOf .
+    owl:inverseOf h:portionOf ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 #################################################################
 # SHACL Constraint Components
 #################################################################
+#
+# RDF-H v0.6 defines three built-in SHACL constraint components,
+# organized into two groups:
+#
+#   * Normative validators (operationalize the MUST-level
+#     conformance criteria for an RDF-H Graph):
+#       - h:AcyclicPartConstraintComponent
+#       - h:AssertedBaseTripleConstraintComponent
+#
+#   * Portability validators (advisory checks that surface modeling
+#     patterns correct under inference but appearing
+#     non-conformant to non-inferring consumers):
+#       - h:HolonIntegrityConstraintComponent
+#################################################################
 
-# Acyclicity validator: checks for cycles via h:partOf OR any of its
-# declared sub-properties. The explicit alternation is required because
-# SPARQL property paths do not traverse rdfs:subPropertyOf without
-# RDFS entailment. If your SHACL engine applies RDFS entailment, the
-# simpler form `$this h:partOf+ $this` is equivalent.
+# --- Normative validator 1: acyclicity of the part-of hierarchy ---
+#
+# Operationalizes the conformance requirement that no resource
+# stand in h:partOf+ with itself, evaluated under RDFS entailment.
+# Under RDFS entailment, the simple property path h:partOf+
+# automatically traverses every sub-property of h:partOf declared
+# in the graph or its imports, including custom domain-specific
+# part-properties added by extensions.
 h:AcyclicPartConstraintComponent a sh:ConstraintComponent ;
     rdfs:label "Acyclic Part Constraint Component"@en ;
-    rdfs:comment "Validates that a holon does not participate in a cycle in the part-of hierarchy."@en ;
-    sh:validator h:AcyclicPartValidator .
+    rdfs:comment "Validates that no resource participates in a cycle in the h:partOf hierarchy under RDFS entailment. Operationalizes conformance criterion 3 for an RDF-H Graph."@en ;
+    sh:validator h:AcyclicPartValidator ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:AcyclicPartValidator a sh:SPARQLValidator ;
     sh:message "The focus node participates in a part-of cycle."@en ;
@@ -178,19 +211,54 @@ h:AcyclicPartValidator a sh:SPARQLValidator ;
         PREFIX h: <https://w3id.org/rdf-h#>
         SELECT $this
         WHERE {
-            $this (h:partOf|h:directlyPartOf|h:componentOf|h:memberOf|h:substanceOf|h:portionOf)+ $this .
+            $this h:partOf+ $this .
         }
-    """ .
+    """ ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
-# Holon-typing best-practice validator. The h:inHolon range axiom
-# already entails ?h rdf:type h:Holon for any object of h:inHolon under
-# RDFS entailment, so this validator only fires under engines that do
-# NOT apply that entailment. It is therefore a quality / portability
-# check rather than a correctness check.
+# --- Normative validator 2: asserted base triple ---
+#
+# Operationalizes the asserted-base-triple requirement: every reifier
+# carrying an h:inHolon annotation must reify a triple that is
+# itself asserted in the graph. The Turtle-H @holon directive
+# satisfies this constraint automatically by emitting both the base
+# triple and the reifier-with-h:inHolon on desugaring; the validator
+# primarily catches violations introduced by hand-authored
+# fully-expanded RDF 1.2 forms, by graph merges that drop the base
+# triple, or by buggy serialization pipelines.
+h:AssertedBaseTripleConstraintComponent a sh:ConstraintComponent ;
+    rdfs:label "Asserted Base Triple Constraint Component"@en ;
+    rdfs:comment "Validates that every reifier carrying an h:inHolon annotation reifies a triple that is itself asserted in the graph. Operationalizes conformance criterion 4 for an RDF-H Graph."@en ;
+    sh:validator h:AssertedBaseTripleValidator ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
+
+h:AssertedBaseTripleValidator a sh:SPARQLValidator ;
+    sh:message "Reifier is in a holon but its base triple is not asserted."@en ;
+    sh:select """
+        PREFIX h:   <https://w3id.org/rdf-h#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT $this
+        WHERE {
+            $this h:inHolon  ?H .
+            $this rdf:reifies <<( ?s ?p ?o )>> .
+            FILTER NOT EXISTS { ?s ?p ?o . }
+        }
+    """ ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
+
+# --- Portability validator: explicit h:Holon typing ---
+#
+# The h:inHolon range axiom already entails ?h rdf:type h:Holon for
+# any object of h:inHolon under RDFS entailment, so this validator
+# only fires under engines that do NOT apply that entailment. It is
+# therefore a quality / portability check rather than a correctness
+# check, and is NOT part of the conformance criteria for an RDF-H
+# Graph.
 h:HolonIntegrityConstraintComponent a sh:ConstraintComponent ;
     rdfs:label "Holon Integrity Constraint Component"@en ;
-    rdfs:comment "Validates that a resource used as a holon is explicitly typed as h:Holon. Under RDFS entailment this constraint is trivially satisfied via the rdfs:range axiom on h:inHolon; under non-inferring SHACL engines it surfaces missing explicit type declarations."@en ;
-    sh:validator h:HolonIntegrityValidator .
+    rdfs:comment "Validates that a resource used as a holon is explicitly typed as h:Holon. Under RDFS entailment this constraint is trivially satisfied via the rdfs:range axiom on h:inHolon; under non-inferring SHACL engines it surfaces missing explicit type declarations. Advisory only — not part of the RDF-H Graph conformance criteria."@en ;
+    sh:validator h:HolonIntegrityValidator ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:HolonIntegrityValidator a sh:SPARQLValidator ;
     sh:message "The focus node is used as a holon (object of h:inHolon) but is not explicitly typed as h:Holon."@en ;
@@ -201,4 +269,5 @@ h:HolonIntegrityValidator a sh:SPARQLValidator ;
             ?s h:inHolon $this .
             FILTER NOT EXISTS { $this a h:Holon . }
         }
-    """ .
+    """ ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
