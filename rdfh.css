@@ -1,0 +1,239 @@
+/* ==========================================================================
+   RDF-H specification — readability stylesheet
+   Presentation only; layered on top of ReSpec's base theme
+   (respecConfig.useW3CStyle = false).
+
+   IMPORTANT: All content rules are scoped under `html body section ...` so they
+   apply ONLY to the spec body. ReSpec's generated title/metadata header
+   (`div.head`: title, editors, version, status) and the table of contents
+   (`nav#toc`) are deliberately left with their original ReSpec styling. Only the
+   page frame (centering/padding) is set on `body`.
+   ========================================================================== */
+
+:root {
+    --rdfh-ink: #1f2328;
+    --rdfh-muted: #57606a;
+    --rdfh-accent: #0b6bcb;
+    --rdfh-rule: #d0d7de;
+    --rdfh-code-bg: #f6f8fa;
+    --rdfh-note-bg: #eef5fd;
+    --rdfh-note-bar: #0b6bcb;
+    --rdfh-example-bg: #f3faf4;
+    --rdfh-example-bar: #2da44e;
+    --rdfh-content: 52rem;
+}
+
+/* ---- Page frame (layout only; header keeps its original typography) ---- */
+html body {
+    max-width: var(--rdfh-content);
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 6rem;
+}
+
+/* ---- Content typography (scoped to spec sections) ---------------------- */
+html body section {
+    color: var(--rdfh-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+html body section p,
+html body section li,
+html body section dd {
+    /* keep the measure comfortable even inside wider containers */
+    max-width: 42rem;
+}
+
+/* ---- Headings (content only; the title h1 is left to ReSpec) ----------- */
+html body section h2,
+html body section h3,
+html body section h4,
+html body section h5 {
+    line-height: 1.25;
+    font-weight: 650;
+    color: var(--rdfh-ink);
+    scroll-margin-top: 1rem;
+}
+html body section h2 {
+    margin-top: 2.75rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--rdfh-rule);
+    font-size: 1.6rem;
+}
+html body section h3 {
+    margin-top: 2rem;
+    font-size: 1.25rem;
+}
+html body section h4 {
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+    color: var(--rdfh-muted);
+}
+
+/* ---- Links (content only; metadata/editor links keep ReSpec styling) --- */
+html body section a {
+    color: var(--rdfh-accent);
+    text-decoration: none;
+}
+html body section a:hover {
+    text-decoration: underline;
+}
+
+/* ---- Inline code ------------------------------------------------------- */
+html body section code {
+    font-family: "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono",
+        Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--rdfh-code-bg);
+    padding: 0.12em 0.36em;
+    border-radius: 5px;
+    border: 1px solid var(--rdfh-rule);
+    color: #1f2328;
+    word-break: break-word;
+}
+
+/* ---- Code blocks ------------------------------------------------------- */
+html body section pre {
+    background: var(--rdfh-code-bg);
+    border: 1px solid var(--rdfh-rule);
+    border-left: 4px solid #8aa4c2;
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    margin: 1.1rem 0;
+    max-width: 100%;
+}
+html body section pre code {
+    /* reset inline-code chrome inside blocks */
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+}
+/* language hint on fenced spec blocks */
+html body section pre.turtle,
+html body section pre.sparql {
+    position: relative;
+}
+html body section pre.turtle::before,
+html body section pre.sparql::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.1rem 0.55rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rdfh-muted);
+    background: #e7edf3;
+    border-bottom-left-radius: 6px;
+    border-left: 1px solid var(--rdfh-rule);
+    border-bottom: 1px solid var(--rdfh-rule);
+}
+html body section pre.turtle::before {
+    content: "Turtle";
+}
+html body section pre.sparql::before {
+    content: "SPARQL";
+}
+
+/* ---- Callouts: notes & examples --------------------------------------- */
+html body section .note,
+html body section .example {
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    margin: 1.2rem 0;
+    font-size: 0.96em;
+}
+html body section .note {
+    background: var(--rdfh-note-bg);
+    border: 1px solid #cfe2f7;
+    border-left: 4px solid var(--rdfh-note-bar);
+}
+html body section .example {
+    background: var(--rdfh-example-bg);
+    border: 1px solid #d3ecd8;
+    border-left: 4px solid var(--rdfh-example-bar);
+}
+/* let code blocks sit flush inside an example callout */
+html body section .example pre {
+    border-left-width: 1px;
+    background: #fff;
+}
+html body section .note p:last-child,
+html body section .example p:last-child {
+    margin-bottom: 0;
+}
+
+/* ---- Tables ------------------------------------------------------------ */
+html body section table {
+    border-collapse: collapse;
+    margin: 1.3rem 0;
+    width: 100%;
+    font-size: 0.92rem;
+}
+html body section table th,
+html body section table td {
+    border: 1px solid var(--rdfh-rule);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+html body section table thead th {
+    background: #eef1f4;
+    font-weight: 650;
+}
+html body section table tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+/* ---- Definition lists (vocabulary terms) ------------------------------- */
+html body section dl dt {
+    font-weight: 650;
+    margin-top: 1.1rem;
+}
+html body section dl dd {
+    margin: 0.3rem 0 0.6rem 1.5rem;
+}
+
+/* ---- RFC 2119 keywords ------------------------------------------------- */
+html body section em.rfc2119 {
+    font-style: normal;
+    font-variant: small-caps;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #6b3fa0;
+}
+
+/* ---- Lists ------------------------------------------------------------- */
+html body section ol,
+html body section ul {
+    padding-left: 1.4rem;
+}
+html body section li {
+    margin: 0.3rem 0;
+}
+
+/* ---- Responsive -------------------------------------------------------- */
+@media (max-width: 40rem) {
+    html body {
+        padding: 1rem 1rem 4rem;
+    }
+    html body section {
+        font-size: 16px;
+    }
+    html body section p,
+    html body section li,
+    html body section dd {
+        max-width: none;
+    }
+}

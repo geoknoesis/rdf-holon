@@ -14,11 +14,11 @@
 <https://w3id.org/rdf-h#> a owl:Ontology ;
     rdfs:label "RDF-H — A Holonic Modeling Pattern Vocabulary"@en ;
     rdfs:comment "This vocabulary defines the core class, properties, and SHACL constraint components for representing and validating holarchic structures in RDF 1.2."@en ;
-    owl:versionIRI <https://w3id.org/rdf-h#0.6> ;
-    owl:versionInfo "0.6" ;
-    owl:priorVersion <https://w3id.org/rdf-h#0.5> ;
+    owl:versionIRI <https://w3id.org/rdf-h#0.7> ;
+    owl:versionInfo "0.7" ;
+    owl:priorVersion <https://w3id.org/rdf-h#0.6> ;
     dct:created "2025-01-01"^^xsd:date ;
-    dct:modified "2026-06-02"^^xsd:date ;
+    dct:modified "2026-06-03"^^xsd:date ;
     dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
     dct:creator [
         a foaf:Person ;
@@ -33,7 +33,7 @@
 
 h:Holon a owl:Class, rdfs:Class ;
     rdfs:label "Holon"@en ;
-    rdfs:comment "A resource that acts as a context for a set of relationships, representing a 'whole' that is itself composed of parts and may be a part of larger wholes. Membership in h:Holon means precisely that the resource is permitted to appear as the object of an h:inHolon triple. Class membership is also entailed by the rdfs:range axiom on h:inHolon under RDFS entailment."@en ;
+    rdfs:comment "A resource that has a content graph CG(H): the set of triples filed in it. A holon is a 'whole' whose internal structure is its content graph, and which may itself appear as a node (a part) in other holons' content graphs. The content graph is a view over the single asserted graph (additive semantics): every triple in CG(H) is also asserted globally. CG(H) may be serialized either with rdf:reifies + h:inHolon (reifier profile, single graph) or as the named graph for H (named-graph profile, dataset). Membership in h:Holon is also entailed by the rdfs:range axiom on h:inHolon under RDFS entailment."@en ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 #################################################################
@@ -54,8 +54,32 @@ h:Holon a owl:Class, rdfs:Class ;
 # RDF 1.2 baseline (which deliberately leaves reifiers untyped).
 h:inHolon a owl:ObjectProperty ;
     rdfs:label "in holon"@en ;
-    rdfs:comment "Links the reifier of a triple-occurrence (an IRI or blank node related to a triple term via rdf:reifies, in the sense of RDF 1.2) to the holon that contains the occurrence. The subject is the reifier; the object is the containing holon."@en ;
+    rdfs:comment "Links the reifier of a triple-occurrence (an IRI or blank node related to a triple term via rdf:reifies, in the sense of RDF 1.2) to the holon that contains the occurrence. The subject is the reifier; the object is the containing holon. Reifier-profile membership: << s p o >> h:inHolon H files (s,p,o) into the content graph CG(H)."@en ;
     rdfs:range h:Holon ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
+
+# h:contentGraph (named-graph profile): relates a holon to the
+# (named) graph that materializes its content graph CG(H). The
+# default convention is that the content-graph name equals the holon
+# IRI, so this property is usually omitted; declare it only to
+# decouple a holon's identity from its content-graph name. Functional:
+# a holon has at most one content graph.
+h:contentGraph a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "content graph"@en ;
+    rdfs:comment "Relates a holon to the named graph that materializes its content graph CG(H) in the named-graph serialization profile. Functional. Default convention: the content-graph name equals the holon IRI, so this property is usually omitted."@en ;
+    rdfs:domain h:Holon ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
+
+# h:ClosedHolon: a holon whose content graph CG(H) is COMPLETE — no
+# triple-occurrence beyond those filed in H is in H. A consumer MAY
+# therefore read absence-from-CG(H) as negation-within-H (closed-world
+# scoped to the holon). This boundary is what makes a holon a genuine
+# "whole". Completeness is checked by SHACL together with
+# domain-specific shapes, not by OWL (which is open-world).
+h:ClosedHolon a owl:Class, rdfs:Class ;
+    rdfs:label "Closed Holon"@en ;
+    rdfs:comment "A holon whose content graph CG(H) is complete: no triple-occurrence beyond those filed in H is in H. Enables closed-world / integrity checks scoped to the holon. Subclass of h:Holon."@en ;
+    rdfs:subClassOf h:Holon ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 #################################################################
@@ -177,25 +201,38 @@ h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
 # SHACL Shapes
 #################################################################
 #
-# RDF-H ships three ready-to-run SHACL shapes. They replace the
-# earlier custom sh:ConstraintComponent definitions, which declared a
-# sh:validator but no sh:parameter; a SHACL constraint component is
-# only activated on a shape when that shape supplies values for the
-# component's mandatory parameters, so a parameter-less component can
-# never fire on a standard SHACL processor. The shapes below use the
-# standard SPARQL-based constraint mechanism (sh:sparql /
-# sh:SPARQLConstraint) and carry their own targets, so loading this
-# file as the shapes graph validates an RDF-H data graph directly,
-# with no additional shape wiring.
+# RDF-H ships five ready-to-run SHACL shapes. They use the standard
+# SPARQL-based constraint mechanism (sh:sparql / sh:SPARQLConstraint)
+# and carry their own targets, so loading this file as the shapes
+# graph validates an RDF-H data graph directly, with no additional
+# shape wiring. (They replace the pre-0.6 custom sh:ConstraintComponent
+# definitions, which declared a sh:validator but no sh:parameter; a
+# SHACL constraint component is only activated on a shape when that
+# shape supplies values for the component's mandatory parameters, so a
+# parameter-less component can never fire on a standard SHACL
+# processor.)
+#
+# All shapes below target the reifier serialization profile (subjects
+# of h:inHolon). The named-graph profile realizes the same content
+# graph CG(H), where the additive invariant (CG(H) is a subset of the
+# asserted graph G = the union of the dataset's graphs) holds by
+# construction. To validate a named-graph dataset, convert it to the
+# reifier profile or run equivalent GRAPH-based checks; see the
+# specification.
 #
 #   * Normative shapes (operationalize the MUST-level conformance
 #     criteria for an RDF-H Graph; severity sh:Violation):
-#       - h:AcyclicPartShape          (criterion 3)
-#       - h:AssertedBaseTripleShape   (criterion 4)
+#       - h:AcyclicPartShape          (criterion 2)
+#       - h:AssertedBaseTripleShape   (criterion 3; the additive
+#                                      invariant, reifier profile)
 #
-#   * Portability shape (advisory; severity sh:Warning; NOT a
-#     conformance criterion):
-#       - h:HolonIntegrityShape
+#   * Advisory shapes (severity sh:Warning; NOT conformance criteria —
+#     they encode modeling discipline and portability):
+#       - h:HolonIntegrityShape          (explicit h:Holon typing)
+#       - h:MereologicalCoherenceShape   (a part-of triple filed in H
+#                                         describes H's own composition)
+#       - h:ContextualCoherenceShape     (an occurrence filed in H
+#                                         touches H or one of its parts)
 #
 # Note on prefixes: each sh:select carries inline PREFIX declarations
 # for self-containedness. Processors that require prefix mappings via
@@ -226,7 +263,7 @@ h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
 # insufficient — cycles among untyped resources would go undetected.
 h:AcyclicPartShape a sh:NodeShape ;
     rdfs:label "Acyclic Part Shape"@en ;
-    rdfs:comment "Validates that no resource participates in a cycle in the h:partOf hierarchy. Operationalizes conformance criterion 3 for an RDF-H Graph."@en ;
+    rdfs:comment "Validates that no resource participates in a cycle in the h:partOf hierarchy. Operationalizes conformance criterion 2 for an RDF-H Graph."@en ;
     sh:targetSubjectsOf h:partOf, h:componentOf, h:memberOf, h:substanceOf, h:portionOf ;
     sh:targetObjectsOf h:hasPart, h:hasComponent, h:hasMember, h:hasSubstance, h:hasPortion ;
     sh:sparql [
@@ -260,7 +297,7 @@ h:AcyclicPartShape a sh:NodeShape ;
 # resulting shape accepts exactly the same set of graphs.
 h:AssertedBaseTripleShape a sh:NodeShape ;
     rdfs:label "Asserted Base Triple Shape"@en ;
-    rdfs:comment "Validates that every reifier carrying an h:inHolon annotation reifies a triple that is itself asserted in the graph. Operationalizes conformance criterion 4 for an RDF-H Graph."@en ;
+    rdfs:comment "Validates that every reifier carrying an h:inHolon annotation reifies a triple that is itself asserted in the graph. Operationalizes conformance criterion 3 (the additive invariant) for an RDF-H Graph."@en ;
     sh:targetSubjectsOf h:inHolon ;
     sh:sparql [
         a sh:SPARQLConstraint ;
@@ -299,6 +336,92 @@ h:HolonIntegrityShape a sh:NodeShape ;
             SELECT $this
             WHERE {
                 FILTER NOT EXISTS { $this a h:Holon . }
+            }
+        """
+    ] ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
+
+# --- Advisory shape: mereological coherence ---
+#
+# A part-of relation filed in a holon should describe that holon's OWN
+# composition: its whole should be the holon itself, or a part of it.
+# This catches the common modelling error of filing
+# "ex:Wheel h:componentOf ex:Car" inside an unrelated @holon block
+# (e.g. @holon ex:Engine), where the recorded holonic context
+# contradicts the parthood actually asserted.
+#
+# Both reading directions of the built-in mereology are handled: for a
+# part-of-direction predicate the WHOLE is the object; for a
+# has-direction predicate the WHOLE is the subject. The
+# "towards-the-whole" path then alternates over the built-in
+# part-properties and their inverses (matching h:AcyclicPartShape) and
+# uses * so that the whole being the holon itself (zero-length path)
+# also passes. Custom sub-properties of h:partOf are not enumerated
+# here (advisory limitation, mirroring the entailment caveat on
+# h:AcyclicPartShape). Advisory (sh:Warning): deliberate cross-context
+# placements are permitted, but they are the exception, not the rule.
+h:MereologicalCoherenceShape a sh:NodeShape ;
+    rdfs:label "Mereological Coherence Shape"@en ;
+    rdfs:comment "Advisory: a part-of relation filed in a holon should have that holon (or a part of it) as its whole, so a holon's content graph describes the holon's own composition. Handles both the part-of and has-directions of the built-in mereology."@en ;
+    sh:targetSubjectsOf h:inHolon ;
+    sh:severity sh:Warning ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A part-of relation filed in this holon does not describe the holon's own composition: its whole is neither the holon nor a part of it."@en ;
+        sh:select """
+            PREFIX h:   <https://w3id.org/rdf-h#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            SELECT $this
+            WHERE {
+                $this h:inHolon ?H .
+                $this rdf:reifies <<( ?s ?pp ?o )>> .
+                {
+                    VALUES ?pp { h:partOf h:componentOf h:memberOf h:substanceOf h:portionOf }
+                    BIND(?o AS ?whole)
+                } UNION {
+                    VALUES ?pp { h:hasPart h:hasComponent h:hasMember h:hasSubstance h:hasPortion }
+                    BIND(?s AS ?whole)
+                }
+                FILTER NOT EXISTS {
+                    ?whole ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                           | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )* ?H .
+                }
+            }
+        """
+    ] ;
+    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
+
+# --- Advisory shape: contextual coherence ---
+#
+# An occurrence filed in a holon should "touch" that holon: at least
+# one endpoint (subject or object of the filed triple) should be the
+# holon itself or one of its parts, so the content graph stays about
+# the holon. Domain relations with one external endpoint (e.g.
+# ex:TempSensor_F3 bldg:monitors ex:HVAC_F3, filed in ex:HVAC_F3) pass,
+# because one endpoint is the holon. A triple neither of whose
+# endpoints relates to the holon is flagged. Advisory (sh:Warning).
+h:ContextualCoherenceShape a sh:NodeShape ;
+    rdfs:label "Contextual Coherence Shape"@en ;
+    rdfs:comment "Advisory: an occurrence filed in a holon should have at least one endpoint (subject or object) that is the holon or a part of it, so the content graph stays 'about' the holon."@en ;
+    sh:targetSubjectsOf h:inHolon ;
+    sh:severity sh:Warning ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "An occurrence filed in this holon has no endpoint that is the holon or a part of it; the content graph may not be about the holon."@en ;
+        sh:select """
+            PREFIX h:   <https://w3id.org/rdf-h#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            SELECT $this
+            WHERE {
+                $this h:inHolon ?H .
+                $this rdf:reifies <<( ?s ?p ?o )>> .
+                FILTER NOT EXISTS {
+                    { ?s ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                         | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )* ?H . }
+                    UNION
+                    { ?o ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                         | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )* ?H . }
+                }
             }
         """
     ] ;
