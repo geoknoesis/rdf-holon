@@ -678,7 +678,7 @@ ex:SystemCluster a h:Holon .
         <p class="note">
             Because <code>h:Holon</code>-typing is an entailment, it may be invisible to consumers
             that do not apply RDFS reasoning. The
-            <code>h:HolonIntegrityConstraintComponent</code> defined in
+            <code>h:HolonIntegrityShape</code> defined in
             <a href="#validation-portability" class="sec-ref"></a> surfaces holons whose typing
             relies on this entailment, and modelers <em class="rfc2119" title="SHOULD">SHOULD</em>
             declare <code>h:Holon</code> explicitly for portability.
@@ -943,53 +943,90 @@ ex:Engine_456 h:componentOf ex:Car_123
         <h2>Validation with SHACL</h2>
         <p>
             The Shapes Constraint Language (SHACL) [[SHACL]] is the standard mechanism for validating RDF
-            graphs. The RDF-H vocabulary includes three built-in <strong>constraint components</strong>;
+            graphs. The RDF-H vocabulary ships three ready-to-run <strong>SHACL shapes</strong>;
             their full Turtle definitions live in <code>rdfh.ttl</code> and are summarized below.
             A conformant RDF-H Graph <em class="rfc2119" title="MUST">MUST</em> pass the two
-            <em>normative</em> components; the third is a <em>portability</em> advisory.
+            <em>normative</em> shapes; the third is a <em>portability</em> advisory.
         </p>
         <p>
-            Each component is invoked from a SHACL <code>sh:NodeShape</code> via
-            <code>sh:constraint</code>. The pattern is identical for all three components — only
-            the component IRI, recommended target, and message string differ:
+            Each shape carries its own target(s) and expresses its check as a standard
+            SPARQL-based constraint (<code>sh:sparql</code> with an inline
+            <code>sh:SPARQLConstraint</code>), so loading <code>rdfh.ttl</code> as the shapes
+            graph validates an RDF-H data graph directly — no additional shape wiring is required.
+            The shapes follow an identical pattern; only the targets, the
+            <code>sh:select</code> query, and the message differ. The acyclicity shape is shown in
+            full below:
         </p>
         <div class="example">
             <pre class="nohighlight turtle">
-ex:AcyclicPartShape
+h:AcyclicPartShape
     a sh:NodeShape ;
-    sh:targetSubjectsOf h:partOf ;
-    sh:constraint [
-        a h:AcyclicPartConstraintComponent ;
-        sh:message "The resource participates in a part-of cycle." ;
+    sh:targetSubjectsOf h:partOf, h:componentOf, h:memberOf,
+                        h:substanceOf, h:portionOf ;
+    sh:targetObjectsOf  h:hasPart, h:hasComponent, h:hasMember,
+                        h:hasSubstance, h:hasPortion ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "The focus node participates in a part-of cycle." ;
+        sh:select """
+            PREFIX h: &lt;https://w3id.org/rdf-h#&gt;
+            SELECT $this WHERE {
+                $this ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                      | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )+ $this .
+            }
+        """ ;
     ] .
 </pre>
         </div>
+        <p class="note">
+            <strong>Why SPARQL-based constraints (not a custom constraint component)?</strong>
+            A SHACL <code>sh:ConstraintComponent</code> is activated on a shape only when the shape
+            supplies values for the component's mandatory <code>sh:parameter</code>s; a
+            parameter-less component never fires. These checks take no parameters, so they are
+            expressed directly as SPARQL-based constraints. (Earlier drafts declared
+            parameter-less <code>sh:ConstraintComponent</code>s; see
+            <a href="#changelog" class="sec-ref"></a>.)
+        </p>
 
         <section id="validation-normative">
             <h3>Normative Validators</h3>
 
             <section>
-                <h4><code>h:AcyclicPartConstraintComponent</code></h4>
+                <h4><code>h:AcyclicPartShape</code></h4>
                 <p>
                     Enforces <a href="#conformance" class="sec-ref"></a> criterion 3.
-                    A focus node violates the constraint if there exists a non-empty
-                    <code>h:partOf+</code> property path from the focus node back to itself, evaluated
-                    under <strong>RDFS entailment</strong> [[SPARQL11-ENTAILMENT]]. Under RDFS
-                    entailment the simple path automatically traverses every declared sub-property of
-                    <code>h:partOf</code>, including extension-defined ones; engines without RDFS
-                    entailment can approximate by pre-materializing
-                    <code>rdfs:subPropertyOf</code> entailments or by alternating over the known
-                    sub-properties (at the cost of missing extension-introduced cycles).
+                    A focus node violates the constraint if there exists a non-empty path from the
+                    focus node back to itself that steps "towards the whole." To make the check
+                    robust on engines that do <em>not</em> apply an entailment regime, the
+                    <code>sh:select</code> path alternates over every built-in part-property in
+                    <strong>both</strong> the part-of direction
+                    (<code>h:partOf</code>, <code>h:componentOf</code>, <code>h:memberOf</code>,
+                    <code>h:substanceOf</code>, <code>h:portionOf</code>) and the inverse
+                    has-direction (<code>^h:hasPart</code>, … <code>^h:hasPortion</code>). The inverse
+                    arms matter because <code>owl:inverseOf</code> is not an RDFS rule: a cycle
+                    authored with <code>h:hasPart</code> / <code>h:hasComponent</code> would escape a
+                    plain <code>h:partOf+</code> check.
                 </p>
                 <p>
-                    Recommended target: <code>sh:targetSubjectsOf h:partOf</code>. Targeting only
-                    <code>sh:targetClass h:Holon</code> is insufficient — cycles among
-                    untyped resources would go undetected.
+                    Because <code>h:partOf</code> is itself in the alternation, the same shape also
+                    catches cycles through <em>custom</em> extension sub-properties whenever the graph
+                    is evaluated under <strong>RDFS entailment</strong> [[SPARQL11-ENTAILMENT]] (which
+                    entails an <code>h:partOf</code> edge for every sub-property edge). Engines
+                    without RDFS entailment catch every cycle in the built-in vocabulary; they catch
+                    extension-introduced cycles only after the relevant
+                    <code>rdfs:subPropertyOf</code> / <code>owl:inverseOf</code> entailments are
+                    materialized.
+                </p>
+                <p>
+                    Targets cover every node with an outgoing "part" step — subjects of the
+                    part-of-direction properties and objects of the has-direction properties.
+                    Targeting only <code>sh:targetClass h:Holon</code> would be insufficient: cycles
+                    among untyped resources would go undetected.
                 </p>
             </section>
 
             <section>
-                <h4><code>h:AssertedBaseTripleConstraintComponent</code></h4>
+                <h4><code>h:AssertedBaseTripleShape</code></h4>
                 <p>
                     Enforces <a href="#conformance" class="sec-ref"></a> criterion 4: every
                     reifier carrying an <code>h:inHolon</code> annotation must reify a triple that
@@ -1019,7 +1056,7 @@ ex:AcyclicPartShape
             <h3>Portability Validators</h3>
 
             <section>
-                <h4><code>h:HolonIntegrityConstraintComponent</code></h4>
+                <h4><code>h:HolonIntegrityShape</code></h4>
                 <p>
                     Surfaces holons whose <code>h:Holon</code> typing depends on RDFS entailment
                     rather than an explicit <code>rdf:type</code> assertion. Under an RDFS-aware
@@ -1028,8 +1065,10 @@ ex:AcyclicPartShape
                     engine the focus node violates the constraint if it is the object of an
                     <code>h:inHolon</code> triple but is not explicitly typed <code>h:Holon</code>.
                     Modelers <em class="rfc2119" title="SHOULD">SHOULD</em> declare
-                    <code>h:Holon</code> explicitly for every holon. Recommended target:
-                    <code>sh:targetObjectsOf h:inHolon</code>.
+                    <code>h:Holon</code> explicitly for every holon. The shape targets
+                    <code>sh:targetObjectsOf h:inHolon</code> and is declared
+                    <code>sh:severity sh:Warning</code>, so — being advisory rather than
+                    normative — it never reports a conformance-level <code>sh:Violation</code>.
                 </p>
             </section>
         </section>
@@ -1073,7 +1112,7 @@ ex:AcyclicPartShape
                 resource <code>?x</code> may stand in the relation
                 <code>?x h:partOf+ ?x</code> under <strong>RDFS entailment</strong>
                 [[SPARQL11-ENTAILMENT]]. This requirement is enforced by the
-                <code>h:AcyclicPartConstraintComponent</code> defined in
+                <code>h:AcyclicPartShape</code> defined in
                 <a href="#validation-normative" class="sec-ref"></a>.</li>
             <li>Satisfy the asserted-base-triple requirement defined in
                 <a href="#assertion-semantics" class="sec-ref"></a>: whenever
@@ -1081,7 +1120,7 @@ ex:AcyclicPartShape
                 <code>?r rdf:reifies &lt;&lt;( ?s ?p ?o )&gt;&gt;</code> are both in the graph,
                 the base triple <code>?s ?p ?o</code> <em class="rfc2119" title="MUST">MUST</em>
                 also be asserted. This requirement is enforced by the
-                <code>h:AssertedBaseTripleConstraintComponent</code> defined in
+                <code>h:AssertedBaseTripleShape</code> defined in
                 <a href="#validation-normative" class="sec-ref"></a>.</li>
         </ol>
         <p>
@@ -1275,14 +1314,14 @@ SELECT ?sensor ?hvac WHERE {
                 graph produces no violations:
             </p>
             <ul>
-                <li><strong>Acyclicity</strong> — <code>h:AcyclicPartConstraintComponent</code> finds no
-                    <code>h:partOf+</code> cycle.</li>
+                <li><strong>Acyclicity</strong> — <code>h:AcyclicPartShape</code> finds no
+                    part-of cycle.</li>
                 <li><strong>Asserted-base-triple integrity</strong> —
-                    <code>h:AssertedBaseTripleConstraintComponent</code> reports no violations because the
+                    <code>h:AssertedBaseTripleShape</code> reports no violations because the
                     Turtle-H <code>@holon</code> desugaring emits both the base triple and the
                     <code>h:inHolon</code> annotation for every enclosed statement.</li>
                 <li><strong>Holon-typing portability</strong> —
-                    <code>h:HolonIntegrityConstraintComponent</code> finds nothing missing because every
+                    <code>h:HolonIntegrityShape</code> finds nothing missing because every
                     holon used as the object of <code>h:inHolon</code> is explicitly typed
                     <code>h:Holon</code> (the holon declarations near the top of the example).</li>
             </ul>
@@ -1296,10 +1335,9 @@ SELECT ?sensor ?hvac WHERE {
 ex:Building_A h:componentOf ex:Floor_3 .
 </pre>
                 <p>
-                    The <code>h:AcyclicPartConstraintComponent</code> reports a violation on
-                    <code>ex:Building_A</code>: under RDFS entailment each
-                    <code>h:componentOf</code> entails an <code>h:partOf</code>, and the transitive
-                    closure produces the cycle
+                    The <code>h:AcyclicPartShape</code> reports a violation on
+                    <code>ex:Building_A</code>: its path traverses <code>h:componentOf</code>
+                    directly (no entailment needed), producing the cycle
                     <code>ex:Building_A → ex:Floor_3 → ex:Building_A</code>. An OWL DL reasoner
                     additionally flags the graph as inconsistent because
                     <code>h:componentOf</code> is declared <code>owl:AsymmetricProperty</code>.
@@ -1456,7 +1494,7 @@ ex:Building_A h:componentOf ex:Floor_3 .
     <section id="changelog" class="appendix">
         <h2>Appendix D: Change Log</h2>
         <dl>
-            <dt>Version 0.6 (current)</dt>
+            <dt>Version 0.6 (current, in progress)</dt>
             <dd>
                 <ul>
                     <li><strong>Mereology simplified.</strong> Dropped <code>h:directlyPartOf</code> /
@@ -1465,13 +1503,25 @@ ex:Building_A h:componentOf ex:Floor_3 .
                         <code>h:partOf</code>. Added a normative
                         <em class="rfc2119" title="MUST NOT">MUST NOT</em> on transitive sub-properties
                         of the asymmetric/irreflexive part-properties (OWL 2 simple-role safety).</li>
-                    <li><strong>Conformance tightened.</strong> Acyclicity is pinned to RDFS entailment
-                        and the <code>h:AcyclicPartValidator</code> simplifies to
-                        <code>$this h:partOf+ $this</code>. New SHACL component
-                        <code>h:AssertedBaseTripleConstraintComponent</code> operationalizes the
-                        asserted-base-triple <em class="rfc2119" title="MUST">MUST</em> as a new
-                        conformance criterion 4. <a href="#validation" class="sec-ref"></a> split into
-                        <em>Normative</em> and <em>Portability</em> validators.</li>
+                    <li><strong>Conformance tightened, SHACL made runnable.</strong> Added the
+                        asserted-base-triple <em class="rfc2119" title="MUST">MUST</em> as conformance
+                        criterion 4, and split <a href="#validation" class="sec-ref"></a> into
+                        <em>Normative</em> and <em>Portability</em> shapes. The three validators are
+                        plain <code>sh:NodeShape</code>s using standard SPARQL-based constraints
+                        (<code>sh:sparql</code> / <code>sh:SPARQLConstraint</code>) that carry their
+                        own targets, so loading <code>rdfh.ttl</code> as the shapes graph validates a
+                        data graph directly — replacing the parameter-less
+                        <code>sh:ConstraintComponent</code>s (which a standard SHACL processor could
+                        never activate) and the invalid <code>sh:constraint [ a … ]</code> invocation
+                        of earlier drafts. The acyclicity path alternates explicitly over all five
+                        part-of-direction sub-properties and their five inverse has-direction
+                        properties — catching cycles authored via <code>h:hasPart</code> /
+                        <code>h:hasComponent</code> without relying on <code>owl:inverseOf</code>
+                        entailment — while keeping <code>h:partOf</code> in the alternation so
+                        RDFS-entailing engines still catch cycles through custom extension
+                        sub-properties. <code>h:HolonIntegrityShape</code> is declared
+                        <code>sh:severity sh:Warning</code> so the advisory check never reports a
+                        conformance-level <code>sh:Violation</code>.</li>
                     <li><strong>Context vs. parthood made prominent.</strong> A note in
                         <a href="#syntax" class="sec-ref"></a> states that an <code>@holon</code> block
                         scopes the relationship, not its endpoints; holon and reifier roles are
@@ -1539,13 +1589,13 @@ ex:Building_A h:componentOf ex:Floor_3 .
                     <td><code>@holon</code> directive</td>
                 </tr>
                 <tr>
-                    <td><strong>SHACL components</strong> (normative)</td>
-                    <td><code>h:AcyclicPartConstraintComponent</code>,
-                        <code>h:AssertedBaseTripleConstraintComponent</code></td>
+                    <td><strong>SHACL shapes</strong> (normative)</td>
+                    <td><code>h:AcyclicPartShape</code>,
+                        <code>h:AssertedBaseTripleShape</code></td>
                 </tr>
                 <tr>
-                    <td><strong>SHACL components</strong> (portability)</td>
-                    <td><code>h:HolonIntegrityConstraintComponent</code></td>
+                    <td><strong>SHACL shapes</strong> (portability)</td>
+                    <td><code>h:HolonIntegrityShape</code></td>
                 </tr>
             </tbody>
         </table>

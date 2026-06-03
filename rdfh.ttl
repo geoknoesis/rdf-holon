@@ -18,7 +18,7 @@
     owl:versionInfo "0.6" ;
     owl:priorVersion <https://w3id.org/rdf-h#0.5> ;
     dct:created "2025-01-01"^^xsd:date ;
-    dct:modified "2026-05-10"^^xsd:date ;
+    dct:modified "2026-06-02"^^xsd:date ;
     dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
     dct:creator [
         a foaf:Person ;
@@ -69,7 +69,7 @@ h:inHolon a owl:ObjectProperty ;
 #
 #   * h:partOf       — transitive (closes over the hierarchy);
 #                      acyclicity is enforced by the
-#                      h:AcyclicPartConstraintComponent SHACL shape
+#                      h:AcyclicPartShape SHACL shape
 #                      under RDFS entailment, not by an OWL axiom.
 #                      OWL 2 DL forbids combining
 #                      owl:TransitiveProperty with
@@ -100,7 +100,7 @@ h:inHolon a owl:ObjectProperty ;
 # Top-level transitive part-of (closure for queries; acyclic via SHACL)
 h:partOf a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:label "part of"@en ;
-    rdfs:comment "The top-level transitive super-property for all part-whole relations. Acyclicity is enforced by SHACL (h:AcyclicPartConstraintComponent), not by an OWL axiom, because OWL DL forbids combining TransitiveProperty with AsymmetricProperty or IrreflexiveProperty."@en ;
+    rdfs:comment "The top-level transitive super-property for all part-whole relations. Acyclicity is enforced by SHACL (h:AcyclicPartShape), not by an OWL axiom, because OWL DL forbids combining TransitiveProperty with AsymmetricProperty or IrreflexiveProperty."@en ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 h:hasPart a owl:ObjectProperty, owl:TransitiveProperty ;
@@ -174,100 +174,132 @@ h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
 #################################################################
-# SHACL Constraint Components
+# SHACL Shapes
 #################################################################
 #
-# RDF-H v0.6 defines three built-in SHACL constraint components,
-# organized into two groups:
+# RDF-H ships three ready-to-run SHACL shapes. They replace the
+# earlier custom sh:ConstraintComponent definitions, which declared a
+# sh:validator but no sh:parameter; a SHACL constraint component is
+# only activated on a shape when that shape supplies values for the
+# component's mandatory parameters, so a parameter-less component can
+# never fire on a standard SHACL processor. The shapes below use the
+# standard SPARQL-based constraint mechanism (sh:sparql /
+# sh:SPARQLConstraint) and carry their own targets, so loading this
+# file as the shapes graph validates an RDF-H data graph directly,
+# with no additional shape wiring.
 #
-#   * Normative validators (operationalize the MUST-level
-#     conformance criteria for an RDF-H Graph):
-#       - h:AcyclicPartConstraintComponent
-#       - h:AssertedBaseTripleConstraintComponent
+#   * Normative shapes (operationalize the MUST-level conformance
+#     criteria for an RDF-H Graph; severity sh:Violation):
+#       - h:AcyclicPartShape          (criterion 3)
+#       - h:AssertedBaseTripleShape   (criterion 4)
 #
-#   * Portability validators (advisory checks that surface modeling
-#     patterns correct under inference but appearing
-#     non-conformant to non-inferring consumers):
-#       - h:HolonIntegrityConstraintComponent
+#   * Portability shape (advisory; severity sh:Warning; NOT a
+#     conformance criterion):
+#       - h:HolonIntegrityShape
+#
+# Note on prefixes: each sh:select carries inline PREFIX declarations
+# for self-containedness. Processors that require prefix mappings via
+# sh:prefixes/sh:declare instead can move them out without changing
+# the accepted set of graphs.
 #################################################################
 
-# --- Normative validator 1: acyclicity of the part-of hierarchy ---
+# --- Normative shape 1: acyclicity of the part-of hierarchy ---
 #
-# Operationalizes the conformance requirement that no resource
-# stand in h:partOf+ with itself, evaluated under RDFS entailment.
-# Under RDFS entailment, the simple property path h:partOf+
-# automatically traverses every sub-property of h:partOf declared
-# in the graph or its imports, including custom domain-specific
-# part-properties added by extensions.
-h:AcyclicPartConstraintComponent a sh:ConstraintComponent ;
-    rdfs:label "Acyclic Part Constraint Component"@en ;
-    rdfs:comment "Validates that no resource participates in a cycle in the h:partOf hierarchy under RDFS entailment. Operationalizes conformance criterion 3 for an RDF-H Graph."@en ;
-    sh:validator h:AcyclicPartValidator ;
+# Criterion 3: no resource may stand in the part-of relation with
+# itself. The property path steps "towards the whole" through every
+# built-in part-property in BOTH the partOf-direction and the inverse
+# has-direction, so a cycle is detected regardless of which direction
+# each edge was authored in (owl:inverseOf is not an RDFS rule, so a
+# cycle authored with h:hasPart / h:hasComponent / … would otherwise
+# escape a plain h:partOf+ check). Including h:partOf itself in the
+# alternation means that under RDFS entailment — where every
+# sub-property also entails h:partOf — the same shape additionally
+# catches cycles through custom extension sub-properties. Engines
+# without RDFS entailment catch every cycle in the built-in
+# vocabulary; they catch extension-introduced cycles only after the
+# relevant rdfs:subPropertyOf / owl:inverseOf entailments are
+# materialized.
+#
+# Targets cover every node with an outgoing "part" step: subjects of
+# the partOf-direction properties and objects of the has-direction
+# properties. Targeting only sh:targetClass h:Holon would be
+# insufficient — cycles among untyped resources would go undetected.
+h:AcyclicPartShape a sh:NodeShape ;
+    rdfs:label "Acyclic Part Shape"@en ;
+    rdfs:comment "Validates that no resource participates in a cycle in the h:partOf hierarchy. Operationalizes conformance criterion 3 for an RDF-H Graph."@en ;
+    sh:targetSubjectsOf h:partOf, h:componentOf, h:memberOf, h:substanceOf, h:portionOf ;
+    sh:targetObjectsOf h:hasPart, h:hasComponent, h:hasMember, h:hasSubstance, h:hasPortion ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "The focus node participates in a part-of cycle."@en ;
+        sh:select """
+            PREFIX h: <https://w3id.org/rdf-h#>
+            SELECT $this
+            WHERE {
+                $this ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                      | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )+ $this .
+            }
+        """
+    ] ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
-h:AcyclicPartValidator a sh:SPARQLValidator ;
-    sh:message "The focus node participates in a part-of cycle."@en ;
-    sh:select """
-        PREFIX h: <https://w3id.org/rdf-h#>
-        SELECT $this
-        WHERE {
-            $this h:partOf+ $this .
-        }
-    """ ;
-    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
-
-# --- Normative validator 2: asserted base triple ---
+# --- Normative shape 2: asserted base triple ---
 #
-# Operationalizes the asserted-base-triple requirement: every reifier
-# carrying an h:inHolon annotation must reify a triple that is
-# itself asserted in the graph. The Turtle-H @holon directive
-# satisfies this constraint automatically by emitting both the base
-# triple and the reifier-with-h:inHolon on desugaring; the validator
+# Criterion 4: every reifier carrying an h:inHolon annotation must
+# reify a triple that is itself asserted in the graph. The Turtle-H
+# @holon directive satisfies this automatically by emitting both the
+# base triple and the reifier-with-h:inHolon on desugaring; the shape
 # primarily catches violations introduced by hand-authored
 # fully-expanded RDF 1.2 forms, by graph merges that drop the base
 # triple, or by buggy serialization pipelines.
-h:AssertedBaseTripleConstraintComponent a sh:ConstraintComponent ;
-    rdfs:label "Asserted Base Triple Constraint Component"@en ;
+#
+# The sh:select uses the SPARQL 1.2 triple-term pattern
+# <<( ?s ?p ?o )>> in object position of rdf:reifies. Processors
+# targeting an earlier SPARQL profile MAY substitute an equivalent
+# extraction of the reified triple's components, provided the
+# resulting shape accepts exactly the same set of graphs.
+h:AssertedBaseTripleShape a sh:NodeShape ;
+    rdfs:label "Asserted Base Triple Shape"@en ;
     rdfs:comment "Validates that every reifier carrying an h:inHolon annotation reifies a triple that is itself asserted in the graph. Operationalizes conformance criterion 4 for an RDF-H Graph."@en ;
-    sh:validator h:AssertedBaseTripleValidator ;
+    sh:targetSubjectsOf h:inHolon ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Reifier is in a holon but its base triple is not asserted."@en ;
+        sh:select """
+            PREFIX h:   <https://w3id.org/rdf-h#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            SELECT $this
+            WHERE {
+                $this h:inHolon  ?H .
+                $this rdf:reifies <<( ?s ?p ?o )>> .
+                FILTER NOT EXISTS { ?s ?p ?o . }
+            }
+        """
+    ] ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
-h:AssertedBaseTripleValidator a sh:SPARQLValidator ;
-    sh:message "Reifier is in a holon but its base triple is not asserted."@en ;
-    sh:select """
-        PREFIX h:   <https://w3id.org/rdf-h#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT $this
-        WHERE {
-            $this h:inHolon  ?H .
-            $this rdf:reifies <<( ?s ?p ?o )>> .
-            FILTER NOT EXISTS { ?s ?p ?o . }
-        }
-    """ ;
-    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
-
-# --- Portability validator: explicit h:Holon typing ---
+# --- Portability shape: explicit h:Holon typing (advisory) ---
 #
 # The h:inHolon range axiom already entails ?h rdf:type h:Holon for
-# any object of h:inHolon under RDFS entailment, so this validator
-# only fires under engines that do NOT apply that entailment. It is
-# therefore a quality / portability check rather than a correctness
-# check, and is NOT part of the conformance criteria for an RDF-H
-# Graph.
-h:HolonIntegrityConstraintComponent a sh:ConstraintComponent ;
-    rdfs:label "Holon Integrity Constraint Component"@en ;
-    rdfs:comment "Validates that a resource used as a holon is explicitly typed as h:Holon. Under RDFS entailment this constraint is trivially satisfied via the rdfs:range axiom on h:inHolon; under non-inferring SHACL engines it surfaces missing explicit type declarations. Advisory only — not part of the RDF-H Graph conformance criteria."@en ;
-    sh:validator h:HolonIntegrityValidator ;
-    rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
-
-h:HolonIntegrityValidator a sh:SPARQLValidator ;
-    sh:message "The focus node is used as a holon (object of h:inHolon) but is not explicitly typed as h:Holon."@en ;
-    sh:select """
-        PREFIX h: <https://w3id.org/rdf-h#>
-        SELECT $this
-        WHERE {
-            ?s h:inHolon $this .
-            FILTER NOT EXISTS { $this a h:Holon . }
-        }
-    """ ;
+# any object of h:inHolon under RDFS entailment, so this shape only
+# fires under engines that do NOT apply that entailment. It is a
+# quality / portability check rather than a correctness check, and is
+# NOT part of the conformance criteria for an RDF-H Graph; it is
+# declared sh:Warning so it never reports a conformance Violation.
+h:HolonIntegrityShape a sh:NodeShape ;
+    rdfs:label "Holon Integrity Shape"@en ;
+    rdfs:comment "Validates that a resource used as a holon is explicitly typed as h:Holon. Under RDFS entailment this is trivially satisfied via the rdfs:range axiom on h:inHolon; under non-inferring SHACL engines it surfaces missing explicit type declarations. Advisory only (sh:Warning) — not part of the RDF-H Graph conformance criteria."@en ;
+    sh:targetObjectsOf h:inHolon ;
+    sh:severity sh:Warning ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "The focus node is used as a holon (object of h:inHolon) but is not explicitly typed as h:Holon."@en ;
+        sh:select """
+            PREFIX h: <https://w3id.org/rdf-h#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS { $this a h:Holon . }
+            }
+        """
+    ] ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .

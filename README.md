@@ -2,7 +2,7 @@
 
 This repository contains a draft specification for a proposed holonic extension to the Resource Description Framework (RDF), referred to as **RDF-H**. This document is a proposal by **Geoknoesis LLC** and is intended to gather community feedback for potential future standardization by the W3C.
 
-**Current version: 0.6** (community draft) — see the [Change Log](https://geoknoesis.github.io/rdf-holon/#changelog) for what changed from 0.5.
+**Current version: 0.6** (community draft, in progress) — see the [Change Log](https://geoknoesis.github.io/rdf-holon/#changelog) for what changed from 0.5.
 
 > ⚠️ **w3id.org redirect not yet configured.** The vocabulary IRI `https://w3id.org/rdf-h#` referenced normatively throughout the spec depends on a redirect entry in [perma-id/w3id.org](https://github.com/perma-id/w3id.org) that has not yet been filed. Until that PR is merged, the vocabulary IRI does not resolve on the open web. This is tracked as [Open Issue 2](https://geoknoesis.github.io/rdf-holon/#issue-w3id-redirect) in the specification.
 
@@ -18,7 +18,7 @@ This specification proposes the **holon** as a new first-class primitive in RDF.
 * **Holonic context.** The `h:inHolon` property links a triple-occurrence's *reifier* (in the RDF 1.2 sense — an IRI or blank node related to a triple term via `rdf:reifies`) to the holon that contains it, without leaving the single, unified RDF graph.
 * **Mereological hierarchy.** A formally grounded part-whole hierarchy: a single transitive top-level `h:partOf`, with non-transitive asymmetric/irreflexive sub-properties `h:componentOf` and `h:memberOf` (structural parthood and aggregate membership), and transitive sub-properties `h:substanceOf` and `h:portionOf` (material composition and continuous-whole segmentation). The vocabulary stays within OWL 2 DL; full-hierarchy acyclicity is enforced by SHACL.
 * **Turtle-H.** A small syntactic sugar over Turtle 1.2 introducing the `@holon` directive, which lets authors write a holon's constituent triples once and have a Turtle-H-aware parser generate the corresponding `h:inHolon` annotations automatically.
-* **SHACL constraint components.** Three reusable components — `h:AcyclicPartConstraintComponent`, `h:AssertedBaseTripleConstraintComponent`, and `h:HolonIntegrityConstraintComponent` — for validating holonic graphs. The first two are normative (operationalizing the conformance criteria for an RDF-H graph); the third is a portability check.
+* **SHACL shapes.** Three ready-to-run shapes — `h:AcyclicPartShape`, `h:AssertedBaseTripleShape`, and `h:HolonIntegrityShape` — for validating holonic graphs. They use standard SPARQL-based constraints and carry their own targets, so loading `rdfh.ttl` as the shapes graph validates a data graph directly. The first two are normative (operationalizing the conformance criteria for an RDF-H graph); the third is a portability check (`sh:Warning`).
 * **Standard SPARQL.** Holonic graphs are queried with plain SPARQL 1.1, together with the SPARQL 1.2 reified-triple patterns and triple-term syntax that accompany the RDF 1.2 reifier model. No SPARQL extension is required.
 
 ## Repository Contents
