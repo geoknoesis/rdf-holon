@@ -1315,7 +1315,10 @@ SELECT ?s ?p ?o WHERE {
             SPARQL profile <em class="rfc2119" title="MAY">MAY</em> substitute an equivalent extraction
             of the reified triple's components, provided the resulting shape accepts exactly the same
             set of graphs. <code>h:AcyclicPartShape</code> and <code>h:HolonIntegrityShape</code> use
-            only SPARQL 1.1.
+            only SPARQL 1.1. All five queries are <strong>pre-binding-safe</strong>: they avoid the
+            <code>VALUES</code>, <code>MINUS</code>, and <code>SERVICE</code> constructs that
+            SHACL-SPARQL prohibits in constraint queries [[SHACL]], so they are accepted by conformant
+            SHACL-SPARQL processors (verified against pySHACL for the SPARQL 1.1 shapes).
         </p>
         <p class="note">
             <strong>Complete holons.</strong> Completeness of a

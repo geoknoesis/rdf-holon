@@ -352,16 +352,22 @@ h:HolonIntegrityShape a sh:NodeShape ;
 # (e.g. @holon ex:Engine), where the recorded holonic context
 # contradicts the parthood actually asserted.
 #
-# Both reading directions of the built-in mereology are handled: for a
-# part-of-direction predicate the WHOLE is the object; for a
-# has-direction predicate the WHOLE is the subject. The
-# "towards-the-whole" path then alternates over the built-in
+# Both reading directions of the built-in mereology are handled in
+# separate UNION branches: for a part-of-direction predicate the WHOLE
+# is the object; for a has-direction predicate the WHOLE is the
+# subject. The "towards-the-whole" path alternates over the built-in
 # part-properties and their inverses (matching h:AcyclicPartShape) and
 # uses * so that the whole being the holon itself (zero-length path)
 # also passes. Custom sub-properties of h:partOf are not enumerated
 # here (advisory limitation, mirroring the entailment caveat on
-# h:AcyclicPartShape). Advisory (sh:Warning): deliberate cross-context
-# placements are permitted, but they are the exception, not the rule.
+# h:AcyclicPartShape).
+#
+# NOTE: predicate selection uses FILTER(?pp IN (...)), NOT a VALUES
+# clause: SHACL-SPARQL pre-binding (SHACL sec. 5.3) forbids VALUES (and
+# MINUS / SERVICE) in constraint queries, and pySHACL rejects them.
+#
+# Advisory (sh:Warning): deliberate cross-context placements are
+# permitted, but they are the exception, not the rule.
 h:MereologicalCoherenceShape a sh:NodeShape ;
     rdfs:label "Mereological Coherence Shape"@en ;
     rdfs:comment "Advisory: a part-of relation filed in a holon should have that holon (or a part of it) as its whole, so a holon's content graph describes the holon's own composition. Handles both the part-of and has-directions of the built-in mereology."@en ;
@@ -376,17 +382,20 @@ h:MereologicalCoherenceShape a sh:NodeShape ;
             SELECT $this
             WHERE {
                 $this h:inHolon ?H .
-                $this rdf:reifies <<( ?s ?pp ?o )>> .
                 {
-                    VALUES ?pp { h:partOf h:componentOf h:memberOf h:substanceOf h:portionOf }
-                    BIND(?o AS ?whole)
-                } UNION {
-                    VALUES ?pp { h:hasPart h:hasComponent h:hasMember h:hasSubstance h:hasPortion }
-                    BIND(?s AS ?whole)
-                }
-                FILTER NOT EXISTS {
-                    ?whole ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                    $this rdf:reifies <<( ?s ?pp ?o )>> .
+                    FILTER( ?pp IN ( h:partOf, h:componentOf, h:memberOf, h:substanceOf, h:portionOf ) )
+                    FILTER NOT EXISTS {
+                        ?o ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
                            | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )* ?H .
+                    }
+                } UNION {
+                    $this rdf:reifies <<( ?s ?pp ?o )>> .
+                    FILTER( ?pp IN ( h:hasPart, h:hasComponent, h:hasMember, h:hasSubstance, h:hasPortion ) )
+                    FILTER NOT EXISTS {
+                        ?s ( h:partOf | h:componentOf | h:memberOf | h:substanceOf | h:portionOf
+                           | ^h:hasPart | ^h:hasComponent | ^h:hasMember | ^h:hasSubstance | ^h:hasPortion )* ?H .
+                    }
                 }
             }
         """
