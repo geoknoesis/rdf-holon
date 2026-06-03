@@ -70,15 +70,17 @@ h:contentGraph a owl:ObjectProperty, owl:FunctionalProperty ;
     rdfs:domain h:Holon ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 
-# h:ClosedHolon: a holon whose content graph CG(H) is COMPLETE — no
-# triple-occurrence beyond those filed in H is in H. A consumer MAY
-# therefore read absence-from-CG(H) as negation-within-H (closed-world
-# scoped to the holon). This boundary is what makes a holon a genuine
-# "whole". Completeness is checked by SHACL together with
-# domain-specific shapes, not by OWL (which is open-world).
-h:ClosedHolon a owl:Class, rdfs:Class ;
-    rdfs:label "Closed Holon"@en ;
-    rdfs:comment "A holon whose content graph CG(H) is complete: no triple-occurrence beyond those filed in H is in H. Enables closed-world / integrity checks scoped to the holon. Subclass of h:Holon."@en ;
+# h:CompleteHolon: a holon whose content graph CG(H) is COMPLETE — no
+# triple-occurrence beyond those filed in H belongs to CG(H). A
+# consumer MAY therefore rely on CG(H) being exhaustive (e.g. treat a
+# missing triple as "there is none" for integrity checks scoped to the
+# holon). This is a LOCAL completeness contract, not a global
+# closed-world assumption: it adds no entailment and is honoured only
+# by SHACL and opting-in consumers, not by an OWL/RDFS reasoner. The
+# boundary it provides is what lets a holon act as a genuine "whole".
+h:CompleteHolon a owl:Class, rdfs:Class ;
+    rdfs:label "Complete Holon"@en ;
+    rdfs:comment "A holon whose content graph CG(H) is complete: no triple-occurrence beyond those filed in H belongs to CG(H). Supports integrity checks scoped to the holon under a local completeness contract (enforced by SHACL/consumers, not by an OWL/RDFS reasoner). Subclass of h:Holon."@en ;
     rdfs:subClassOf h:Holon ;
     rdfs:isDefinedBy <https://w3id.org/rdf-h#> .
 

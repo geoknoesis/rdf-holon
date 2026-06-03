@@ -127,7 +127,7 @@
             per-occurrence metadata, and a <em>named-graph profile</em> built on RDF datasets, which is
             cheaper and queryable with <code>GRAPH</code> on today's tooling. The core vocabulary centers on
             <code>h:inHolon</code> (reifier-profile membership), <code>h:contentGraph</code> and
-            <code>h:ClosedHolon</code> (the content-graph boundary), together with a formal mereological
+            <code>h:CompleteHolon</code> (the content-graph boundary), together with a formal mereological
             hierarchy of part-whole relations that couples a holon's contents to its composition. The
             specification also proposes <strong>Turtle-H</strong>, a syntactic sugar over Turtle 1.2
             [[RDF12-TURTLE]] providing a concise <code>@holon</code> directive for defining holons. By
@@ -198,7 +198,7 @@
             <ol>
                 <li>The <em>core vocabulary and content-graph model</em> —
                     <code>h:Holon</code>, <code>h:inHolon</code>, <code>h:contentGraph</code>, and
-                    <code>h:ClosedHolon</code> — defines each holon's
+                    <code>h:CompleteHolon</code> — defines each holon's
                     <a href="#dfn-content-graph">content graph</a> and its two serialization profiles
                     (<a href="#vocabulary" class="sec-ref"></a>,
                     <a href="#content-graph" class="sec-ref"></a>).</li>
@@ -472,16 +472,18 @@ ex:Engine h:componentOf ex:Car .
                     a named graph. Its <code>rdfs:domain</code> is <code>h:Holon</code>.
                 </dd>
 
-                <dt><dfn data-dfn-type="dfn" id="dfn-closedholon-class" class="export">h:ClosedHolon</dfn></dt>
+                <dt><dfn data-dfn-type="dfn" id="dfn-completeholon-class" class="export">h:CompleteHolon</dfn></dt>
                 <dd>A subclass of <code>h:Holon</code> whose content graph is <strong>complete</strong>:
-                    no triple-occurrence beyond those filed in <code>H</code> is in <code>H</code>. A
-                    consumer <em class="rfc2119" title="MAY">MAY</em> therefore read
-                    absence-from-<code>CG(H)</code> as negation <em>within</em> the holon (a
-                    closed-world reading scoped to the holon). This boundary is what makes a holon a
-                    genuine <em>whole</em>; without it, content graphs are open-world and have no
-                    edge. Completeness is checked with SHACL together with domain-specific shapes (see
-                    <a href="#validation-closure" class="sec-ref"></a>), not with OWL, which is
-                    open-world. Typing a holon <code>h:ClosedHolon</code> is optional.
+                    no triple-occurrence beyond those filed in <code>H</code> belongs to
+                    <code>CG(H)</code>. A consumer <em class="rfc2119" title="MAY">MAY</em> therefore
+                    rely on <code>CG(H)</code> being exhaustive — for example, treating the absence of a
+                    matching triple in <code>CG(H)</code> as "there is none" <em>for the purpose of
+                    integrity checks scoped to the holon</em>. This is a <strong>local completeness
+                    contract</strong>, not a global closed-world assumption: it adds no entailment and
+                    is honoured only by SHACL and opting-in consumers (see
+                    <a href="#validation-closure" class="sec-ref"></a>), not by an OWL/RDFS reasoner.
+                    The boundary it provides is what lets a holon act as a genuine <em>whole</em>.
+                    Typing a holon <code>h:CompleteHolon</code> is optional.
                 </dd>
             </dl>
 
@@ -646,13 +648,30 @@ h:hasPortion a owl:ObjectProperty, owl:TransitiveProperty ;
                 of <code>h:componentOf</code>, <code>h:memberOf</code>, <code>h:hasComponent</code>,
                 or <code>h:hasMember</code>; doing so would make those properties non-simple
                 (§11 of [[OWL2-SYNTAX]]) and invalidate their <code>owl:AsymmetricProperty</code> and
-                <code>owl:IrreflexiveProperty</code> axioms under OWL 2 DL. Custom part-properties
-                declared as sub-properties of <code>h:partOf</code> <em class="rfc2119"
-                title="SHOULD">SHOULD</em> be transitive (matching their super-property); extensions
-                that need a strict immediate-part relation <em class="rfc2119"
-                title="SHOULD">SHOULD</em> introduce it as a sub-property of
-                <code>h:componentOf</code> or <code>h:memberOf</code> rather than of
-                <code>h:partOf</code> directly.
+                <code>owl:IrreflexiveProperty</code> axioms under OWL 2 DL. More generally, an
+                extension <em class="rfc2119" title="SHOULD">SHOULD</em> classify each custom
+                part-property it introduces as either a <em>closure relation</em> or an
+                <em>immediate relation</em>:
+            </p>
+            <ul>
+                <li>A <strong>closure relation</strong> (like <code>h:partOf</code> itself, or
+                    <code>h:substanceOf</code> / <code>h:portionOf</code>) ranges over the transitive
+                    closure of parthood. It <em class="rfc2119" title="SHOULD">SHOULD</em> be declared
+                    <code>owl:TransitiveProperty</code> and a sub-property of <code>h:partOf</code>.</li>
+                <li>An <strong>immediate relation</strong> (like <code>h:componentOf</code> /
+                    <code>h:memberOf</code>) holds only one level deep. It <em class="rfc2119"
+                    title="SHOULD">SHOULD</em> be declared a sub-property of <code>h:componentOf</code>
+                    or <code>h:memberOf</code> (not of <code>h:partOf</code> directly), and — if it is
+                    to carry <code>owl:AsymmetricProperty</code> / <code>owl:IrreflexiveProperty</code>
+                    — it <em class="rfc2119" title="MUST NOT">MUST NOT</em> be transitive nor have a
+                    transitive sub-property, so that it remains an OWL 2 DL simple role.</li>
+            </ul>
+            <p class="note">
+                The built-in vocabulary is exactly this split: <code>h:partOf</code>,
+                <code>h:substanceOf</code>, <code>h:portionOf</code> are transitive closure relations,
+                while <code>h:componentOf</code> and <code>h:memberOf</code> are non-transitive
+                immediate relations — which is why a blanket "custom sub-properties should be
+                transitive" rule would be wrong.
             </p>
             <p class="note">
                 <strong>Future direction.</strong> This mereology is logically separable from the
@@ -717,7 +736,12 @@ ex:SystemCluster a h:Holon .
                 Let <code>G</code> be the <dfn data-dfn-type="dfn" id="dfn-asserted-graph" class="export">asserted graph</dfn>:
                 in the reifier profile, the single RDF graph; in the named-graph profile, the
                 <strong>union of the dataset's graphs</strong> (its default graph together with all of its
-                named graphs). For a holon <code>H</code>, its
+                named graphs). This last point is an <strong>RDF-H-defined interpretation</strong>, not
+                default RDF behaviour: RDF 1.1/1.2 datasets deliberately fix <em>no</em> required
+                relationship between the default graph and the named graphs, and SPARQL does not query
+                their union by default [[RDF11-DATASETS]]. RDF-H stipulates that, for a dataset using
+                the named-graph profile, the asserted content is the union of its graphs. For a holon
+                <code>H</code>, its
                 <dfn data-dfn-type="dfn" id="dfn-content-graph" data-lt="content graph|content graphs" class="export">content graph</dfn>
                 <code>CG(H)</code> is the set of triples filed in <code>H</code>. RDF-H imposes one
                 normative constraint relating every content graph to <code>G</code>:
@@ -732,7 +756,7 @@ ex:SystemCluster a h:Holon .
                 <a href="#conformance" class="sec-ref"></a> criterion 3. In the reifier profile it is
                 a genuine constraint (the base triple must be asserted alongside the reifier); in the
                 named-graph profile it holds <em>by construction</em>, since each <code>CG(H)</code> is
-                one of the graphs whose merge is <code>G</code>. (A <em>contextual</em> reading, in
+                one of the graphs whose union is <code>G</code>. (A <em>contextual</em> reading, in
                 which a holon's triples would be true only "within" the holon and not globally, would
                 drop this invariant; that is deliberately out of scope — see
                 <a href="#issue-contextual">Open Issue 8</a>.)
@@ -784,10 +808,11 @@ ex:SystemCluster a h:Holon .
             <p>
                 The holon IRI remains an ordinary, describable resource in the <em>default graph</em>
                 (e.g. <code>ex:Floor_3 a h:Holon ; bldg:floorNumber 3</code>), while its internal
-                structure is the graph it names. Because the
+                structure is the graph it names. Under the RDF-H interpretation that the
                 <a href="#dfn-asserted-graph">asserted graph</a> <code>G</code> is the
-                <strong>union of the dataset's graphs</strong>, each named graph
-                <code>CG(H)</code> is a subset of <code>G</code> by construction: the
+                <strong>union of the dataset's graphs</strong> (an RDF-H stipulation, not default
+                dataset semantics — see <a href="#dfn-asserted-graph">asserted graph</a>), each named
+                graph <code>CG(H)</code> is a subset of <code>G</code> by construction: the
                 <a href="#additive-invariant">additive invariant</a> holds with <strong>no
                 duplication</strong> and needs no separate check — a filed triple is asserted simply by
                 being in its named graph. This profile therefore costs one quad per filed triple (no
@@ -797,11 +822,15 @@ ex:SystemCluster a h:Holon .
         </section>
 
         <section id="profile-equivalence">
-            <h3>Profile equivalence</h3>
+            <h3>Profile content-equivalence</h3>
             <p>
-                The two profiles realize the <em>same</em> <code>CG(H)</code> for every holon and the
-                same set of asserted base triples, and a conformant processor <em class="rfc2119"
-                title="MAY">MAY</em> translate between them:
+                The two profiles are <strong>content-equivalent under a projection</strong>: they
+                realize the <em>same</em> <code>CG(H)</code> for every holon and the same set of
+                asserted base triples, but they are <em>not</em> equivalent as full RDF
+                graphs/datasets — occurrence identity, per-occurrence metadata, and the multiplicity of
+                a triple filed more than once in the same holon are visible in the reifier profile and
+                projected away in the named-graph profile. A conformant processor
+                <em class="rfc2119" title="MAY">MAY</em> translate between them:
             </p>
             <ul>
                 <li><strong>reifier &rarr; named-graph:</strong> for each
@@ -943,10 +972,10 @@ ex:SystemCluster a h:Holon .
         <p class="note">
             <strong>The content-graph machinery adds no new entailments.</strong> The
             <a href="#content-graph" class="sec-ref"></a> content-graph model, the
-            <a href="#additive-invariant">additive invariant</a>, and <code>h:ClosedHolon</code> are
+            <a href="#additive-invariant">additive invariant</a>, and <code>h:CompleteHolon</code> are
             <em>view-</em> and <em>validation-</em>level constructs, not model-theoretic ones: an RDFS
             or OWL reasoner derives nothing further from them. In particular, a reasoner does
-            <em>not</em> infer negative facts from <code>h:ClosedHolon</code> — closure is honoured
+            <em>not</em> infer negative facts from <code>h:CompleteHolon</code> — closure is honoured
             only by SHACL and by opting-in consumers (see <a href="#validation-closure"
             class="sec-ref"></a>). <code>h:contentGraph</code> is an ordinary functional property with
             no special semantics beyond its <code>rdfs:domain</code>.
@@ -1289,8 +1318,8 @@ SELECT ?s ?p ?o WHERE {
             only SPARQL 1.1.
         </p>
         <p class="note">
-            <strong>Closed holons.</strong> Completeness of a
-            <a href="#dfn-closedholon-class">closed holon</a>'s content graph is checked by
+            <strong>Complete holons.</strong> Completeness of a
+            <a href="#dfn-completeholon-class">complete holon</a>'s content graph is checked by
             <em>domain-specific</em> shapes rather than a single built-in shape; the pattern is in
             <a href="#validation-closure" class="sec-ref"></a>.
         </p>
@@ -1471,21 +1500,21 @@ h:AcyclicPartShape
         </section>
 
         <section id="validation-closure">
-            <h3>Validating closed holons</h3>
+            <h3>Validating complete holons</h3>
             <p>
-                A <a href="#dfn-closedholon-class">closed holon</a> asserts that its content graph is
+                A <a href="#dfn-completeholon-class">complete holon</a> asserts that its content graph is
                 complete, which licenses a closed-world reading <em>within</em> the holon. Completeness
                 is necessarily domain-specific (what counts as "complete" depends on the kind of
                 holon), so RDF-H does not ship a single closure validator; instead, model the expected
-                content with an ordinary SHACL shape and target it at the closed holons. For example,
+                content with an ordinary SHACL shape and target it at the complete holons. For example,
                 requiring that every closed <code>bldg:Floor</code> holon contain exactly one HVAC
                 component:
             </p>
             <div class="example">
                 <pre class="nohighlight turtle">
-ex:ClosedFloorShape
+ex:CompleteFloorShape
     a sh:NodeShape ;
-    sh:targetClass h:ClosedHolon ;
+    sh:targetClass h:CompleteHolon ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "A closed floor holon must contain exactly one HVAC component." ;
@@ -1509,15 +1538,15 @@ ex:ClosedFloorShape
 </pre>
             </div>
             <p>
-                The closed-world reading is sound precisely because <code>h:ClosedHolon</code>
+                The closed-world reading is sound precisely because <code>h:CompleteHolon</code>
                 promises that <code>CG(H)</code> is complete: the absence of a second HVAC occurrence
                 in the content graph can be read as "there is no second HVAC component," which an
                 open-world holon could not guarantee.
             </p>
             <p class="note">
                 <strong>Closure is an advisory contract, not an entailment.</strong>
-                <code>h:ClosedHolon</code> carries no RDFS or OWL semantics: an OWL or RDFS reasoner
-                does <em>not</em> derive negative facts from it, and merging a closed holon's graph
+                <code>h:CompleteHolon</code> carries no RDFS or OWL semantics: an OWL or RDFS reasoner
+                does <em>not</em> derive negative facts from it, and merging a complete holon's graph
                 with new triples does not automatically re-validate it. The closed-world reading is
                 honoured only by SHACL shapes (which are closed-world by construction) and by
                 consumers that opt in. Implementers <em class="rfc2119" title="MUST NOT">MUST NOT</em>
@@ -1536,15 +1565,48 @@ ex:ClosedFloorShape
             <strong>RDF-H Graph</strong> (a body of RDF data that uses the RDF-H vocabulary). The
             criteria below summarize requirements stated normatively in the preceding sections.
         </p>
+
+        <section id="conformance-profiles">
+            <h3>Implementation profiles</h3>
+            <p>
+                Because the two serialization profiles
+                (<a href="#content-graph" class="sec-ref"></a>) have very different tooling demands,
+                conformance is stated against one of two named <strong>implementation profiles</strong>;
+                an implementation <em class="rfc2119" title="MUST">MUST</em> declare which it supports
+                (it <em class="rfc2119" title="MAY">MAY</em> support both):
+            </p>
+            <dl>
+                <dt><strong>RDF-H Reifier Profile</strong></dt>
+                <dd>The single-graph, RDF 1.2 reifier encoding (<code>rdf:reifies</code> +
+                    <code>h:inHolon</code>), including Turtle-H. It requires RDF 1.2 triple terms and,
+                    for the shipped SHACL shapes, a SHACL engine whose embedded SPARQL supports triple
+                    terms (SPARQL 1.2). This support is still maturing across implementations, so a
+                    conformant processor <em class="rfc2119" title="MAY">MAY</em> use the
+                    component-extraction fallback noted in <a href="#validation" class="sec-ref"></a>.</dd>
+                <dt><strong>RDF-H Dataset Profile</strong></dt>
+                <dd>The named-graph encoding over an RDF dataset. It runs on today's RDF 1.1 + SPARQL
+                    1.1 + standard SHACL stacks (membership and content-graph extraction use the
+                    <code>GRAPH</code> clause), and depends on the RDF-H asserted-graph interpretation
+                    (<a href="#dfn-asserted-graph">asserted graph</a>).</dd>
+            </dl>
+            <p>
+                The two profiles are content-equivalent under a projection
+                (<a href="#profile-equivalence" class="sec-ref"></a>), so a graph authored for one can
+                be consumed in the other by a processor that supports both.
+            </p>
+        </section>
+
         <p>A conformant <strong>RDF-H Processor</strong> <em class="rfc2119" title="MUST">MUST</em>:</p>
         <ol>
-            <li>Satisfy all conformance criteria for a fully conformant RDF 1.2 processor [[RDF12-CONCEPTS]],
-                including support for triple terms, the <code>rdf:reifies</code> predicate, and the Turtle 1.2
-                syntactic forms for reified triples and annotation blocks [[RDF12-TURTLE]].</li>
+            <li>For the profile(s) it supports, satisfy the corresponding base-standard conformance
+                criteria — for the Reifier Profile, a fully conformant RDF 1.2 processor
+                [[RDF12-CONCEPTS]] (triple terms, <code>rdf:reifies</code>, and the Turtle 1.2 reified
+                triple / annotation forms [[RDF12-TURTLE]]); for the Dataset Profile, a conformant RDF
+                dataset / SPARQL 1.1 processor [[RDF11-DATASETS]], [[SPARQL11-QUERY]].</li>
         </ol>
         <p>A conformant <strong>RDF-H Processor</strong> <em class="rfc2119" title="SHOULD">SHOULD</em>:</p>
         <ol>
-            <li>Correctly parse and serialize the Turtle-H syntax defined in
+            <li>(Reifier Profile) Correctly parse and serialize the Turtle-H syntax defined in
                 <a href="#syntax" class="sec-ref"></a>, translating it to and from its standard RDF 1.2
                 representation. Whether this requirement is promoted to <em class="rfc2119"
                 title="MUST">MUST</em>-level for v1.0 is tracked by
@@ -1556,11 +1618,10 @@ ex:ClosedFloorShape
                 for objects of <code>h:inHolon</code> via the standard <code>rdfs3</code> rule (see
                 <a href="#semantics" class="sec-ref"></a>) and <code>rdfs:subPropertyOf</code> traversal
                 for the <code>h:partOf</code> hierarchy.</li>
-            <li>Support at least one of the two serialization
-                <a href="#content-graph" class="sec-ref"></a> profiles, and be able to extract a
-                holon's content graph <code>CG(H)</code> (and, where applicable, its
-                <a href="#dfn-deep-content">deep content</a> <code>CG*(H)</code>). A processor that
-                supports both profiles <em class="rfc2119" title="SHOULD">SHOULD</em> implement the
+            <li>Be able to extract a holon's content graph <code>CG(H)</code> (and, where applicable,
+                its <a href="#dfn-deep-content">deep content</a> <code>CG*(H)</code>) for the
+                <a href="#conformance-profiles">profile(s)</a> it supports. A processor that supports
+                both profiles <em class="rfc2119" title="SHOULD">SHOULD</em> implement the
                 <a href="#profile-equivalence">profile translation</a> so that data authored in one
                 profile can be consumed in the other.</li>
         </ol>
@@ -1583,7 +1644,7 @@ ex:ClosedFloorShape
                 asserted (enforced by <code>h:AssertedBaseTripleShape</code>,
                 <a href="#validation-normative" class="sec-ref"></a>). In the named-graph profile,
                 where <code>G</code> is the union of the dataset's graphs, the invariant holds by
-                construction (each named graph is part of the merge), so there is nothing to
+                construction (each named graph is part of that union), so there is nothing to
                 enforce.</li>
         </ol>
         <p>
@@ -1718,7 +1779,7 @@ ex:Room_301                  a h:Holon .
                 <em>reifier profile</em>.
             </p>
             <div class="example">
-                <p><strong>Same model, named-graph profile (TriG).</strong> The Floor 3 holon, written
+                <p><strong>Same content, named-graph profile (TriG).</strong> The Floor 3 holon, written
                     as a named graph instead of <code>@holon</code> + reifiers. The holon IRI is both a
                     describable resource (default graph) and the name of its content graph:</p>
                 <pre class="nohighlight turtle">
@@ -1896,7 +1957,7 @@ SELECT ?s ?p ?o WHERE { GRAPH ex:Floor_3 { ?s ?p ?o } }
                 triples also live in the single asserted graph, so view scoping must be enforced by the
                 query/authorization layer rather than by graph isolation (see
                 <a href="#security" class="sec-ref"></a>). Declaring
-                <code>ex:Floor_3 a h:ClosedHolon</code> additionally lets the tenant treat the exposed
+                <code>ex:Floor_3 a h:CompleteHolon</code> additionally lets the tenant treat the exposed
                 content graph as complete for the floor.
             </p>
         </section>
@@ -1985,14 +2046,16 @@ SELECT ?s ?p ?o WHERE { GRAPH ex:Floor_3 { ?s ?p ?o } }
                 imposed with a domain SHACL shape).
             </dd>
 
-            <dt id="issue-holon-closure">Issue 5: Closed-world holon contents <em>(provisionally resolved in this draft)</em></dt>
+            <dt id="issue-holon-closure">Issue 5: Complete (closed-content) holons <em>(provisionally resolved in this draft via <code>h:CompleteHolon</code>)</em></dt>
             <dd>
-                Resolved by <a href="#dfn-closedholon-class"><code>h:ClosedHolon</code></a>: typing a
-                holon <code>h:ClosedHolon</code> asserts <code>CG(H)</code> is complete and licenses a
-                closed-world reading within the holon, validated by domain SHACL shapes
-                (<a href="#validation-closure" class="sec-ref"></a>). Open sub-question: should closure
-                also be expressible per-relation (e.g. "these are <em>all</em> the components of
-                <code>H</code>") rather than only per-holon?
+                The original question — may a holon assert "these triples, and only these, are in
+                <code>CG(H)</code>"? — is resolved by
+                <a href="#dfn-completeholon-class"><code>h:CompleteHolon</code></a>: typing a holon
+                <code>h:CompleteHolon</code> asserts <code>CG(H)</code> is complete and supports a
+                completeness-scoped (local closed-world) reading, validated by domain SHACL shapes
+                (<a href="#validation-closure" class="sec-ref"></a>) rather than by entailment. Open
+                sub-question: should completeness also be expressible per-relation (e.g. "these are
+                <em>all</em> the components of <code>H</code>") rather than only per-holon?
             </dd>
 
             <dt id="issue-turtle-h-status">Issue 6: Turtle-H normative status and venue</dt>
@@ -2074,13 +2137,13 @@ SELECT ?s ?p ?o WHERE { GRAPH ex:Floor_3 { ?s ?p ?o } }
                 filed triple in the asserted graph <code>G</code>, so restricting a content-graph
                 <em>view</em> does not by itself hide a triple that is also reachable through
                 <code>G</code> or another holon.</li>
-            <li><strong>Closed holons turn absence into information.</strong> A
-                <a href="#dfn-closedholon-class">closed holon</a> asserts that its content graph is
+            <li><strong>Complete holons turn absence into information.</strong> A
+                <a href="#dfn-completeholon-class">complete holon</a> asserts that its content graph is
                 complete, so a consumer may read "absent from <code>CG(H)</code>" as "does not exist."
-                When a closed holon is derived from an access-controlled or redacted source, that
+                When a complete holon is derived from an access-controlled or redacted source, that
                 completeness claim can itself leak information (it reveals that nothing was withheld).
                 Publishers <em class="rfc2119" title="SHOULD">SHOULD</em> avoid marking a holon
-                <code>h:ClosedHolon</code> when its content was filtered for confidentiality.</li>
+                <code>h:CompleteHolon</code> when its content was filtered for confidentiality.</li>
         </ul>
     </section>
 
@@ -2100,8 +2163,16 @@ SELECT ?s ?p ?o WHERE { GRAPH ex:Floor_3 { ?s ?p ?o } }
                         (<a href="#content-graph" class="sec-ref"></a>). Added the
                         <a href="#additive-invariant">additive invariant</a> <code>CG(H) &sube; G</code>
                         (the general form of the v0.6 asserted-base-triple rule), <code>h:contentGraph</code>,
-                        <code>h:ClosedHolon</code> with closed-world-within-a-holon semantics, and
-                        <a href="#dfn-deep-content">deep content</a> <code>CG*(H)</code>. Reframed
+                        <code>h:CompleteHolon</code> (a local completeness contract, not a global
+                        closed-world assumption), and
+                        <a href="#dfn-deep-content">deep content</a> <code>CG*(H)</code>. The
+                        named-graph profile's asserted graph <code>G</code> is the
+                        <a href="#dfn-asserted-graph">union of the dataset's graphs</a> — an RDF-H
+                        stipulation, not default RDF dataset semantics — and the two profiles are
+                        content-equivalent <em>under a projection</em>
+                        (<a href="#profile-equivalence" class="sec-ref"></a>). Defined
+                        <a href="#conformance-profiles">Reifier and Dataset implementation profiles</a>,
+                        and gave closure-vs-immediate guidance for custom part-properties. Reframed
                         named graphs from "rejected" to an alternative profile, and recast the abstract
                         around content graphs.</li>
                     <li><strong>Coherence over orthogonality.</strong> Reversed the v0.6 framing
@@ -2137,7 +2208,7 @@ SELECT ?s ?p ?o WHERE { GRAPH ex:Floor_3 { ?s ?p ?o } }
                     <li><strong>Open issues.</strong> Provisionally resolved
                         <a href="#issue-holon-empty">Issue 4</a> (empty holon = empty content graph)
                         and <a href="#issue-holon-closure">Issue 5</a> (closure via
-                        <code>h:ClosedHolon</code>); added <a href="#issue-contextual">Issue 8</a>
+                        <code>h:CompleteHolon</code>); added <a href="#issue-contextual">Issue 8</a>
                         (contextual holons).</li>
                 </ul>
             </dd>
@@ -2203,7 +2274,7 @@ SELECT ?s ?p ?o WHERE { GRAPH ex:Floor_3 { ?s ?p ?o } }
                 <tr>
                     <td><strong>Core vocabulary</strong></td>
                     <td><code>h:Holon</code>, <code>h:inHolon</code>,
-                        <code>h:contentGraph</code>, <code>h:ClosedHolon</code></td>
+                        <code>h:contentGraph</code>, <code>h:CompleteHolon</code></td>
                 </tr>
                 <tr>
                     <td><strong>Content graph</strong></td>

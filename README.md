@@ -14,7 +14,7 @@ This specification proposes the **holon** as a first-class primitive in RDF. Eac
 
 ## Key Features
 
-* **Holon = content graph.** A holon `h:Holon` has a content graph `CG(H)` — the triples filed in it — that is a queryable *view* over the asserted graph, governed by the **additive invariant** `CG(H) ⊆ G`. `h:ClosedHolon` marks a holon whose content graph is complete (a boundary enabling closed-world checks within the holon); `h:contentGraph` names the content graph in the named-graph profile.
+* **Holon = content graph.** A holon `h:Holon` has a content graph `CG(H)` — the triples filed in it — that is a queryable *view* over the asserted graph, governed by the **additive invariant** `CG(H) ⊆ G`. `h:CompleteHolon` marks a holon whose content graph is complete (a local completeness contract enabling integrity checks scoped to the holon); `h:contentGraph` names the content graph in the named-graph profile.
 * **Dual serialization profiles.** The same `CG(H)` is realized either with RDF 1.2 reifiers via `h:inHolon` (single graph, per-occurrence metadata) or as a named graph in a dataset (`GRAPH`-queryable, inexpensive), with a stated equivalence and translation between the two.
 * **Mereological hierarchy.** A formally grounded part-whole hierarchy: a single transitive top-level `h:partOf`, with non-transitive asymmetric/irreflexive sub-properties `h:componentOf` and `h:memberOf` (structural parthood and aggregate membership), and transitive sub-properties `h:substanceOf` and `h:portionOf` (material composition and continuous-whole segmentation). The vocabulary stays within OWL 2 DL; full-hierarchy acyclicity is enforced by SHACL.
 * **Coherence discipline.** A holon's content graph should be *about* the holon: a part-of relation filed in `H` should describe `H`'s own composition, and any relation filed in `H` should touch `H` or one of its parts. These are advisory recommendations, surfaced by SHACL warnings.
@@ -36,7 +36,7 @@ This specification proposes the **holon** as a first-class primitive in RDF. Eac
 
 The specification is structured in three logically separable layers:
 
-1. The **core vocabulary and content-graph model** (`h:Holon`, `h:inHolon`, `h:contentGraph`, `h:ClosedHolon`) — each holon's content graph and its reifier/named-graph serialization profiles.
+1. The **core vocabulary and content-graph model** (`h:Holon`, `h:inHolon`, `h:contentGraph`, `h:CompleteHolon`) — each holon's content graph and its reifier/named-graph serialization profiles.
 2. The **mereology** (the `h:partOf` hierarchy).
 3. **Turtle-H** (the `@holon` surface-syntax sugar).
 
