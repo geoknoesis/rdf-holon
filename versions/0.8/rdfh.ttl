@@ -1,0 +1,142 @@
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix h: <https://w3id.org/rdf-h#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+h:CompleteHolon a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Complete Holon"@en ;
+    rdfs:comment "Deprecated legacy subclass of Holon retained for registration compatibility. This type alone confers no closed-world or domain completeness guarantee. Use an explicitly identified application contract."@en ;
+    rdfs:isDefinedBy h: ;
+    rdfs:subClassOf h:Holon ;
+    owl:deprecated true .
+
+h:Holon a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Holon"@en ;
+    rdfs:comment "An identifiable resource with explicitly filed RDF content CG(H). Membership is represented by RDF 1.2 reifiers or a selected named graph. Each filed statement is also asserted. Holons may stand alone or participate in an optional administrative hierarchy."@en ;
+    rdfs:isDefinedBy h: .
+
+h:AssertedBaseTripleShape a sh:NodeShape ;
+    rdfs:label "Asserted Base Triple Shape"@en ;
+    rdfs:comment "Checks the asserted-base-triple requirement for reifier-filed content."@en ;
+    rdfs:isDefinedBy h: ;
+    sh:sparql [ a sh:SPARQLConstraint ;
+            sh:message "Reifier is in a holon but its base triple is not asserted."@en ;
+            sh:select """
+            PREFIX h:   <https://w3id.org/rdf-h#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            SELECT $this
+            WHERE {
+                $this h:inHolon  ?H .
+                $this rdf:reifies <<( ?s ?p ?o )>> .
+                FILTER NOT EXISTS { ?s ?p ?o . }
+            }
+        """ ] ;
+    sh:targetSubjectsOf h:inHolon .
+
+h:CompositionHierarchyShape a sh:NodeShape ;
+    rdfs:label "Composition Hierarchy Shape"@en ;
+    rdfs:comment "Checks that each holon declares at most one administrative parent of a valid node kind and that h:parentHolon links contain no cycles. Apply it to the metadata context M; endpoint registration is a procedural check."@en ;
+    rdfs:isDefinedBy h: ;
+    sh:property [ sh:maxCount 1 ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path h:parentHolon ] ;
+    sh:sparql [ a sh:SPARQLConstraint ;
+            sh:message "Administrative parentage must be acyclic."@en ;
+            sh:select """
+            PREFIX h: <https://w3id.org/rdf-h#>
+            SELECT $this WHERE { $this h:parentHolon+ $this . }
+        """ ] ;
+    sh:targetSubjectsOf h:parentHolon .
+
+h:ContentGraphMappingShape a sh:NodeShape ;
+    rdfs:label "Content Graph Mapping Shape"@en ;
+    rdfs:comment "Checks that a holon declares at most one h:contentGraph mapping and that the graph name is an IRI or blank node. The blank-node-holon rule requiring an explicit mapping is a procedural check. Several holons may select the same graph."@en ;
+    rdfs:isDefinedBy h: ;
+    sh:property [ sh:maxCount 1 ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path h:contentGraph ] ;
+    sh:targetSubjectsOf h:contentGraph .
+
+h:HolonIntegrityShape a sh:NodeShape ;
+    rdfs:label "Holon Integrity Shape"@en ;
+    rdfs:comment "Advisory check that a resource used as a holon (object of h:inHolon) carries an explicit registry declaration in the validated graph (run it over G, which includes M): h:Holon typing, legacy h:CompleteHolon typing, or an h:contentGraph mapping. It warns about missing declarations; the procedural registry check against M is the normative rule. Under RDFS entailment the rdfs:range of h:inHolon supplies h:Holon typing, so run this shape without entailment to surface omissions."@en ;
+    rdfs:isDefinedBy h: ;
+    sh:severity sh:Warning ;
+    sh:sparql [ a sh:SPARQLConstraint ;
+            sh:message "The focus node is used as a holon (object of h:inHolon) but has no explicit registry declaration (h:Holon or h:CompleteHolon typing, or an h:contentGraph mapping)."@en ;
+            sh:select """
+            PREFIX h: <https://w3id.org/rdf-h#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS { $this a h:Holon . }
+                FILTER NOT EXISTS { $this a h:CompleteHolon . }
+                FILTER NOT EXISTS { $this h:contentGraph ?graph . }
+            }
+        """ ] ;
+    sh:targetObjectsOf h:inHolon .
+
+h:ReifierMembershipShape a sh:NodeShape ;
+    rdfs:label "Reifier Membership Shape"@en ;
+    rdfs:comment "Checks that every membership resource (subject of h:inHolon) names an IRI or blank-node holon and reifies at least one triple term."@en ;
+    rdfs:isDefinedBy h: ;
+    sh:property [ sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path h:inHolon ],
+        [ sh:minCount 1 ;
+            sh:path rdf:reifies ] ;
+    sh:targetSubjectsOf h:inHolon .
+
+h:imports a owl:ObjectProperty ;
+    rdfs:label "imports content"@en ;
+    rdfs:comment "An explicit declaration in M adding a registered target holon's direct content to visible scope. Only imports of the selected root apply; no recursive expansion or shapes import."@en ;
+    rdfs:domain h:Holon ;
+    rdfs:isDefinedBy h: ;
+    rdfs:range h:Holon .
+
+h:importsShapes a owl:ObjectProperty ;
+    rdfs:label "imports shapes graph"@en ;
+    rdfs:comment "Selects an IRI-named shapes graph for validation. Non-transitive; imports no content. Only explicit imports on the validating holon apply; ancestor declarations are not inherited."@en ;
+    rdfs:domain h:Holon ;
+    rdfs:isDefinedBy h: .
+
+h:contentGraph a owl:ObjectProperty ;
+    rdfs:label "content graph"@en ;
+    rdfs:comment "Maps a registered holon to one selected named graph. Mapping cardinality is a validation constraint, not an OWL equality rule. M is the authoritative source of mappings."@en ;
+    rdfs:domain h:Holon ;
+    rdfs:isDefinedBy h: .
+
+h:parentHolon a owl:ObjectProperty ;
+    rdfs:label "administrative parent"@en ;
+    rdfs:comment "Immediate administrative parent declared in metadata context M. Endpoints must be registered; at most one parent and no cycles. Aggregation includes registered descendants, not ancestors. No domain parthood entailment."@en ;
+    rdfs:domain h:Holon ;
+    rdfs:isDefinedBy h: ;
+    rdfs:range h:Holon .
+
+h:inHolon a owl:ObjectProperty ;
+    rdfs:label "in holon"@en ;
+    rdfs:comment "Links the reifier of a triple-occurrence (an IRI or blank node related to a triple term via rdf:reifies, in the sense of RDF 1.2) to the holon that contains the occurrence. The subject is the reifier; the object is the containing holon. Reifier-profile membership: << s p o >> h:inHolon H files (s,p,o) into the content graph CG(H)."@en ;
+    rdfs:isDefinedBy h: ;
+    rdfs:range h:Holon .
+
+h: a owl:Ontology ;
+    rdfs:label "RDF-H — A Holonic Modeling Pattern Vocabulary"@en ;
+    dct:created "2025-01-01"^^xsd:date ;
+    dct:creator [ a foaf:Person ;
+            foaf:name "Stephane Fellah" ;
+            foaf:workplaceHomepage <https://geoknoesis.com> ] ;
+    dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
+    dct:modified "2026-10-21"^^xsd:date ;
+    rdfs:comment "This vocabulary defines the core class, properties, and partial SHACL shapes for representing and validating holarchic structures in RDF 1.2."@en ;
+    rdfs:seeAlso <https://geoknoesis.github.io/rdf-holon/> ;
+    vann:preferredNamespacePrefix "h" ;
+    vann:preferredNamespaceUri "https://w3id.org/rdf-h#" ;
+    # 0.7 used a fragment of the namespace as its version IRI; it is kept as published.
+    owl:priorVersion <https://w3id.org/rdf-h#0.7> ;
+    owl:versionIRI <https://w3id.org/rdf-h/0.8> ;
+    owl:versionInfo "0.8" .

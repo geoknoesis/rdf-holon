@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Turtle-H: A Surface Syntax for RDF-H</title>
+<script class="remove" src="https://www.w3.org/Tools/respec/respec-w3c"></script>
+<script class="remove">
+        /* ReSpec configuration */
+        var respecConfig = {
+            testSuiteURI: "https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl",
+            // Use the standard W3C ReSpec presentation.
+            useW3CStyle: true,
+            specStatus: "unofficial",
+            publishDate: "2026-10-21",
+
+            // General Metadata
+            shortName: "turtle-h",
+            editors: [{
+                name: "Stephane Fellah",
+                url: "https://geoknoesis.com",
+                company: "Geoknoesis LLC",
+                companyURL: "https://geoknoesis.com"
+            }],
+            version: "0.1.0",
+            github: {
+                repoURL: "https://github.com/geoknoesis/rdf-holon",
+                branch: "main",
+                commitHistoryURL: "https://github.com/geoknoesis/rdf-holon/commits/main/turtle-h/index.html"
+            },
+            edDraftURI: "https://geoknoesis.github.io/rdf-holon/turtle-h/",
+            copyrightStart: "2025",
+            localBiblio: {
+                "RDF12-CONCEPTS": {
+                    title: "RDF 1.2 Concepts and Abstract Syntax",
+                    href: "https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/",
+                    publisher: "W3C",
+                    status: "Candidate Recommendation Snapshot",
+                    date: "7 April 2026"
+                },
+                "RDF12-TURTLE": {
+                    title: "RDF 1.2 Turtle",
+                    href: "https://www.w3.org/TR/2026/WD-rdf12-turtle-20261007/",
+                    publisher: "W3C",
+                    status: "Working Draft",
+                    date: "7 October 2026"
+                },
+                "TRIG": {
+                    title: "RDF 1.1 TriG",
+                    href: "https://www.w3.org/TR/trig/",
+                    publisher: "W3C"
+                },
+                "RFC8174": {
+                    title: "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words",
+                    href: "https://www.rfc-editor.org/info/rfc8174",
+                    authors: ["B. Leiba"],
+                    date: "May 2017",
+                    publisher: "IETF"
+                },
+                "RFC2119": {
+                    title: "Key words for use in RFCs to Indicate Requirement Levels",
+                    href: "https://www.rfc-editor.org/info/rfc2119",
+                    authors: ["S. Bradner"],
+                    date: "March 1997",
+                    publisher: "IETF"
+                }
+            },
+            otherLinks: [{
+                key: "Version control",
+                data: [{
+                    value: "GitHub Repository",
+                    href: "https://github.com/geoknoesis/rdf-holon"
+                }, {
+                    value: "Specification source",
+                    href: "https://github.com/geoknoesis/rdf-holon/blob/main/turtle-h/index.html"
+                }]
+            }]
+        };
+    </script>
+</head>
+<body>
+<section id="abstract"><p>Turtle-H adds an @holon block to Turtle 1.2. A block assigns its statements to a holon, an identifiable unit of RDF content. A parser expands the block into RDF 1.2 statements that record both the claims and their holon membership.</p></section>
+<section id="sotd"><p>This document is the frozen snapshot of Turtle-H 0.1.0, released with RDF-H 0.8 on 2026-10-21 (repository tag <code>turtle-h-v0.1.0</code>). The <a href="https://geoknoesis.github.io/rdf-holon/turtle-h/">editor's draft</a> may be newer.</p><p>This unofficial community draft is produced by Geoknoesis LLC. It is not a W3C specification.
+        This working revision defines the syntax, staged <a>expansion</a>, and metadata output for RDF-H 0.8.</p></section>
+<section id="intro"><h2>Relationship to RDF-H</h2>
+<p>This specification targets <a href="../">RDF-H 0.8</a>. RDF-H defines holon identity, content,
+            assertion semantics, and serialization profiles; this document defines authoring syntax.</p>
+<p>The key words <em class="rfc2119" title="MUST">MUST</em>, <em class="rfc2119" title="MUST NOT">MUST NOT</em>, <em class="rfc2119" title="SHOULD">SHOULD</em>, <em class="rfc2119" title="SHOULD NOT">SHOULD NOT</em>, and <em class="rfc2119" title="MAY">MAY</em> in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here.
+            The prefix <code>h:</code> denotes <code>https://w3id.org/rdf-h#</code> and
+            <code>rdf:</code> denotes <code>http://www.w3.org/1999/02/22-rdf-syntax-ns#</code>.</p>
+</section>
+<section id="terms"><h2>Terms and Parser Outputs</h2>
+<p>An <strong>RDF triple</strong> is a subject, predicate, and object statement. An <strong>asserted</strong> triple is included as a claim in the data. A <strong>graph</strong> is a set of triples; duplicates count once. To <strong>file</strong> a triple means to assign it to a holon's content.</p>
+<p>An <strong>IRI</strong> is an identifier such as <code>https://example.org/City</code>. A <strong>blank node</strong> identifies a resource without an IRI. A <strong>triple term</strong>, written <code>&lt;&lt;( :s :p :o )&gt;&gt;</code>, represents a triple without asserting it [[RDF12-CONCEPTS]]. A <strong>reifier</strong> is an IRI or blank node linked to that term by <code>rdf:reifies</code>. The property <code>h:inHolon</code> assigns the reified statement to a holon. This is RDF-H's <strong>reifier representation</strong>. An <strong>occurrence</strong> is one separately identified record of a statement.</p>
+<p><dfn data-lt="expansion|expand|expands|desugaring">Expansion</dfn> (also called desugaring) replaces block shorthand with explicit RDF statements. The parser returns two graphs: <strong>G</strong>, the asserted data, and <strong>M</strong>, the metadata context. M contains declarations that register holons, select storage graphs, organize parent links, and specify imports. Content statements do not control these operations unless they are also explicitly included in M.</p>
+<p>A <strong>parent link</strong> organizes one holon under another using <code>h:parentHolon</code>. It does not assert physical parthood. An <strong>import</strong> uses <code>h:imports</code> to select another holon's direct content for a visible-scope query. A holon's <strong>direct content</strong>, written <code>CG(H)</code> for holon H, is the set of triples filed in it. A <strong>visible-scope query</strong> combines that content, the content of holons below it in the parent hierarchy, and the direct content of holons it imports.</p>
+<p>A <strong>dataset</strong> contains a default graph and zero or more named graphs. RDF-H's <strong>dataset profile</strong> stores holon content in those named graphs. <strong>TriG</strong> is a syntax for writing RDF datasets; Turtle-H blocks instead use the reifier representation.</p>
+<p>The grammar uses <strong>EBNF</strong> (Extended Backus–Naur Form): <code>|</code> means an alternative and <code>*</code> means zero or more repetitions. Turtle abbreviations, including prefixed names such as <code>ex:City</code>, follow Turtle 1.2.</p></section><section id="syntax">
+<h2>Writing Holon Blocks</h2>
+<p>Turtle-H adds @holon blocks to Turtle 1.2. A parser returns asserted RDF data G and an explicit metadata context M for RDF-H processing.</p>
+<section>
+<h3>The <code>@holon</code> Directive</h3>
+<p>
+                Assign statements to a holon using the <code>@holon</code> directive, followed
+                by the holon's identifier (IRI or blank node) and a block of Turtle statements enclosed in curly braces:
+            </p>
+<pre class="example nohighlight turtle" title="The @holon directive">
+@holon &lt;holon-iri&gt; {
+    # Turtle statements that are constituents of this holon
+}
+</pre>
+<p class="note">
+<strong>Why a directive (not a bare <code>IRI { ... }</code> block)?</strong>
+                The bare-brace form denotes a named graph in TriG [[TRIG]]; reusing it would clash
+                with that vocabulary. The <code>@holon</code> keyword makes Turtle-H grammatically
+                distinct from TriG and unambiguous to a single parser pass. Turtle-H is not part of
+                Turtle 1.2 [[RDF12-TURTLE]] — it is a proposed sugar that lets developers write
+                a statement once and have a Turtle-H-aware parser generate both the
+                asserted triple and the <code>h:inHolon</code> annotation.
+            </p>
+<p class="note" id="context-vs-parthood"><strong>Content does not create hierarchy.</strong>
+                An <code>@holon</code> block files statements in a holon. Writing one block inside another creates
+                neither an administrative parent nor domain parthood. Declare <code>h:parentHolon</code> explicitly
+                to organize holons. Domain relations can use an external vocabulary.</p>
+<div class="example" title="Nested blocks">
+<pre class="nohighlight turtle">
+@prefix ex: &lt;https://example.org/&gt; .
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+
+ex:Car_123 a h:Holon .
+ex:Engine_456 a h:Holon .
+
+@holon ex:Car_123 {
+    ex:Engine_456 ex:componentOf ex:Car_123 .
+
+    @holon ex:Engine_456 {
+        ex:Piston_789 ex:componentOf ex:Engine_456 .
+    }
+}
+</pre>
+</div>
+<p>
+                This concise syntax is syntactic sugar for the standard RDF 1.2 representation. A Turtle-H
+                parser expands it into standard triples as the <a href="#expansion-algorithm">expansion algorithm</a> specifies.
+            </p>
+<p id="turtle-h-desugaring">The block <code>@holon :H { :s :p :o . }</code> desugars
+                <em>per Turtle-H</em> into:</p>
+<ol>
+<li><strong>The Base Fact:</strong> The relationship itself is asserted.
+                    <br/><code>:s :p :o .</code>
+</li>
+<li><strong>The Membership Record:</strong> The relationship's reifier is linked to its
+                    containing holon.
+                    <br/><code>&lt;&lt; :s :p :o &gt;&gt; h:inHolon :H .</code>
+</li>
+</ol>
+<p>
+                The reified-triple form <code>&lt;&lt; :s :p :o &gt;&gt;</code> is itself sugar in
+                Turtle 1.2 [[RDF12-TURTLE]] — it allocates a fresh blank-node reifier related to the
+                triple term <code>&lt;&lt;( :s :p :o )&gt;&gt;</code> via <code>rdf:reifies</code>. The
+                membership <a>expansion</a> produces three triples per <a>asserted triple event</a>
+                (base assertion, <code>rdf:reifies</code>, <code>h:inHolon</code>); a source statement
+                that expands to several triples yields that many events, as shown below.
+            </p>
+<div class="example" title="Equivalent RDF 1.2 forms">
+<p>Reified-triple sugar (left) and the
+                fully-expanded form (right) for the outer <code>@holon ex:Car_123</code> block.</p>
+<pre class="nohighlight turtle">
+# Reified-triple sugar
+ex:Engine_456 ex:componentOf ex:Car_123 .
+&lt;&lt; ex:Engine_456 ex:componentOf ex:Car_123 &gt;&gt;
+    h:inHolon ex:Car_123 .
+
+# Fully expanded (no syntactic sugar)
+ex:Engine_456 ex:componentOf ex:Car_123 .
+_:r1 rdf:reifies
+    &lt;&lt;( ex:Engine_456 ex:componentOf ex:Car_123 )&gt;&gt; .
+_:r1 h:inHolon ex:Car_123 .
+</pre>
+<p>The nested <code>@holon ex:Engine_456</code> block desugars analogously.</p>
+</div>
+</section>
+<h4>Turtle-H is not TriG</h4>
+<p>
+                Turtle-H is surface syntax for the <em>reifier profile</em>: a Turtle-H processor
+                <em class="rfc2119" title="MUST NOT">MUST NOT</em> treat an <code>@holon</code> block
+                as a TriG [[TRIG]] named graph, and desugars it to <code>h:inHolon</code> annotations
+                within a single graph. This is distinct from the <em>dataset profile</em>
+                (<a href="../#profile-named-graph">RDF-H named graphs</a>), where a holon's content graph
+                <em>is</em> a named graph realized in a dataset and authored with ordinary TriG /
+                <code>GRAPH</code> syntax. Both encode the same content graph
+                (<a href="../#profile-equivalence">RDF-H conversion</a>); the prohibition here is only
+                that the <code>@holon</code> <em>directive</em> is not itself TriG. The converse is a
+                grammar property (see <a class="sec-ref" href="#grammar"></a>), not a normative
+                requirement on TriG processors.
+            </p>
+<section id="expansion-algorithm"><h3>Expansion Algorithm</h3><p>A Turtle statement can produce several asserted triples. For example, a list produces triples describing its members and links. An <dfn data-lt="asserted triple events|events">asserted triple event</dfn> is one triple produced while expanding a source statement, before duplicate triples are removed. The ordered sequence of these events is written <strong>T</strong>. Keeping events separate lets repeated source statements receive distinct reifiers. A <strong>collection</strong> is a Turtle list written with parentheses. A <strong>blank-node property list</strong> uses brackets to describe a blank node inline. An <strong>annotation</strong> adds statements about a reified statement. These Turtle features may each generate additional triples.</p>
+<ol><li>Parse top-level Turtle directives and statements using Turtle 1.2 rules. Ordinary asserted triples outside blocks enter G.
+Top-level management statements are also copied to M: explicit h:Holon or legacy h:CompleteHolon typing, and h:contentGraph, h:parentHolon, h:imports, or h:importsShapes declarations.
+Statements with those predicates occurring only inside blocks are content, not management declarations.</li>
+<li>On every <code>@holon H</code> block, emit <code>H a h:Holon</code> into both G and M, even if the block is empty.
+This automatic declaration is not filed content unless the source explicitly files the same statement.</li>
+<li>Expand each ordinary Turtle statement in a block to its ordered stream of <a data-lt="asserted triple event">asserted triple events</a> T before adding RDF-H membership.
+T includes triples generated by collections, blank-node property lists, and Turtle 1.2 reifiers and annotations.
+A triple term occurring as a term does not assert its inner triple; follow Turtle's own assertion rules.</li>
+<li>For each event <code>(s,p,o)</code> in T, emit its base assertion into G and a fresh blank-node reifier with
+<code>rdf:reifies &lt;&lt;( s p o )&gt;&gt;</code> and <code>h:inHolon H</code>.
+Every generated list/property/annotation assertion in T is filed. Repeated source assertions generate distinct occurrence reifiers, although G and CG(H) use set semantics.</li>
+<li>Do not feed RDF-H-generated declarations or membership triples back into T. Process source statements first, then add membership records. Do not annotate those generated records again.</li>
+<li>Process nested blocks with their own holon H and event stream. Nesting creates no parent relation and files no inner content in the outer block.</li></ol>
+<p>A parser <em class="rfc2119" title="MUST">MUST</em> expose both G and M (as graph outputs or equivalent graph views) and preserve blank-node identity across them.
+Returning G alone is an incomplete RDF-H processing context. Parsing/<a>expansion</a> does not itself establish registry or hierarchy validity;
+validate M with RDF-H before registry-aware operations.</p>
+<p>Block-generated declarations register empty holons. Combine existing declarations as a set. Repeating a block identifier refers to the same holon; it does not create another holon.</p>
+<div class="example" title="A collection inside a block">
+<p>A Turtle collection expands to several triples, and each one is an asserted triple event with its own membership record. The list nodes are ordinary blank nodes shared between G and the triple terms.</p>
+<pre class="nohighlight turtle">
+@holon ex:H { ex:s ex:items (ex:a ex:b) . }
+</pre>
+<pre class="nohighlight turtle">
+ex:s ex:items _:l0 .          _:r1 rdf:reifies &lt;&lt;( ex:s ex:items _:l0 )&gt;&gt; ;          h:inHolon ex:H .
+_:l0 rdf:first ex:a .         _:r2 rdf:reifies &lt;&lt;( _:l0 rdf:first ex:a )&gt;&gt; ;        h:inHolon ex:H .
+_:l0 rdf:rest _:l1 .          _:r3 rdf:reifies &lt;&lt;( _:l0 rdf:rest _:l1 )&gt;&gt; ;         h:inHolon ex:H .
+_:l1 rdf:first ex:b .         _:r4 rdf:reifies &lt;&lt;( _:l1 rdf:first ex:b )&gt;&gt; ;        h:inHolon ex:H .
+_:l1 rdf:rest rdf:nil .       _:r5 rdf:reifies &lt;&lt;( _:l1 rdf:rest rdf:nil )&gt;&gt; ;      h:inHolon ex:H .
+ex:H a h:Holon .              # registration, in G and M, not filed
+</pre>
+</div>
+</section></section>
+<section class="appendix" id="grammar">
+<h2>Turtle-H Grammar</h2>
+<p>
+            Turtle-H extends Turtle 1.2 [[RDF12-TURTLE]] with one additional alternative on the
+            <em>statement</em> production. Italicized productions (e.g., <em>iri</em>,
+            <em>BLANK_NODE_LABEL</em>, <em>triples</em>) refer to Turtle 1.2 and are not redefined here.
+        </p>
+<pre class="nohighlight">
+[H1]   statement       ::=  directive | triples '.' | <em>holonBlock</em>
+
+[H2]   <em>holonBlock</em>     ::=  '@holon' <em>holonId</em> '{' <em>holonContent</em>* '}'
+
+[H3]   <em>holonId</em>        ::=  <em>iri</em> | <em>BLANK_NODE_LABEL</em>
+
+[H4]   <em>holonContent</em>   ::=  triples '.' | <em>holonBlock</em>
+</pre>
+<p>
+            Whitespace and comments follow Turtle 1.2 rules; as between Turtle tokens, whitespace between
+            <code>@holon</code>, the holon identifier, and the opening brace is optional where tokenization allows it, as in
+            <code>@holon&lt;https://example.org/H&gt;{ … }</code>. The <code>@holon</code> keyword is
+            case-sensitive. Like <code>@prefix</code> and <code>@base</code>, <code>@holon</code> is
+            recognized only where a statement or block item may begin; after a string literal the same characters
+            are a Turtle language tag, so the two never conflict. Directives (<code>@prefix</code>, <code>@base</code>,
+            <code>PREFIX</code>, <code>BASE</code>) are permitted only at top level; rule H4 excludes them from blocks.
+            Only the <code>@holon</code> spelling is defined; this version has no case-insensitive <code>HOLON</code> form.
+            A blank-node holon identifier is a labeled blank node; the anonymous form <code>[]</code> is not permitted, since nothing could refer to such a holon.
+        </p>
+<p>
+<strong>Desugaring.</strong> A <a>Turtle-H parser</a>
+            <em class="rfc2119" title="MUST">MUST</em> expand each <em>holonBlock</em> by the
+            <a href="#expansion-algorithm">expansion algorithm</a>, which is the single statement of the rules;
+            the <a href="#turtle-h-desugaring">desugaring example</a> shows its result for one statement.
+        </p>
+<p>
+<strong>Disambiguation from TriG.</strong> The <em>holonBlock</em> begins with
+            <code>@holon</code>, which is not a valid token at the same grammatical position in
+            Turtle 1.2 or TriG [[TRIG]]. A Turtle-H parser
+            <em class="rfc2119" title="MUST NOT">MUST NOT</em> treat a TriG named-graph block
+            (<code>iri '{' triples '}'</code>) as a <em>holonBlock</em>; conversely, a TriG parser
+            encountering Turtle-H input will reject it as a syntax error. This is a property of the
+            two grammars and imposes no requirements on TriG processors, which are governed by
+            [[TRIG]] and lie outside the scope of this specification.
+        </p>
+</section>
+<section id="serialization"><h2>Serializing to Turtle-H</h2>
+<p>A <a>Turtle-H serializer</a> writes reifier-profile data G with its metadata context M as a <a>Turtle-H document</a>. It is the inverse of <a>expansion</a> only for the membership records that expansion generates. Serialization stays within the reifier profile; it is not a representation conversion in the RDF-H sense, so the RDF-H conversion rules on preserving M do not apply to the differences listed below.</p>
+<ol>
+<li>A reifier <em class="rfc2119" title="MAY">MAY</em> be folded into an <code>@holon</code> block only when it is a blank node, its only properties are exactly one <code>rdf:reifies</code> and exactly one <code>h:inHolon</code>, its triple term's base triple is asserted in G, and no other statement in G or M mentions the reifier. The base triple is written inside the block for the holon named by <code>h:inHolon</code>, and its membership record and redundant top-level base assertion are omitted.</li>
+<li>Every other reifier, including IRI reifiers, reifiers with occurrence metadata, and reifiers filed in several holons through several <code>rdf:reifies</code> values, <em class="rfc2119" title="MUST">MUST</em> be written expanded, as ordinary Turtle 1.2 statements outside any block.</li>
+<li>Several foldable reifiers for the same base triple and holon <em class="rfc2119" title="MAY">MAY</em> be written as that many repeated statements in the block; a serializer that writes them once <em class="rfc2119" title="MUST">MUST</em> declare that it does not preserve occurrence multiplicity.</li>
+<li>A holon registered in M is written as an <code>@holon</code> block, empty if it has no foldable members. Management statements of M are written as top-level statements (in addition to any block in which the same statement is filed), so that re-parsing recovers them into M. Other statements of M are written at top level too, but a re-parse places them only in G; a serializer <em class="rfc2119" title="MUST">MUST</em> report that M is reduced to its management statements.</li>
+<li>Blank-node holons keep one label across M, blocks, and expanded statements, since the document is one blank-node scope.</li>
+</ol>
+<p id="serialization-failure">A serializer <em class="rfc2119" title="MUST NOT">MUST NOT</em> promote a management assertion absent from M into M on re-parsing. If such an assertion would have to be written at top level because no existing eligible occurrence is folded to carry it solely inside a block, the serializer <em class="rfc2119" title="MUST">MUST</em> reject the context with <code>unrepresentable-context</code>. It must not invent a membership to hide the assertion. This is a serialization failure, not a Turtle-H syntax error. More generally, it must reject any context that cannot meet the preservation contract below.</p>
+<p>For a successful serialization, re-parsing yields G and M equal to the inputs up to the documented differences: folded reifiers receive fresh blank-node labels; every block adds an <code>H a h:Holon</code> registration to both G and M, so a holon registered only through <code>h:contentGraph</code> or lacking that typing in G gains it; M is reduced to its management statements; and occurrence multiplicity may be reduced only under the declaration required above. Folding is optional, block grouping and statement order are not canonical, and two conforming serializers need not produce identical blocks.</p>
+</section>
+<section id="conformance">
+<p>This specification defines three conformance classes. A <dfn data-lt="Turtle-H documents">Turtle-H document</dfn> is a Unicode string, encoded in UTF-8, that conforms to the grammar. A <dfn data-lt="Turtle-H parsers|parser">Turtle-H parser</dfn> reads such documents and produces G and M. A <dfn data-lt="Turtle-H serializers|serializer">Turtle-H serializer</dfn> writes such documents from G and M.</p>
+<p>A conforming <a>Turtle-H parser</a> <em class="rfc2119" title="MUST">MUST</em> recognize the grammar and perform the desugaring defined above,
+            emitting both base assertions and RDF-H membership annotations. The restrictions distinguishing
+            <code>@holon</code> from TriG also apply. A conforming <a>Turtle-H serializer</a> <em class="rfc2119" title="MUST">MUST</em> follow the folding rules above, reject unrepresentable contexts, and declare whether it preserves occurrence multiplicity.</p>
+<p>RDF-H graph and processor conformance are defined in <a href="../#conformance">RDF-H</a>.
+The suite includes positive and negative syntax, <a>expansion</a>, and serialization tests. A positive serialization test supplies G and M, and the serializer's output, re-parsed by the same implementation, must reproduce them within the documented differences. Negative serialization tests require the defined representability rejection; broader base-language coverage remains future work.</p>
+<p>The <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/turtle-h/manifest.ttl">RDF test manifest</a> uses W3C manifest infrastructure with project-specific Turtle-H test classes.
+See the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/README.md">suite guide</a> for implementation adapters, result comparison, and EARL reporting.
+Manifest integrity and expected-result smoke checks do not establish parser conformance, and no Turtle-H parser is bundled with the suite. The RDF4J-based <a href="https://github.com/geoknoesis/rdf4j-rio-turtleh"><code>rdf4j-rio-turtleh</code></a> codecs execute all 81 cases through the suite adapter and pass them, including 22 successful serialization tests and one representability rejection; it is maintained by the editors' organization and is not independent interoperability evidence.</p><p>Expansion conformance includes the staged rules in <a href="#expansion-algorithm">the expansion algorithm</a>, both output graphs, RDF 1.2 directional literals, collections, property lists, and annotations. The inherited Turtle grammar is normative; a subset implementation must declare unsupported features rather than claim full Turtle-H conformance.</p>
+<p>The extension suite exercises the parser and serializer rules above; inherited Turtle 1.2 grammar coverage is not established. Deployment and documentation duties are assessed by review: the media-type rule and a serializer's duties to declare how it handles occurrence multiplicity and to report a reduced M, which concern documentation. The effect of that reduction on a re-parse is tested.</p>
+<p>Internationalization: Turtle-H adds the ASCII keyword <code>@holon</code> and no string-bearing construct. Literals, language tags, directional literals, and non-ASCII IRIs are handled by the inherited Turtle 1.2 rules and pass through expansion unchanged. Security considerations are those of Turtle 1.2 and of RDF-H, with one addition: the grammar lets blocks nest without limit, and each level holds parser state, so a parser reading untrusted input <em class="rfc2119" title="SHOULD">SHOULD</em> bound the nesting depth and reject deeper documents as a syntax error.</p></section>
+<section class="appendix" id="media-type"><h2>Media Type and File Extension</h2>
+<p>No media type is registered for Turtle-H. Documents containing <code>@holon</code> blocks
+<em class="rfc2119" title="MUST NOT">MUST NOT</em> be served as <code>text/turtle</code>, since ordinary Turtle parsers reject them. The following registration
+template records the intended registration; it is a proposal and the type is not yet registered.</p>
+<dl>
+<dt>Type name</dt><dd>text</dd>
+<dt>Subtype name</dt><dd>turtle-h (proposed)</dd>
+<dt>Required parameters</dt><dd>None</dd>
+<dt>Optional parameters</dt><dd>None. The encoding is always UTF-8, so no charset parameter is defined, as for <code>text/turtle</code>.</dd>
+<dt>Encoding considerations</dt><dd>The syntax is expressed over Unicode and encoded in UTF-8, as for Turtle.</dd>
+<dt>Security considerations</dt><dd>Those of <code>text/turtle</code> apply. Turtle-H additionally produces metadata that registers holons; consumers treat that metadata as untrusted data unless the document source is trusted, as described in the RDF-H security considerations.</dd>
+<dt>Interoperability considerations</dt><dd><a data-lt="Turtle-H document">Turtle-H documents</a> without <code>@holon</code> blocks are Turtle 1.2 documents. Documents with blocks are not accepted by Turtle or TriG parsers.</dd>
+<dt>Published specification</dt><dd>This document.</dd>
+<dt>Applications that use this media type</dt><dd>RDF-H processors and tools that author holon content.</dd>
+<dt>Fragment identifier considerations</dt><dd>As for <code>text/turtle</code>: a fragment identifier, resolved against the document IRI, identifies an RDF resource. Fragment identifiers do not address <code>@holon</code> blocks.</dd>
+<dt>Additional information</dt><dd>File extension: <code>.ttlh</code>. Macintosh file type code: TEXT.</dd>
+<dt>Person and email address to contact for further information</dt><dd>The editors.</dd>
+<dt>Intended usage</dt><dd>COMMON</dd>
+<dt>Restrictions on usage</dt><dd>None</dd>
+<dt>Author and change controller</dt><dd>The RDF-H community; a W3C group if adopted.</dd>
+</dl></section>
+<section class="appendix" id="changelog"><h2>Change Log</h2>
+<section><h3>0.1.0</h3><p>Initial companion draft extracted from RDF-H 0.7 syntax and grammar.
+            This working revision specifies staged <a>expansion</a>, block registration, the separate M result, serializer folding rules, conformance classes, and a proposed media-type registration. Blank-node holon identifiers must be labeled; the anonymous form is excluded. Examples now use application-defined domain relations; nested blocks do not establish parentage.</p></section>
+</section>
+</body>
+</html>

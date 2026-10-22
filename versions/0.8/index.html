@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>RDF-H: Organizing RDF Content into Holons</title>
+<script class="remove" src="https://www.w3.org/Tools/respec/respec-w3c"></script>
+<script class="remove">
+        /* ReSpec configuration */
+        var respecConfig = {
+            // Use the standard W3C ReSpec presentation.
+            useW3CStyle: true,
+            specStatus: "unofficial",
+            publishDate: "2026-10-21",
+
+            // General Metadata
+            shortName: "rdf-h",
+            editors: [{
+                name: "Stephane Fellah",
+                url: "https://geoknoesis.com",
+                company: "Geoknoesis LLC",
+                companyURL: "https://geoknoesis.com"
+            }],
+            version: "0.8",
+            github: {
+                repoURL: "https://github.com/geoknoesis/rdf-holon",
+                branch: "main",
+                commitHistoryURL: "https://github.com/geoknoesis/rdf-holon/commits/main/index.html"
+            },
+            edDraftURI: "https://geoknoesis.github.io/rdf-holon/",
+            copyrightStart: "2025",
+            localBiblio: {
+                "SPARQL11-PROTOCOL": {
+                    title: "SPARQL 1.1 Protocol",
+                    href: "https://www.w3.org/TR/sparql11-protocol/",
+                    publisher: "W3C"
+                },
+                "RDF12-CONCEPTS": {
+                    title: "RDF 1.2 Concepts and Abstract Data Model",
+                    href: "https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/",
+                    publisher: "W3C",
+                    status: "Candidate Recommendation Snapshot",
+                    date: "7 April 2026"
+                },
+                "RDF12-SEMANTICS": {
+                    title: "RDF 1.2 Semantics",
+                    href: "https://www.w3.org/TR/2026/CRD-rdf12-semantics-20260924/",
+                    publisher: "W3C",
+                    status: "Candidate Recommendation Draft",
+                    date: "24 September 2026"
+                },
+                "RDF12-TURTLE": {
+                    title: "RDF 1.2 Turtle",
+                    href: "https://www.w3.org/TR/2026/WD-rdf12-turtle-20261007/",
+                    publisher: "W3C",
+                    status: "Working Draft",
+                    date: "7 October 2026"
+                },
+                "RDF11-DATASETS": {
+                    title: "RDF 1.1: On the Semantics of RDF Datasets",
+                    href: "https://www.w3.org/TR/rdf11-datasets/",
+                    publisher: "W3C"
+                },
+                "SPARQL11-QUERY": {
+                    title: "SPARQL 1.1 Query Language",
+                    href: "https://www.w3.org/TR/sparql11-query/",
+                    publisher: "W3C"
+                },
+                "SHACL": {
+                    title: "Shapes Constraint Language (SHACL)",
+                    href: "https://www.w3.org/TR/shacl/",
+                    publisher: "W3C"
+                },
+                "TRIG": {
+                    title: "RDF 1.1 TriG",
+                    href: "https://www.w3.org/TR/trig/",
+                    publisher: "W3C"
+                },
+                "RFC8174": {
+                    title: "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words",
+                    href: "https://www.rfc-editor.org/info/rfc8174",
+                    authors: ["B. Leiba"],
+                    date: "May 2017",
+                    publisher: "IETF"
+                },
+                "SPARQL12-QUERY": {
+                    title: "SPARQL 1.2 Query Language",
+                    href: "https://www.w3.org/TR/2026/WD-sparql12-query-20261011/",
+                    publisher: "W3C",
+                    status: "Working Draft",
+                    date: "11 October 2026"
+                },
+                "SPARQL11-SERVICE-DESCRIPTION": {
+                    title: "SPARQL 1.1 Service Description",
+                    href: "https://www.w3.org/TR/sparql11-service-description/",
+                    publisher: "W3C"
+                },
+                "PROV-O": {
+                    title: "PROV-O: The PROV Ontology",
+                    href: "https://www.w3.org/TR/prov-o/",
+                    publisher: "W3C"
+                },
+                "VOID": {
+                    title: "Describing Linked Datasets with the VoID Vocabulary",
+                    href: "https://www.w3.org/TR/void/",
+                    publisher: "W3C"
+                },
+                "LDP": {
+                    title: "Linked Data Platform 1.0",
+                    href: "https://www.w3.org/TR/ldp/",
+                    publisher: "W3C"
+                },
+                "OWL2-SYNTAX": {
+                    title: "OWL 2 Web Ontology Language Structural Specification and Functional-Style Syntax (Second Edition)",
+                    href: "https://www.w3.org/TR/owl2-syntax/",
+                    publisher: "W3C"
+                },
+                "NANOPUB": {
+                    title: "Nanopublication Guidelines",
+                    href: "http://nanopub.net/guidelines/working_draft/",
+                    publisher: "Nanopublication community"
+                },
+                "KOESTLER-1967": {
+                    title: "The Ghost in the Machine",
+                    authors: ["Arthur Koestler"],
+                    date: "1967",
+                    publisher: "Hutchinson"
+                },
+                "RFC2119": {
+                    title: "Key words for use in RFCs to Indicate Requirement Levels",
+                    href: "https://www.rfc-editor.org/info/rfc2119",
+                    authors: ["S. Bradner"],
+                    date: "March 1997",
+                    publisher: "IETF"
+                }
+            },
+            otherLinks: [{
+                key: "Version control",
+                data: [{
+                    value: "GitHub Repository",
+                    href: "https://github.com/geoknoesis/rdf-holon"
+                }, {
+                    value: "Specification source",
+                    href: "https://github.com/geoknoesis/rdf-holon/blob/main/index.html"
+                }]
+            }]
+        };
+    </script>
+</head>
+<body>
+<section id="abstract"><p>RDF-H organizes RDF statements into identifiable units called <dfn data-lt="holons" id="dfn-holon">holons</dfn>. Each <a>holon</a> has explicitly assigned content. Optional <a data-lt="parent link">parent links</a> organize holons; optional <a data-lt="import">imports</a> select additional content for queries. RDF-H provides two ways to store this organization, explained below.</p></section>
+<section id="sotd"><p>This document is the frozen snapshot of RDF-H 0.8, released on 2026-10-21 (repository tag <code>rdf-h-v0.8.0</code>) and identified by <code>https://w3id.org/rdf-h/0.8</code>. The vocabulary of this release is <a href="rdfh.ttl">rdfh.ttl</a>. The <a href="https://geoknoesis.github.io/rdf-holon/">editor's draft</a> may be newer.</p><p>This is the RDF-H 0.8 community draft, produced by Geoknoesis LLC. It is not a W3C specification.
+Feedback is welcome in the <a href="https://github.com/geoknoesis/rdf-holon">repository</a>.
+The specification, vocabulary, and examples use the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/LICENSE">Apache 2.0 license</a>.</p></section>
+<section class="informative" id="intro"><h2>Introduction</h2>
+<p>RDF-H organizes RDF statements into identifiable content units. A <a>holon</a> can stand alone or be organized
+under another holon using a <a href="#composition-hierarchy">parent hierarchy</a>.</p>
+<p>RDF-H addresses recurring needs that plain RDF graphs and datasets leave to convention:</p>
+<ul>
+<li><strong>Decomposing a description.</strong> A large description (a building, a regulation, a product) is authored and maintained as units that can be queried alone or together, without duplicating statements.</li>
+<li><strong>Keeping several descriptions of one resource apart.</strong> Independent sources, revisions, or viewpoints file their own statements about the same subject; the <a>reifier profile</a> records which <a>occurrence</a> came from where.</li>
+<li><strong>Explicit read <a>scope</a>.</strong> An application asks for exactly a unit, a unit with everything organized under it, or that plus explicitly imported units, and receives one graph, or a dataset in which each unit's statements remain attributed to it.</li>
+<li><strong>Unit-specific validation.</strong> Each unit selects the shapes that apply to it, so one dataset can hold units validated under different rules.</li>
+<li><strong>A stable registry.</strong> Which units exist, where their content lives, and how they are organized is stated in one metadata context, not inferred from the data.</li>
+</ul>
+<p>Three design decisions follow from these needs. Filing a statement never changes whether it is asserted (the <a href="#content-graph-def">additive invariant</a>), so RDF-H data remains ordinary RDF for every consumer. All organization is explicit in the metadata context M; no entailment creates, moves, or hides content. And both storage profiles use only standard RDF 1.1 datasets or RDF 1.2 reifiers, so no new serialization is required to use RDF-H.</p>
+<section id="reading-terms"><h3>Terms Used in This Specification</h3>
+<p>This specification assumes basic RDF knowledge. The following terms explain how RDF-H uses RDF.</p>
+<ul>
+<li>An <strong>RDF statement</strong>, also called a <strong>triple</strong>, has a subject, predicate, and object. To <strong>assert</strong> a statement is to include it as a claim in the data. Assertion does not establish that the claim is true.</li>
+<li>An <strong>RDF graph</strong> is a set of triples: repeated copies of the same triple count once. A <strong>dataset</strong> contains one default graph and zero or more named graphs. A named graph has an identifier that lets queries select it.</li>
+<li>An <strong>IRI</strong> is an identifier such as <code>https://example.org/City</code>. A <strong>blank node</strong> identifies a resource without giving it an IRI. Labels such as <code>_:city</code> identify blank nodes within their source; matching labels in separate sources do not imply the same resource.</li>
+<li>To <dfn id="dfn-file" data-lt="filed|filing|files">file</dfn> a statement in a <a>holon</a> means to assign it to that holon's content. This assignment is called <dfn id="dfn-membership" data-lt="memberships">membership</dfn>. Filing does not move the statement out of the asserted data.</li>
+<li>A <strong>representation</strong>, also called a <strong>profile</strong> here, is a way to store holons and their <a data-lt="membership">memberships</a>. The <dfn id="dfn-dataset-profile" data-lt="dataset representation">dataset profile</dfn> stores each holon's content in a named graph. The <dfn id="dfn-reifier-profile" data-lt="reifier representation">reifier profile</dfn> records memberships using RDF resources that refer to statements.</li>
+<li>A <strong>triple term</strong> is an RDF 1.2 term that represents a subject, predicate, and object triple without asserting it. A <strong>reifier</strong> is an IRI or blank node linked to a triple term by <code>rdf:reifies</code>. It can carry membership and other information about that <a>occurrence</a> of the statement. An <dfn id="dfn-occurrence" data-lt="occurrences">occurrence</dfn> is one such separately identified record; several occurrences may refer to the same triple.</li>
+<li>A <dfn id="dfn-parent-link" data-lt="parent links">parent link</dfn> places one holon directly under another for organization. Following <a data-lt="parent link">parent links</a> upward reaches <dfn id="dfn-ancestor" data-lt="ancestor">ancestors</dfn>; following them downward reaches <dfn id="dfn-descendant" data-lt="descendant">descendants</dfn>. An <dfn id="dfn-import" data-lt="imports|content import">import</dfn> explicitly selects another holon's direct content.</li>
+<li>A query's <dfn id="dfn-scope" data-lt="scopes">scope</dfn> is the content selected for it. <dfn id="dfn-direct-scope" data-lt="direct scope">Direct</dfn> <a>scope</a> selects one holon's own content. <dfn id="dfn-aggregated-scope" data-lt="aggregated scope">Aggregated</dfn> scope adds its <a>descendants</a>' content. <dfn id="dfn-visible-scope" data-lt="visible scope">Visible</dfn> scope also adds the direct content of holons imported by the selected holon. <dfn id="dfn-global-scope" data-lt="global scope">Global</dfn> scope, used only by validation and reasoning requests, is all asserted data G.</li>
+<li>A <dfn id="dfn-holonic-graph" data-lt="holonic graphs">holonic graph</dfn> is RDF data organized into holons: a body of RDF with its metadata context M. The conformance class <a href="#conformance">RDF-H Graph</a> states its requirements.</li>
+</ul><p>The notation uses <strong>H</strong> for a selected holon, <a href="#dfn-metadata-context">M</a> for the metadata graph that controls RDF-H processing, and <a href="#dfn-asserted-graph">G</a> for all asserted RDF-H data. Metadata means information used to manage the holons, rather than just describe their subject matter. <strong>CG(H)</strong> names H's direct content. The processing rules below define exactly what belongs to each graph.</p><p>A <strong>shape</strong> is a set of validation requirements. A <strong>shapes graph</strong> stores those requirements as RDF statements. Shapes are separate from the content they validate.</p></section><section id="basic-model">
+<h3>A Holon in One Example</h3>
+<p>The default graph identifies two <a data-lt="holon">holons</a>. Each named graph contains the statements <a>filed</a> in its holon.</p>
+<pre class="example nohighlight turtle" title="Two holons in the dataset profile">
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+@prefix ex: &lt;https://example.org/&gt; .
+
+ex:Building a h:Holon .
+ex:Floor a h:Holon .
+
+ex:Building { ex:Building ex:name "Library" . }
+ex:Floor { ex:Floor ex:level 1 . }
+</pre>
+<p>The building's content is its name statement; the floor's content is its level statement.
+                Both statements are asserted under RDF-H's dataset interpretation. Neither holon needs a parent.
+                To organize the floor holon under the building holon, add <code>ex:Floor h:parentHolon ex:Building</code>
+                to the default graph. This organizes descriptions; it does not assert physical parthood.</p>
+<p>A <a href="#composition-hierarchy">hierarchy</a> organizes holons through <a data-lt="parent link">parent links</a>.
+An explicit <a href="#visibility">aggregated query</a> reads a holon and its <a>descendants</a>; it does not read its <a>ancestors</a>.
+An <a href="#visibility">import</a> adds another holon's direct content without making it a parent or copying its content.
+Both features are optional; a plain named-graph query still reads only direct content.</p>
+<p>The rule that filed statements are also asserted is called the <a href="#additive-invariant">additive invariant</a>.
+Like any RDF assertion, a claim can be mistaken; RDF-H does not verify its truth.</p>
+</section>
+<section id="reading-guide"><h3>Reading This Specification</h3><p>Read the <a href="#content-graph">core model</a>, then choose
+<a href="#profile-named-graph">named graphs</a> or <a href="#profile-reifier">reifiers</a>. The
+<a href="#processing-model">processing algorithm</a> is the normative statement of how holons are resolved and which errors arise.
+Add <a href="#composition">hierarchy and imports</a> when organizing holons and <a href="#validation">validation</a> when selecting shapes.
+Implementers should also read <a href="#conformance">conformance</a> and <a href="#profile-equivalence">conversion</a>;
+the <a href="#design-rationale">design rationale</a> explains the choices behind the model.</p></section>
+<section id="conventions"><h3>Conventions</h3><p>The key words <em class="rfc2119" title="MUST">MUST</em>, <em class="rfc2119" title="MUST NOT">MUST NOT</em>, <em class="rfc2119" title="SHOULD">SHOULD</em>, <em class="rfc2119" title="SHOULD NOT">SHOULD NOT</em>, and <em class="rfc2119" title="MAY">MAY</em> in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here.
+Examples and informative sections are explanatory; other sections define requirements. Optional capabilities apply only when claimed.
+The prefix <code>h:</code> denotes <code>https://w3id.org/rdf-h#</code>. An organized collection of <a data-lt="holon">holons</a> may be called a
+<em id="dfn-holarchy">holarchy</em>.</p></section>
+</section>
+<section id="identity"><h2>Holon Identity</h2><p>A <a>holon</a> identifier <em class="rfc2119" title="MAY">MAY</em> also identify the domain resource being described.
+When a document, revision, or alternative description needs its own identity, applications <em class="rfc2119" title="SHOULD">SHOULD</em> give it a separate holon identifier
+and an explicit application description relation.</p><p><code>owl:sameAs</code> is the Web Ontology Language relation declaring that two identifiers refer to the same resource.</p><p>A <a>content graph</a> is the set of statements <a>filed</a> in a holon. The name of the graph storing that content does not change holon identity.
+Graph naming alone <em class="rfc2119" title="MUST NOT">MUST NOT</em> imply <code>owl:sameAs</code> between independently identified resources.</p></section>
+<section id="content-graph">
+<h2>Content and Representations</h2>
+<section id="dataset-resolution"><h3>Processing Context and Holon Registry</h3>
+<p>An RDF-H operation that looks up <a data-lt="holon">holons</a> takes a data source and an explicitly designated <dfn id="dfn-metadata-context">metadata context</dfn> M.
+M is an RDF graph containing the declarations that control processing: holon registrations, graph mappings, <a data-lt="parent link">parent links</a>, and <a data-lt="import">imports</a>. A registration makes a holon known to the processor. A graph mapping uses h:contentGraph to select the named graph containing its content.
+In the <a>dataset profile</a>, M defaults to the dataset's default graph. In the <a>reifier profile</a>, M <em class="rfc2119" title="MUST">MUST</em> be supplied explicitly;
+it <em class="rfc2119" title="MAY">MAY</em> be a separately supplied graph or an explicitly selected graph view, such as the document-level view a Turtle-H parser derives from top-level management statements. Processors <em class="rfc2119" title="MUST NOT">MUST NOT</em> silently treat all reifier data as M.</p>
+<p>Blank nodes in M denote the same resources as blank nodes in the data only when both come from one blank-node scope: one document, one dataset, or a graph view of it. In the reifier profile, a <a>membership</a> can refer to a blank-node holon only when M is such a view, because a separately loaded M's labels do not denote the data's blank nodes. In the dataset profile, a blank-node holon with an IRI graph mapping works with any M, since the blank node is used only within M; a blank-node graph name, however, must share the dataset's scope.</p>
+<p>The <dfn id="dfn-holon-registry">holon registry</dfn> K(M) contains exactly the IRI or blank-node subjects in M explicitly typed
+<a><code>h:Holon</code></a> or the deprecated (retained for compatibility) <a><code>h:CompleteHolon</code></a>, or having an explicit <a><code>h:contentGraph</code></a> mapping.
+The registry uses only these explicit declarations, not facts inferred by a reasoning engine: inferring a type through RDF Schema (RDFS) does not register a holon, and a parent or import link registers neither holon it connects. <a href="#step-registry">Step 2</a> of the processing algorithm defines K(M) normatively.</p>
+<p>The registry separates two cases that look alike in data: a holon outside K(M) is <em>unknown</em> and its selection is an error, while a registered holon with no <a>filed</a> content is <em>known and empty</em>. Memberships must refer to registered holons, and so must parent links and imports wherever a request checks them; the algorithm names the error for each case.</p>
+<p>In the dataset profile, a holon's content is the named graph that its explicit <code>h:contentGraph</code> mapping selects, or, without a mapping, the graph named by the holon's own IRI. A blank-node holon therefore needs a mapping, and an absent graph simply means empty content. Graph names are not reserved per holon: several holons can select one graph, in which case their direct content is identical. <a href="#step-mapping">Step 3</a> states these rules and their error conditions.</p>
+<p>Unselected named graphs still contribute to G, but do not create registry entries. Default-graph statements are never dataset-profile content; they are filed only through reifier memberships in declared mixed data.</p>
+<p>Management statements are the registrations, graph mappings, parent links, and imports listed above. When they appear only in content, they do not control RDF-H processing. M <em class="rfc2119" title="MAY">MAY</em> intentionally contain a statement also filed as content,
+but converting representations <em class="rfc2119" title="MUST">MUST</em> preserve M separately instead of promoting arbitrary content statements into declarations.</p></section><section id="content-graph-def"><h3>Direct Content and Assertion</h3><p><span>In the notation below, <code>H</code> means the selected <a>holon</a>. </span>A holon's <dfn data-lt="content graph|content graphs" id="dfn-content-graph">content graph</dfn>
+<code>CG(H)</code> is the set of triples explicitly <a>filed</a> in H. A holon may be empty; a statement may belong to several holons.</p>
+<p>The <dfn id="dfn-asserted-graph">asserted graph</dfn> G is the union of the asserted source data and M: the supplied graph plus M in the <a>reifier profile</a>, or all default and named source graphs plus M in the <a>dataset profile</a>.</p><p id="additive-invariant">Every filed statement <em class="rfc2119" title="MUST">MUST</em> also be in G:
+<code>CG(H) ⊆ G</code>. This is the <em>additive invariant</em>. Named-graph content satisfies it automatically;
+reifier-filed content requires an explicit base assertion.</p><p class="note">The asserted union is an RDF-H interpretation,
+not a general RDF dataset rule. SPARQL default-graph queries do not automatically query that union [[RDF11-DATASETS]].</p></section>
+<section id="profile-named-graph"><h3>Named Graphs</h3><p>In the <a>dataset profile</a>, a <a>holon</a>'s selected named graph is its direct content.
+Holon declarations and graph mappings are in M, normally the default graph. The <a href="#basic-model">opening TriG example</a>
+uses the holon IRI as the graph name [[TRIG]]. An explicit <a><code>h:contentGraph</code></a> mapping can select a different name.</p>
+<p><a href="#step-mapping">Step 3</a> of the processing algorithm states how a holon's graph is selected. Reifiers offer an alternative when statement <a data-lt="occurrence">occurrences</a> need independent identity or metadata.</p></section>
+<section id="profile-reifier"><h3>RDF 1.2 Reifiers</h3><p>A reifier is an IRI or blank node linked to a triple term by <code>rdf:reifies</code>.
+<a><code>h:inHolon</code></a> links the reifier to its containing <a>holon</a> [[RDF12-CONCEPTS]].</p>
+<p><code>CG(H)</code> contains exactly the triples reified by resources linked to H through <code>h:inHolon</code>.
+The example below uses the fully expanded form; Turtle 1.2 also supplies reifier and annotation shorthand [[RDF12-TURTLE]].</p><section id="assertion-semantics"><h4>Assert the Base Statement</h4><pre class="example nohighlight turtle" title="A membership record in the reifier profile">
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+@prefix ex: &lt;https://example.org/&gt; .
+
+ex:Building a h:Holon .
+ex:Building ex:name "Library" .
+_:occurrence rdf:reifies &lt;&lt;( ex:Building ex:name "Library" )&gt;&gt; ;
+    h:inHolon ex:Building .
+</pre><p>For this example, designate M as the graph containing <code>ex:Building a h:Holon</code>. The data and M may share that assertion, but M is an explicit input; do not infer it from all data predicates. Turtle-H exposes the same metadata view automatically.</p><p>The name statement is asserted separately: neither <code>rdf:reifies</code> nor <a><code>h:inHolon</code></a> asserts it. This is how the <a>reifier profile</a> satisfies the <a href="#content-graph-def">additive invariant</a>; a <a>membership</a> whose base statement is not asserted is the <a href="#err-missing-base-assertion">missing-base-assertion</a> error of <a href="#step-membership">step 4</a>.</p>
+<p id="multiple-holons">Different reifiers <em class="rfc2119" title="MAY">MAY</em> reify the same statement and carry different sources or <a>occurrence</a> metadata,
+including memberships in different <a data-lt="holon">holons</a>. Direct content remains a set: repeated occurrences do not duplicate the triple.</p></section><section class="informative" id="syntax"><h4>Turtle-H Authoring</h4><p><a href="turtle-h/">Turtle-H</a> defines optional <code>@holon</code> blocks that emit assertions and <a>membership</a> annotations.
+Its <a href="turtle-h/#turtle-h-desugaring" id="turtle-h-desugaring">expansion rules</a> target the <a>reifier profile</a>.
+<span id="grammar">The <a href="turtle-h/#grammar">grammar</a> is maintained separately.</span>
+<span id="context-vs-parthood">Nesting blocks creates neither administrative parentage nor domain parthood.</span></p></section></section>
+</section>
+<section id="vocabulary"><h2>The RDF-H Vocabulary</h2>
+<table><caption>RDF-H vocabulary terms</caption><thead><tr><th>Term</th><th>Meaning</th><th>Capability</th></tr></thead><tbody>
+<tr><td><dfn id="dfn-holon-class"><code>h:Holon</code></dfn></td><td>An identifiable unit with explicitly <a>filed</a> RDF content.</td><td>Core</td></tr>
+<tr><td><dfn id="dfn-inholon"><code>h:inHolon</code></dfn></td><td>Links an RDF 1.2 reifier to the <a>holon</a> containing that <a>occurrence</a>.</td><td>Reifier representation</td></tr>
+<tr><td><dfn id="dfn-contentgraph"><code>h:contentGraph</code></dfn></td><td>Selects the named graph holding a holon's content; at most one explicit name per holon.</td><td>Dataset representation</td></tr>
+<tr><td><dfn id="dfn-completeholon-class"><code>h:CompleteHolon</code></dfn></td><td>Deprecated legacy holon type; carries no closed-world guarantee.</td><td>Compatibility</td></tr>
+<tr><td><code>h:parentHolon</code></td><td>The immediate administrative parent; non-transitive, acyclic, at most one parent.</td><td>Optional composition</td></tr>
+<tr><td><code>h:imports</code></td><td>Adds another holon's direct content to <a>visible scope</a>.</td><td>Optional composition</td></tr>
+<tr><td><code>h:importsShapes</code></td><td>Selects a shapes graph explicitly for validation.</td><td>Optional composition</td></tr>
+</tbody></table>
+<p>The machine-readable definitions are in <a href="rdfh.ttl">rdfh.ttl</a>. RDF-H defines no domain part-whole vocabulary.
+            Applications <em class="rfc2119" title="MAY">MAY</em> use an external vocabulary, such as <code>https://schema.org/isPartOf</code>, in ordinary content.
+            Such assertions do not create administrative parents or change RDF-H content resolution.</p>
+</section>
+<section id="composition">
+<h2>Optional Hierarchy and Imports</h2>
+<p>These relations organize <a data-lt="holon">holons</a> and select content or validation rules. They are optional for basic RDF-H use.
+A processor claiming composition support <em class="rfc2119" title="MUST">MUST</em> implement the rules in this section.</p>
+<table><caption>Composition relations</caption><thead><tr><th>Feature</th><th>Relation</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Hierarchy</td><td><code>h:parentHolon</code></td><td>Organizes holons under immediate parents. Aggregation reads a holon and all its <a>descendants</a>, not its <a>ancestors</a>.</td></tr>
+<tr><td>Content <a>import</a></td><td><code>h:imports</code></td><td>Adds another holon's direct content to the read <a>scope</a> without making it a parent.</td></tr>
+<tr><td>Shape import</td><td><code>h:importsShapes</code></td><td>Selects a shapes graph for validation without importing its content.</td></tr>
+</tbody></table>
+<section id="composition-hierarchy"><h3>Hierarchy and Declaration Validity</h3><p><code>h:parentHolon</code> is the immediate parent relation in M. A valid hierarchy is a forest: both ends of every <a>parent link</a> are registered <a data-lt="holon">holons</a>, each child has at most one parent, and no chain of parent links returns to its starting holon. Several independent roots (holons with no parent) are permitted. <a href="#step-hierarchy">Step 5</a> of the processing algorithm states these rules and their error conditions.
+The SPARQL property path <code>h:parentHolon+</code> follows one or more parent links toward an <a data-lt="ancestors">ancestor</a>. Reverse the direction to select <a>descendants</a>. This organizes content, not domain parthood.</p>
+<p>Which checks a request performs depends on its <a>scope</a>. A direct request never depends on the hierarchy or <a data-lt="import">imports</a>, so an invalid parent link does not prevent reading one holon's content. Aggregated and visible requests depend on the whole parent relation, so an invalid link anywhere in M fails them, even outside the selected subtree. A visible request additionally checks only the selected holon's own imports. Registry and mapping errors anywhere in M fail every request to which those checks apply. This global validation deliberately couples otherwise separate subtrees: an unrelated invalid parent link can disable all aggregated and visible requests. Applications needing independent failure domains should supply separate authoritative metadata contexts. The <a href="#processing-model">processing algorithm</a> states exactly which steps apply to which request.</p></section>
+<section id="visibility"><h3>Direct, Aggregated, and Visible Content</h3>
+<p>Choose the <a>scope</a> explicitly. A normal named-graph query reads only that graph; <a data-lt="parent link">parent links</a> and <a data-lt="import">imports</a> do not change SPARQL's graph selection.</p><p>All paths and imports in this section are read only from M. Descendants and import targets are registered <a data-lt="holon">holons</a>; the data graphs themselves never supply management edges.</p>
+<table><caption>Query scopes</caption><thead><tr><th>Scope</th><th>Content</th></tr></thead><tbody>
+<tr><td><a data-lt="direct scope">Direct</a>: <code>CG(H)</code></td><td>Only statements <a>filed</a> in H.</td></tr>
+<tr><td><a data-lt="aggregated scope">Aggregated</a>: <code>AG(H)</code></td><td>Direct content of H and every <a data-lt="descendants">descendant</a> linked to H through one or more parent links.</td></tr>
+<tr><td>Visible: <code>VG(H)</code></td><td>Aggregated content of H plus the direct content of holons explicitly imported by H.</td></tr>
+<tr><td>Global: <code>G</code></td><td>All asserted data, including M and unselected graphs. Available to validation and reasoning requests only; it is not a holon query scope and SPARQL-H does not offer it.</td></tr>
+</tbody></table>
+<p><a href="#step-scope">Step 7</a> of the processing algorithm defines these graphs normatively. In set notation, with <code>D(H) = { K : K h:parentHolon+ H }</code> and <code>I(H)</code> the direct targets of H's <code>h:imports</code> declarations:</p>
+<pre class="nohighlight">AG(H) = CG(H) union all CG(K), for K in D(H)
+VG(H) = AG(H) union all CG(I), for I in I(H)</pre>
+<ul>
+<li>Ancestors' content is excluded unless explicitly imported.</li>
+<li>Descendant aggregation is recursive through parent links; each import adds only the named target's direct content; it does not follow further imports.</li>
+<li>Only imports declared on H apply to VG(H). Imports declared by <a>ancestors</a> or descendants are not inherited.</li>
+<li>An imported target contributes only its direct content, not its descendants, ancestors, or imports.</li>
+<li>Self-import and cyclic imports are allowed because imports are not recursively expanded.</li>
+<li>An import of an unregistered holon is an <a href="#err-unresolved-import">unresolved-import</a> error, never silently empty content (<a href="#step-imports">step 6</a>).</li>
+</ul>
+<p>Combining scope graphs does not change which holon owns each <a>membership</a>. It also does not replace one conflicting assertion with another. Processors claiming composition support <em class="rfc2119" title="MUST">MUST</em> implement aggregated and <a>visible scope</a> resolution,
+and <em class="rfc2119" title="SHOULD">SHOULD</em> expose separate direct-content, aggregated-content, and visible-content operations. Visibility <em class="rfc2119" title="MUST NOT">MUST NOT</em> imply access authorization, local applicability, or a change in asserted truth. This is the only rule about what visibility grants; the validation and query sections additionally require disclosing any authorization filtering, and the <a href="#security">security and privacy considerations</a> explain the consequences.</p>
+<section class="informative" id="worked-example"><h4>Example: Querying a City</h4>
+<p>A city has a district and neighborhood below it, a state and root above it, and a direct metro <a>import</a>.</p>
+<table><caption>Scopes of the city example</caption><thead><tr><th>City query <a>scope</a></th><th>Included values</th></tr></thead><tbody>
+<tr><td>Direct</td><td>city</td></tr><tr><td>Aggregated</td><td>city, district, neighborhood</td></tr>
+<tr><td>Visible</td><td>city, district, neighborhood, metro</td></tr></tbody></table>
+<p>The state and root are excluded. Imports declared by the state, district, or metro are also excluded, as are the metro's <a>descendants</a>.</p>
+<p>Use the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/examples/rdf-h/composition/scopes.trig">example dataset</a> and <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/rdf-h/check_composition.py">executable checks</a> to verify these scopes.</p>
+</section></section>
+</section>
+<section id="processing-model"><h2>Processing Algorithm and Error Conditions</h2>
+<p>This section is the normative statement of <a>holon</a> resolution: registration, graph mappings, <a data-lt="membership">memberships</a>, hierarchy and <a>import</a> validity, and <a>scope</a> construction. The sections on the <a href="#dataset-resolution">processing context</a>, the <a href="#composition-hierarchy">hierarchy</a>, and <a href="#visibility">scopes</a> explain these rules and their motivation; where their wording differs from this section, this section governs. Requirements that those sections state and this algorithm does not, such as how M is supplied, remain normative where they are stated.</p>
+<p>The inputs are a data source S, a metadata context M, the declared profile, a selected holon H, and a scope: direct, aggregated, visible, or, for validation and reasoning requests only, global. S is an RDF dataset in the <a>dataset profile</a> and an RDF graph in the <a>reifier profile</a>. G is the union of M and all asserted triples in S (all default and named graphs for dataset or mixed input). M defaults to the default graph for dataset input; for reifier input it must be explicitly supplied. Blank nodes shared by S and M retain their identity only when they come from the same blank-node scope; independently loaded inputs are standardized apart.</p>
+<ol>
+<li id="step-profile"><strong>Profile selection.</strong> The operation request declares the profile. Absent a declaration, a dataset source uses the dataset profile and a graph source uses the reifier profile. Mixed data (both reifier memberships and named-graph content for one holon) <em class="rfc2119" title="MUST">MUST</em> be declared by the request; without that declaration, reifier membership statements in a dataset-profile source are ordinary assertions and are not memberships. In the dataset profile the default graph is never a <a>content graph</a>. A reifier-profile request over a dataset designates one of its graphs as S; absent a designation, S is the dataset's default graph.</li>
+<li id="step-registry"><strong>Registry.</strong> K(M) is the set of IRI and blank-node subjects in M of <code>rdf:type h:Holon</code>, <code>rdf:type h:CompleteHolon</code>, or <a><code>h:contentGraph</code></a>, as explicitly stated in M. Nothing is added by entailment. If H is not in K(M), report <a href="#err-unknown-holon">unknown-holon</a>.</li>
+<li id="step-mapping"><strong>Mappings (dataset profile).</strong> For every K in K(M): if M states more than one distinct <code>h:contentGraph</code> value for K, report <a href="#err-conflicting-mapping">conflicting-mapping</a>; if a value is neither an IRI nor a blank node (a literal or a triple term), report <a href="#err-invalid-graph-name">invalid-graph-name</a>; if K is a blank node without a mapping, report <a href="#err-unmapped-blank-node-holon">unmapped-blank-node-holon</a>. Otherwise the graph name of K is its mapping if present and K itself if K is an IRI. CG(K) is the named graph of S with that name, or the empty graph if S has no such graph. Several registered holons <em class="rfc2119" title="MAY">MAY</em> share one graph name, through explicit mappings or because one holon's mapping names another holon's IRI; this is not an error, and a mapping target does not register a holon. In the reifier profile, <code>h:contentGraph</code> statements register holons but select no content unless mixed data is declared.</li>
+<li id="step-membership"><strong>Memberships (reifier profile).</strong> For every subject R of <a><code>h:inHolon</code></a> in S: each object <em class="rfc2119" title="MUST">MUST</em> be in K(M), else report <a href="#err-unregistered-membership-holon">unregistered-membership-holon</a>; R <em class="rfc2119" title="MUST">MUST</em> have at least one <code>rdf:reifies</code> value, else report <a href="#err-missing-reification">missing-reification</a>; every such value <em class="rfc2119" title="MUST">MUST</em> be a triple term, else report <a href="#err-non-triple-term-reification">non-triple-term-reification</a>; the triple denoted by every such term <em class="rfc2119" title="MUST">MUST</em> be in G (an assertion in separately supplied M also satisfies this check), else report <a href="#err-missing-base-assertion">missing-base-assertion</a>. CG(K) is the set of triples denoted by the triple terms of reifiers linked to K; a reifier linked to several holons files its triples in each.</li>
+<li id="step-hierarchy"><strong>Hierarchy (aggregated and visible scopes only).</strong> For every statement <code>C h:parentHolon P</code> in M: C and P <em class="rfc2119" title="MUST">MUST</em> be in K(M), else report <a href="#err-unregistered-parent-endpoint">unregistered-parent-endpoint</a>; all parent statements for C <em class="rfc2119" title="MUST">MUST</em> name the same P, else report <a href="#err-multiple-parents">multiple-parents</a>; the relation <em class="rfc2119" title="MUST">MUST</em> be acyclic, else report <a href="#err-parent-cycle">parent-cycle</a>. D(H) is the set of holons reaching H by one or more <a data-lt="parent link">parent links</a>.</li>
+<li id="step-imports"><strong>Imports (<a>visible scope</a> only).</strong> For every statement <code>H h:imports T</code> in M, T <em class="rfc2119" title="MUST">MUST</em> be in K(M), else report <a href="#err-unresolved-import">unresolved-import</a>. I(H) is the set of such T. Imports declared by other holons are not checked and not used.</li>
+<li id="step-scope"><strong>Scope graph.</strong> Direct: CG(H). Aggregated: the union of CG(H) and CG(K) for K in D(H). Visible: the aggregated graph united with CG(T) for T in I(H). Global: G. Unions are set unions that preserve the blank-node identities of S. The <em>selected holons</em> of a request are H, the members of D(H) for aggregated and visible scope, and the members of I(H) for visible scope. On request a processor <em class="rfc2119" title="MAY">MAY</em> return, instead of the scope graph alone, the <dfn id="dfn-attributed-scope-dataset">attributed scope dataset</dfn>: an RDF dataset whose default graph is the scope graph and which has one named graph per selected holon, named by the holon identifier and containing that holon's direct content. A blank-node holon names its graph with that blank node; holons that share a content graph yield distinct named graphs with equal content.</li>
+<li id="step-report"><strong>Reporting.</strong> Return the scope graph, or the attributed scope dataset when requested, together with the identification of S or its snapshot, M, H, the scope, the profile, any filtering, and, for query and validation requests, the entailment regime. A processor that cannot perform a requested step because it lacks the capability reports <a href="#err-unsupported-capability">unsupported-capability</a> rather than a narrower scope; so does a request naming a scope this section does not define.</li>
+</ol>
+<p>Step 2 applies to every request; step 3 applies in the dataset profile and step 4 in the reifier profile. For declared mixed data both apply, step 4 reads membership records from every graph of S, a base assertion may be in any graph of S or in M, and CG(K) is the union of the two results. In declared mixed data a blank-node holon without a mapping has empty named-graph content rather than raising <a href="#err-unmapped-blank-node-holon">unmapped-blank-node-holon</a>, since its content may come from memberships alone. For global scope, H serves only to select the shapes of a validation request; a reasoning request need not name a holon, and step 2 is then skipped. Their checks cover all of M and S, not only the selected holon. Steps 5 and 6 apply as stated. Validation requests additionally report <a href="#err-missing-shapes-graph">missing-shapes-graph</a> when a graph named by <code>h:importsShapes</code> is absent from the validation dataset and <a href="#err-ill-formed-shapes-graph">ill-formed-shapes-graph</a> when the effective shapes graph violates SHACL syntax rules. Because the checks depend only on M and S, processors <em class="rfc2119" title="MAY">MAY</em> cache their outcome while M and S are unchanged.</p>
+<table id="error-conditions"><caption>Error conditions of the processing algorithm</caption><thead><tr><th>Error condition</th><th>Raised by</th><th>SPARQL-H category</th><th>Tested by</th></tr></thead><tbody>
+<tr><td><dfn id="err-unknown-holon"><code>unknown-holon</code></dfn></td><td>Step 2</td><td>resolution</td><td><code>unknown-holon</code>, <code>reifier-unknown-holon</code></td></tr>
+<tr><td><dfn id="err-conflicting-mapping"><code>conflicting-mapping</code></dfn></td><td>Step 3</td><td>resolution</td><td><code>conflicting-graph-mapping</code>, <code>unrelated-invalid-mapping</code></td></tr>
+<tr><td><dfn id="err-invalid-graph-name"><code>invalid-graph-name</code></dfn></td><td>Step 3</td><td>resolution</td><td><code>invalid-graph-name</code></td></tr>
+<tr><td><dfn id="err-unmapped-blank-node-holon"><code>unmapped-blank-node-holon</code></dfn></td><td>Step 3</td><td>resolution</td><td><code>unmapped-blank-node-holon</code></td></tr>
+<tr><td><dfn id="err-unregistered-membership-holon"><code>unregistered-membership-holon</code></dfn></td><td>Step 4</td><td>resolution</td><td><code>reifier-unregistered-membership</code></td></tr>
+<tr><td><dfn id="err-missing-reification"><code>missing-reification</code></dfn></td><td>Step 4</td><td>resolution</td><td><code>missing-reification</code></td></tr>
+<tr><td><dfn id="err-non-triple-term-reification"><code>non-triple-term-reification</code></dfn></td><td>Step 4</td><td>resolution</td><td><code>reifier-non-triple-term</code></td></tr>
+<tr><td><dfn id="err-missing-base-assertion"><code>missing-base-assertion</code></dfn></td><td>Step 4</td><td>resolution</td><td><code>reifier-missing-base</code></td></tr>
+<tr><td><dfn id="err-unregistered-parent-endpoint"><code>unregistered-parent-endpoint</code></dfn></td><td>Step 5</td><td>resolution</td><td><code>unregistered-descendant</code></td></tr>
+<tr><td><dfn id="err-multiple-parents"><code>multiple-parents</code></dfn></td><td>Step 5</td><td>resolution</td><td><code>multiple-parents</code></td></tr>
+<tr><td><dfn id="err-parent-cycle"><code>parent-cycle</code></dfn></td><td>Step 5</td><td>resolution</td><td><code>parent-cycle</code>, <code>aggregate-rejects-unrelated-cycle</code></td></tr>
+<tr><td><dfn id="err-unresolved-import"><code>unresolved-import</code></dfn></td><td>Step 6</td><td>resolution</td><td><code>unresolved-import</code></td></tr>
+<tr><td><dfn id="err-unsupported-capability"><code>unsupported-capability</code></dfn></td><td>Step 8</td><td>unsupported-capability</td><td><code>unsupported-regime</code></td></tr>
+<tr><td><dfn id="err-missing-shapes-graph"><code>missing-shapes-graph</code></dfn></td><td>Validation</td><td>—</td><td><code>validate-missing-shapes-graph</code></td></tr>
+<tr><td><dfn id="err-ill-formed-shapes-graph"><code>ill-formed-shapes-graph</code></dfn></td><td>Validation</td><td>—</td><td><code>validate-ill-formed-shapes-graph</code></td></tr>
+<tr><td><dfn id="err-unrepresentable-conversion"><code>unrepresentable-conversion</code></dfn></td><td>Conversion (<a href="#profile-equivalence">Appendix A</a>)</td><td>—</td><td><code>convert-shared-conflict</code>, <code>convert-inert-membership</code>, <code>convert-filed-membership</code></td></tr>
+</tbody></table>
+<p>Names in the last column are entries of the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/sparql-h/manifest.ttl">SPARQL-H test manifest</a>, which exercises resolution through SPARQL-H requests, and, for the validation and conversion conditions, of the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/rdf-h/manifest.ttl">RDF-H test manifest</a>.</p>
+<p>A processor <em class="rfc2119" title="MUST">MUST</em> report at least one applicable error condition and <em class="rfc2119" title="MUST NOT">MUST NOT</em> return a scope graph when any applies. When it reports error identifiers, it <em class="rfc2119" title="SHOULD">SHOULD</em> use the names above. The identifiers are not vocabulary terms and are not dereferenceable.</p>
+</section>
+<section id="semantics"><h2>Semantics and Reasoning</h2>
+<p>RDF-H uses standard RDF semantics [[RDF12-SEMANTICS]]. The range of <a><code>h:inHolon</code></a> entails <a>holon</a> typing under RDFS;
+            the domains and ranges of the composition properties provide corresponding typing. Content extraction and
+            visible-<a>scope</a> resolution are explicitly defined operations, not additional RDF entailment rules.</p>
+<p><code>h:parentHolon</code> is an immediate relation, not an OWL transitive property. Ancestors are selected
+            with the property path <code>h:parentHolon+</code>. Neither a <a>parent link</a> nor content <a>membership</a> entails domain parthood.</p>
+<section id="reasoning-scope"><h3>Reasoning Scope</h3>
+<p>A reasoning operation <em class="rfc2119" title="MUST">MUST</em> declare its input <a>scope</a>: direct <code>CG(H)</code>, aggregated <code>AG(H)</code>, or visible <code>VG(H)</code>
+                when composition is supported, or global asserted <code>G</code>. It <em class="rfc2119" title="MUST">MUST</em> declare its entailment regime
+                and ontology inputs. Inferred statements <em class="rfc2119" title="MUST NOT">MUST NOT</em> be implicitly <a>filed</a> in a source <a>holon</a>.</p>
+<p>A processor <em class="rfc2119" title="MAY">MAY</em> return a separate derived graph or explicitly file derived assertions through an application update,
+                preserving derivation provenance where available. Completeness declarations create no RDF or OWL negative entailments.</p>
+</section><section id="dataset-boundaries"><h3>Separate Data and Shapes</h3><p>Processors <em class="rfc2119" title="MUST">MUST</em> identify the data dataset used to compute G.
+Every graph in it contributes to G, including metadata and unselected graphs. Being asserted does not automatically file a statement in a <a>holon</a>.</p>
+<p>Shapes <em class="rfc2119" title="SHOULD">SHOULD</em> be supplied separately as validation inputs, and derived graphs <em class="rfc2119" title="SHOULD">SHOULD</em> be returned separately from asserted inputs.
+A graph present only in the shapes dataset is outside G and visible content. If shapes or derived graphs are deliberately included
+in the data dataset, their statements enter G; processors <em class="rfc2119" title="MUST NOT">MUST NOT</em> silently exclude them.</p></section>
+</section>
+<section class="informative" id="querying"><h2>Querying the Three Scopes with Standard SPARQL</h2>
+<p>RDF-H does not require a SPARQL syntax extension. The three modes select the data to query, not a different query language.
+Standard property paths select <a data-lt="holon">holons</a>, <code>GRAPH</code> reads their content, and <code>CONSTRUCT</code> combines it into one graph [[SPARQL11-QUERY]].</p><p>The optional experimental <a href="sparql-h/">SPARQL-H companion</a> provides
+<code>FROM HOLON &hellip; SCOPE &hellip;</code> shorthand for the same <a>scope</a> resolution. It requires a dedicated front end;
+the standard-SPARQL approach below remains fully supported.</p>
+<section id="query-scope-workflow"><h3>Resolve the Scope, Then Run the Query</h3>
+<ol><li>Select the source data dataset, <a>holon</a>, and <a>scope</a>: <code>direct</code>, <code>aggregated</code>, or <code>visible</code>.
+A convenience API should default to <code>direct</code> and require an explicit request for wider scopes.</li>
+<li>Validate the selected <a>holon registry</a>, graph mappings, and mode-applicable hierarchy/<a>import</a> rules before building the scope. Apply the
+<a href="#visibility">scope rules</a>, including errors for unresolved imports.</li>
+<li>Resolve each selected holon's direct content and take the set union, preserving shared blank-node identity within the source dataset.</li>
+<li>Use the resolved graph as the query's default graph, then run ordinary SPARQL. Report the source dataset or snapshot,
+selected holon, scope, entailment regime, and any filtering alongside the results.</li></ol>
+<p>An example application request is <code>query(holon=City, scope=aggregated, sparql=...)</code>.
+This illustrates an API convention; it is neither SPARQL syntax nor a new standard protocol parameter.</p>
+<p class="note">Build one graph before querying it. Wrapping an entire multi-pattern query in <code>GRAPH ?g</code>
+requires all those patterns to match the same named graph. It can miss joins between city statements and district statements.
+The resolved default graph permits those joins and deduplicates triples before counts and other aggregates are evaluated.</p>
+</section>
+<section id="querying-content-graph"><h3>Build the Scope Graph</h3>
+<p>The following SPARQL 1.1 queries target the <a>dataset profile</a>. They assume a validated source dataset whose default graph is M and contains composition declarations and <a><code>h:contentGraph</code></a> mappings. Change <code>ex:City</code> to select another <a>holon</a>.
+Each query returns an RDF graph; run the application query against that result as a separate step.</p><p>These recipes assume registry and mode-specific checks have succeeded. When M is supplied externally, evaluate the declaration patterns against M (for example, construct a query view with M as its default graph) while retaining the source named content graphs. That query view does not change which source statements belong to G.</p>
+<section id="query-direct"><h4>Direct Content</h4><pre class="example nohighlight sparql" title="Direct content recipe">PREFIX h: &lt;https://w3id.org/rdf-h#&gt;
+PREFIX ex: &lt;https://example.org/&gt;
+
+CONSTRUCT { ?s ?p ?o }
+WHERE {
+    VALUES ?holon { ex:City }
+    OPTIONAL { ?holon h:contentGraph ?declaredGraph }
+    BIND(COALESCE(?declaredGraph, ?holon) AS ?graph)
+    GRAPH ?graph { ?s ?p ?o }
+}
+</pre><p><a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/examples/rdf-h/composition/queries/direct.rq">Download the query</a>.</p></section><section id="query-aggregated"><h4>Aggregated Content</h4><pre class="example nohighlight sparql" title="Aggregated content recipe">PREFIX h: &lt;https://w3id.org/rdf-h#&gt;
+PREFIX ex: &lt;https://example.org/&gt;
+
+CONSTRUCT { ?s ?p ?o }
+WHERE {
+    ?holon h:parentHolon* ex:City .
+    OPTIONAL { ?holon h:contentGraph ?declaredGraph }
+    BIND(COALESCE(?declaredGraph, ?holon) AS ?graph)
+    GRAPH ?graph { ?s ?p ?o }
+}
+</pre><p><a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/examples/rdf-h/composition/queries/aggregated.rq">Download the query</a>.</p></section><section id="query-visible"><h4>Visible Content</h4><pre class="example nohighlight sparql" title="Visible content recipe">PREFIX h: &lt;https://w3id.org/rdf-h#&gt;
+PREFIX ex: &lt;https://example.org/&gt;
+
+CONSTRUCT { ?s ?p ?o }
+WHERE {
+    { ?holon h:parentHolon* ex:City }
+    UNION { ex:City h:imports ?holon }
+    OPTIONAL { ?holon h:contentGraph ?declaredGraph }
+    BIND(COALESCE(?declaredGraph, ?holon) AS ?graph)
+    GRAPH ?graph { ?s ?p ?o }
+}
+</pre><p><a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/examples/rdf-h/composition/queries/visible.rq">Download the query</a>.</p></section><p><code>COALESCE</code> uses the explicit content-graph mapping when present and the holon IRI otherwise.
+A missing selected graph contributes empty direct content. These queries are <a>scope</a> construction recipes, not validators:
+a query alone will not diagnose an unresolved <a>import</a> or an invalid mapping.</p>
+<p>For the reifier representation, use the same holon selection rules, extract <code>CG(H)</code> through
+<code>rdf:reifies</code> and <a><code>h:inHolon</code></a> with RDF 1.2-capable tooling, and build the same union graph.
+This does not require converting the query language or including reifier bookkeeping in the content result.</p>
+</section>
+<section id="query-resolved-graph"><h3>Query the Result</h3>
+<p>The same query works for all three resolved graphs:</p>
+<pre class="example nohighlight sparql" title="Application query over a resolved scope">PREFIX ex: &lt;https://example.org/&gt;
+SELECT ?value WHERE { ?subject ex:value ?value }
+ORDER BY ?value
+</pre>
+<table><caption>Values returned per resolved scope</caption><thead><tr><th>Resolved <a>scope</a> for City</th><th>Returned values in the example</th></tr></thead><tbody>
+<tr><td>direct</td><td>city</td></tr>
+<tr><td>aggregated</td><td>city, district, neighborhood</td></tr>
+<tr><td>visible</td><td>city, district, metro, neighborhood</td></tr>
+</tbody></table><p><a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/examples/rdf-h/composition/queries/read-values.rq">Download the application query</a>.</p>
+</section>
+<section id="query-dataset-selection"><h3>Default and Named Graphs</h3>
+<p>A scoped query service should expose the resolved graph as the default graph, with no named graphs unless the caller explicitly requests
+and is authorized for them. A caller that needs to know which holon each statement came from asks for the <a>attributed scope dataset</a>, whose named graphs are the selected holons' direct content; SPARQL-H requests it with <code>FROM NAMED HOLONS</code>. <code>GRAPH ex:City</code> must retain its standard meaning: it reads that named graph only if it is included
+in the query dataset. It must not silently mean aggregated or visible content. With a default-only query dataset, named-graph patterns have no matches.</p>
+<p>Once a scope graph has a queryable IRI, an endpoint can expose it through standard <code>FROM</code> or SPARQL Protocol
+<code>default-graph-uri</code> dataset selection [[SPARQL11-QUERY]], [[SPARQL11-PROTOCOL]]. Neither mechanism computes <a data-lt="descendants">descendant</a> <a>scope</a> from a <a>holon</a> IRI automatically.
+Graph availability and IRI loading are endpoint-dependent. Do not assume several <code>FROM</code> clauses preserve shared blank nodes exactly
+as a union over the original dataset does; use a single resolved scope graph when that identity matters.</p>
+<p>For a convenience scoped API, reject conflicting <code>FROM</code>, <code>FROM NAMED</code>, or protocol dataset selectors rather than silently
+changing the promised scope. A standard SPARQL endpoint continues to follow the standard query/protocol dataset-selection rules.
+Federated <code>SERVICE</code> calls explicitly query remote endpoints; a local scope is not an authorization boundary for those calls.</p>
+<pre class="example nohighlight trig" title="Attributed scope dataset for the city, aggregated scope">
+# Default graph: the aggregated scope graph, a deduplicated union.
+ex:City ex:value "city" .
+ex:District ex:value "district" .
+ex:Neighborhood ex:value "neighborhood" .
+
+# One named graph per selected holon, named by the holon, holding its direct content.
+ex:City { ex:City ex:value "city" . }
+ex:District { ex:District ex:value "district" . }
+ex:Neighborhood { ex:Neighborhood ex:value "neighborhood" . }
+</pre>
+<p>In SPARQL-H, <code>FROM HOLON ex:City SCOPE AGGREGATED FROM NAMED HOLONS</code> queries this dataset; <code>GRAPH ?h { ?s ex:value ?v }</code> binds <code>?h</code> to the holon each value came from.</p>
+</section></section>
+<section id="validation"><h2>Validation with SHACL</h2>
+<p>The vocabulary supplies five partial shapes. Full validation also follows the checklist below; basic RDF-H validity does not require composition support.</p>
+<section id="validation-terms"><h3>Validation and Reasoning Terms</h3>
+<p><strong>Validation</strong> checks data against stated requirements. The Shapes Constraint Language (<strong>SHACL</strong>) expresses requirements as <strong>shapes</strong>. A <strong>shapes graph</strong> is an RDF graph containing those definitions. The <strong>effective shapes graph</strong> is the combined set of shapes used for one validation request.</p>
+<p><strong>Reasoning</strong>, or <strong>entailment</strong>, derives statements from other statements and rules. An <strong>entailment regime</strong> specifies which rules apply; an <strong>ontology</strong> supplies vocabulary definitions and reasoning rules. Simple entailment uses RDF's basic matching rules without additional RDFS or OWL rules. The Web Ontology Language (<strong>OWL</strong>) can supply such additional rules. Validation and reasoning are different operations.</p>
+<p>A <strong>union</strong> combines graphs and keeps each distinct triple once. When combining independent sources, <strong>standardizing blank nodes apart</strong> means giving their blank nodes distinct internal identities to avoid accidental merging. A <strong>snapshot</strong> is a fixed version of the input data. <strong>Provenance</strong> records where data came from or how it was produced.</p></section>
+<section id="shape-composition"><h3>Independent shape imports</h3>
+<p><code>h:importsShapes</code> identifies an IRI-named shapes graph supplied in the validation dataset.
+                It identifies a graph, not a node shape. It <em class="rfc2119" title="MUST NOT">MUST NOT</em> be expanded through <code>sh:node</code>. A processor <em class="rfc2119" title="MUST NOT">MUST NOT</em> dereference the IRI to fetch the shapes graph from the Web unless the application has configured that behavior.
+                For validation at H, the effective shapes graph is the RDF union of shapes graphs explicitly imported by H.
+                Imports declared by <a>ancestors</a> are not inherited. Shape <a data-lt="import">imports</a> are non-transitive; a missing shapes graph is the <a href="#err-missing-shapes-graph">missing-shapes-graph</a> error.</p>
+<p>Shape reuse within an imported graph uses standard SHACL references to individual shapes, such as
+                <code>sh:node</code> or <code>sh:and</code>. There is no automatic nearest-ancestor fallback or ancestor-wide accumulation.</p>
+<p>Content imports <em class="rfc2119" title="MUST NOT">MUST NOT</em> import shapes.
+                Shape imports <em class="rfc2119" title="MUST NOT">MUST NOT</em> import content.</p>
+<p>First form the union, preserving shared blank nodes within one shapes dataset and giving blank nodes from independently loaded sources distinct identities.
+The effective shapes graph <em class="rfc2119" title="MUST">MUST</em> satisfy SHACL syntax rules before data validation. Conflicting definitions of the same shape IRI can make this union ill-formed;
+processors <em class="rfc2119" title="MUST">MUST</em> report a shapes-definition failure (the <a href="#err-ill-formed-shapes-graph">ill-formed-shapes-graph</a> error condition), not a data violation. Well-formed but unsatisfiable constraints produce ordinary SHACL violations.
+There is no override or replacement rule.</p>
+<p>What a validation request declares and what its report identifies are stated in the <a href="#validation-procedure">validation checklist</a>.</p>
+</section>
+<section id="validation-normative"><h3>Required Checks</h3>
+<p><code>h:AssertedBaseTripleShape</code> checks that every reifier-<a>filed</a> statement is also asserted.
+                It uses SPARQL 1.2 triple-term patterns [[SPARQL12-QUERY]] and requires a processor supporting those patterns, or an equivalent
+                component-extraction procedure. Dataset-profile <a>membership</a> satisfies this rule by construction.</p>
+<p><code>h:CompositionHierarchyShape</code> checks at most one immediate parent and rejects parent cycles.
+                Apply it to the composition declarations graph only when using composition. Cycles in external domain
+                relations are not RDF-H hierarchy violations.</p>
+<p><code>h:ReifierMembershipShape</code> checks nonempty reification and membership node kinds. <code>h:ContentGraphMappingShape</code> checks mapping cardinality and graph-name kinds. Full validity also requires the procedural checks below.</p></section>
+<section id="validation-advisory"><h3>Portability Advice</h3>
+<p><code>h:HolonIntegrityShape</code> warns when a reifier's containing <a>holon</a> carries no explicit registry declaration
+                in the validated graph: <a><code>h:Holon</code></a> or legacy <a><code>h:CompleteHolon</code></a> typing, or an
+                <a><code>h:contentGraph</code></a> mapping. This is advisory and does not invalidate a graph; the registry rule itself
+                is checked procedurally against M. Under RDFS entailment the range of <a><code>h:inHolon</code></a> supplies
+                <code>h:Holon</code> typing, so run the shape without entailment to surface omissions.</p>
+</section>
+<section id="validation-procedure"><h3>Validation Checklist</h3>
+<table><caption>Validation checklist</caption><thead><tr><th>Check</th><th>Rule</th><th>Executable coverage</th></tr></thead><tbody>
+<tr><td>Registry and <a>membership</a></td><td>M defines the registry; membership <a data-lt="holon">holons</a> and applicable declaration endpoints must be registered. Membership resources must reify one or more triple terms; every rdf:reifies value used by a membership must be a triple term.</td><td><a href="#processing-model">Processing algorithm</a> plus ReifierMembershipShape for node kinds and nonempty reification. Multiple triple terms are allowed; each contributes content.</td></tr>
+<tr><td>Mappings</td><td>At most one graph name, valid graph-name term, and explicit name for blank-node dataset holons.</td><td>ContentGraphMappingShape covers graph-name kind and cardinality; the <a href="#processing-model">processing algorithm</a> covers the blank-node default rule.</td></tr>
+<tr><td>Assertion</td><td>Every reifier-<a>filed</a> member has an asserted base statement.</td><td>AssertedBaseTripleShape; named-graph members satisfy this by construction.</td></tr>
+<tr><td>Composition</td><td>Mode-specific registry endpoint, parent, cycle, and <a>import</a> checks from the hierarchy section.</td><td>CompositionHierarchyShape covers cardinality and cycles; endpoint/import resolution is procedural.</td></tr>
+<tr><td>Shape definitions</td><td>The effective shapes graph is well-formed before data validation.</td><td>SHACL syntax checking, followed by domain validation.</td></tr>
+</tbody></table><p>The supplied shapes are partial executable checks, not a complete validator. In particular, OWL functional-property inference is not validation;
+conflicting graph mappings are detected by RDF term identity and reported as <a href="#err-conflicting-mapping">conflicting-mapping</a>, never repaired through inferred equality.</p>
+<p>Domain validation requests <em class="rfc2119" title="MUST">MUST</em> state direct, aggregated, visible, or <a>global scope</a>, effective shapes, ontology inputs, and entailment regime.
+Reports <em class="rfc2119" title="MUST">MUST</em> identify the <a>holon</a>, data scope, source shapes graphs, ontology inputs, and regime, and <em class="rfc2119" title="MUST">MUST</em> disclose any authorization filtering; a filtered report <em class="rfc2119" title="MUST NOT">MUST NOT</em> claim validation of the unfiltered data. Content-level checks on equal extracted graphs with the same shapes, ontology, and regime <em class="rfc2119" title="MUST">MUST</em> have the same conformance outcome,
+up to blank-node renaming. This does not cover <a>occurrence</a>-sensitive or representation-specific constraints. Dataset content validation does not require constructing reifiers;
+use a reifier projection only for a genuinely membership-sensitive check.</p></section>
+<section id="validation-closure"><h3>Application Completeness Claims</h3><p>RDF-H does not establish that all relevant domain facts are known.
+The legacy <a><code>h:CompleteHolon</code></a> class is deprecated and remains a subclass of <a><code>h:Holon</code></a> for compatibility.
+Its presence registers a <a>holon</a> but <em class="rfc2119" title="MUST NOT">MUST NOT</em>, by itself, justify treating missing content as false or absent in the world.</p>
+<section class="informative" id="scoped-completeness"><h4>Document the Contract</h4><p>Applications may publish a separate, explicitly identified completeness contract
+using their own vocabulary: <a>holon</a>, subject <a>scope</a>, predicates or shapes, snapshot, provenance, and any filtering.
+A SHACL pass establishes only satisfaction of the specified constraints, not universal completeness. Such a claim is an application contract,
+not RDF-H core conformance. A filtered view does not establish completeness of hidden data.</p></section></section>
+</section>
+<section id="security"><h2>Security and Privacy Considerations</h2>
+<p><strong>Integrity of M.</strong> M decides what is a <a>holon</a>, where content lives, and how units are organized. Whoever can write M can redirect content, make a unit disappear from the registry, or add <a data-lt="import">imports</a>. In the <a>dataset profile</a> M defaults to the default graph, so a store whose default graph is writable by untrusted parties has an untrusted registry. Processors <em class="rfc2119" title="MUST">MUST</em> obtain M from a source the application trusts, and publishers <em class="rfc2119" title="SHOULD">SHOULD</em> keep M separate from content that untrusted parties may edit. Management statements that appear only in content never affect processing, which limits what a content writer can do, but it does not protect M itself.</p>
+<p><strong>No automatic dereferencing.</strong> Holon IRIs, graph names, import targets, and shapes-graph IRIs are identifiers. A processor <em class="rfc2119" title="MUST NOT">MUST NOT</em> fetch documents from these IRIs during resolution or validation unless the application has configured that behavior; doing so would let a data author cause network requests and inject remote shapes or content.</p>
+<p><strong>Exposure through G.</strong> Every <a>filed</a> statement is also asserted in G, and a statement filed in several holons is reachable through each of them and through any unselected graph. Hiding a holon does not hide its statements. Applications that filter by holon <em class="rfc2119" title="MUST">MUST</em> apply the same policy to G and to every other <a>scope</a> that can reach the statement, and <em class="rfc2119" title="MUST">MUST</em> disclose filtering in reports as the validation and query sections require.</p>
+<p><strong>Occurrence metadata.</strong> Reifiers carry sources, timestamps, and other <a>occurrence</a> metadata that is asserted and queryable even when the base statement is unremarkable. Publishers <em class="rfc2119" title="SHOULD">SHOULD</em> review occurrence metadata before exchange and <em class="rfc2119" title="SHOULD NOT">SHOULD NOT</em> attach completeness claims to confidentially filtered data. Stable IRI reifiers make occurrences linkable across exchanges; applications that need that linkability <em class="rfc2119" title="SHOULD">SHOULD</em> use IRI reifiers, and applications that do not want it <em class="rfc2119" title="SHOULD">SHOULD</em> use blank-node reifiers.</p>
+<p><strong>Personal data.</strong> A holon identifier may also identify the described resource, including a person, and the parent hierarchy may reveal organizational <a>membership</a>. The registry, hierarchy, and occurrence metadata are personal data when they concern people and are subject to the same protection as the content.</p>
+<p><strong>Resource consumption.</strong> Aggregated and visible scopes union many graphs; a deep or wide hierarchy, a holon with many <a>descendants</a>, or many imports can make a request expensive, and a cyclic parent relation would not terminate without the acyclicity check. Engines handling untrusted data <em class="rfc2119" title="SHOULD">SHOULD</em> bound hierarchy depth, scope size, and query cost. A processor <em class="rfc2119" title="MUST">MUST</em> detect a parent cycle and report <a href="#err-parent-cycle">parent-cycle</a> before returning any aggregated or <a>visible scope</a> graph, and <em class="rfc2119" title="MUST NOT">MUST NOT</em> rely on resource limits to terminate traversal of a cyclic relation.</p>
+<p><strong>Blank-node correlation.</strong> Scope graphs preserve the blank-node identities of the source dataset. Two statements that share a blank node remain correlated in every scope that contains both, even when the application intended the holons to be independent.</p>
+</section>
+<section id="i18n"><h2>Internationalization Considerations</h2>
+<p>RDF-H introduces no new string-bearing constructs. Content statements, including language-tagged and RDF 1.2 directional literals, pass through filing, <a>scope</a> resolution, and conversion unchanged. Holon identifiers and graph names are IRIs and may contain non-ASCII characters as permitted by RDF. The vocabulary's labels and comments are English; translations may be added to the vocabulary document without changing term identity. Turtle-H and SPARQL-H keywords are ASCII and case rules are stated in those specifications.</p>
+</section>
+<section id="conformance">
+<p>
+            This specification defines two classes of conformance: <strong>RDF-H Processor</strong>
+            (a software component that consumes or produces RDF-H graphs) and
+            <strong>RDF-H Graph</strong> (a <a>holonic graph</a>: a body of RDF data that uses the RDF-H vocabulary, together with the metadata context M that registers its <a data-lt="holon">holons</a>; in the <a>dataset profile</a> M is normally part of the data). The
+            criteria below summarize requirements stated normatively in the preceding sections. The <a href="#processing-model">processing algorithm</a> is
+            testable through its named error conditions; the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/requirements.ttl">requirement trace</a> links each
+            reviewed requirement to fixtures, and the <a href="#quick-reference">implementation checks</a> list the requirements
+            that are verified by review instead.
+        </p>
+<section id="capability-claims"><h3>Declare Capabilities Separately</h3>
+<p>A processor <em class="rfc2119" title="MUST">MUST</em> declare its supported representation or representations. It <em class="rfc2119" title="MUST">MUST</em> separately declare whether
+                it supports composition, validation, conversion, Turtle-H, and SPARQL-H. Support for one capability does not imply another.</p>
+<table><caption>Capability claims</caption><thead><tr><th>Capability</th><th>Required claim</th></tr></thead><tbody>
+<tr><td>Dataset representation</td><td>Named-graph content extraction and dataset mapping rules.</td></tr>
+<tr><td>Reifier representation</td><td>Reifier <a>membership</a> extraction and asserted-base-triple handling.</td></tr>
+<tr><td>Composition (optional)</td><td>Administrative hierarchy checks, visible-content resolution, and explicit shape imports.</td></tr>
+<tr><td>Validation (optional processor capability)</td><td>Supported data scopes, shapes, entailment regimes, and representation-specific limitations.</td></tr>
+<tr><td>Conversion (optional)</td><td>Supported directions and declared identity and metadata preservation.</td></tr>
+<tr><td>Turtle-H (optional)</td><td>Parser or serializer support under the companion specification.</td></tr>
+<tr><td>SPARQL-H (optional)</td><td>Query parsing and <a>scope</a> evaluation under the experimental <a href="sparql-h/">companion specification</a>.</td></tr></tbody></table>
+<p>Graph validity requirements apply even when a processor does not offer validation as a service.
+                Composition data and processors claiming that capability <em class="rfc2119" title="MUST">MUST</em> satisfy the additional composition requirements.</p>
+</section>
+<section id="conformance-profiles"><h3>Representation Support</h3><p>The <a>dataset profile</a> requires RDF datasets and named-graph extraction.
+The <a>reifier profile</a> requires RDF 1.2 triple terms and reifier <a>membership</a>. Triple-term validation needs an appropriate query engine
+or an equivalent component-extraction procedure. Implementations <em class="rfc2119" title="MAY">MAY</em> support either profile or both; Turtle-H support is independent.</p></section>
+<section id="core-conformance"><h3>Core Requirements</h3>
+<p>A conforming RDF-H graph or dataset, judged together with its M, <em class="rfc2119" title="MUST">MUST</em> be valid RDF for its declared representation, satisfy the
+                content mapping rules, and satisfy the additive invariant: each <a>filed</a> statement is also asserted.</p>
+<p>A conforming processor <em class="rfc2119" title="MUST">MUST</em> support its declared representation's extraction rules and report invalid mappings.
+                A converter <em class="rfc2119" title="MUST">MUST</em> preserve M (adding only reported derived mappings), <a>holon</a> identity, and direct content, and declare its content- or assertion-preservation level.
+                A reasoning or validation service <em class="rfc2119" title="MUST">MUST</em> declare its <a>scope</a> and regime as specified in the relevant sections.</p>
+<p>Basic conformance does not require a parent, a root, domain parthood, <a data-lt="descendants">descendant</a> aggregation, or Turtle-H support.</p>
+<p>Registry-aware conformance uses the <a href="#dataset-resolution">processing context and registry</a>. Membership extraction alone does not claim registry-aware processing.</p></section>
+<section id="composition-conformance"><h3>Optional Composition Requirements</h3>
+<p>A processor claiming composition <em class="rfc2119" title="MUST">MUST</em> enforce direct-parent cardinality and acyclicity, resolve <a>visible scope</a>
+                using <a>descendants</a> and direct <a data-lt="import">imports</a>, and resolve only explicit shape imports. Multiple roots are permitted.
+                Resolution errors <em class="rfc2119" title="MUST">MUST</em> be reported.</p>
+</section>
+<section class="informative" id="quick-reference"><h3>Implementation Checks</h3><p>The <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/rdf-h/check_composition.py">executable fixtures</a> cover <a>visible scope</a>,
+explicit shape imports, dataset separation, parent cardinality, and hierarchy cycles. The <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/rdf-h/manifest.ttl">RDF-H test manifest</a> tests the optional conversion and validation capabilities through the same adapter protocol: content preservation in both directions, the non-promotion of content into M, derived blank-node mappings, assertion preservation, per-holon shape selection without inheritance, scope-dependent validation outcomes, and both shape error conditions.</p>
+<p>Every <a href="#error-conditions">error condition</a> of the processing algorithm has at least one test, and the SPARQL-H suite resolves scopes over sources in both profiles. Requirements not exercised by the current offline adapters are assessed by documentation and review: how M is obtained and trusted, the prohibition on dereferencing identifiers, the disclosure of authorization filtering, and the declaration of supported capabilities. Instrumented integration tests can monitor network requests, exercise denied-access and filtered-view responses, and inspect capability declarations; M trust policy still requires deployment review.</p></section></section>
+<section class="appendix" id="profile-equivalence"><h2>Conversion and Extraction</h2><p>A <strong>converter</strong> changes data from one RDF-H representation to another. A <strong>round trip</strong> converts to another representation and back. A <strong>preservation level</strong> states what information must survive conversion. <strong>Unfiled</strong> statements are asserted statements that are not assigned to any <a>holon</a>. <strong>Occurrence metadata</strong> is information attached to a particular reifier, such as its source.</p><p>A converter <em class="rfc2119" title="MUST">MUST</em> declare one of two preservation levels:</p>
+<table><caption>Conversion preservation levels</caption><thead><tr><th>Level</th><th>Required preservation</th></tr></thead><tbody>
+<tr><td>Content-preserving (minimum)</td><td>M, registered holon identities, each CG(H), base assertions of <a>filed</a> statements, and empty registrations.</td></tr>
+<tr><td>Assertion-preserving</td><td>Everything above and every asserted source statement, including unfiled provenance and <a>occurrence</a> metadata, up to a consistent blank-node renaming.</td></tr>
+</tbody></table><p>A content-preserving converter <em class="rfc2119" title="MAY">MAY</em> discard unfiled assertions or occurrence metadata only when it explicitly reports every loss or a documented,
+complete loss category. An assertion-preserving converter <em class="rfc2119" title="MUST NOT">MUST NOT</em> discard those statements; it <em class="rfc2119" title="MUST">MUST</em> fail if its target representation cannot preserve them.
+Neither level permits discarding a statement explicitly filed in a holon.</p>
+<p id="conversion-failure">Before reporting success, a converter <em class="rfc2119" title="MUST">MUST</em> verify that the target is valid for its declared representation, retains the registry and M (apart from reported derived mappings), preserves every CG(H), and meets the declared assertion-preservation level. If no target can meet these requirements, it <em class="rfc2119" title="MUST">MUST</em> fail with <a><code>unrepresentable-conversion</code></a>, a conversion error distinct from the scope-resolution errors. In particular, holons that select the same target graph must have identical direct contents; their contents must not be silently merged. Retaining a dataset-profile assertion using <code>h:inHolon</code> can activate it in a reifier target: if that makes the target invalid or changes any CG(H), conversion must fail, even at the content-preserving level when that assertion is filed. New graph names and occurrence reifiers must be fresh with respect to retained identifiers. An existing blank-node holon mapping must be retained.</p>
+<ul><li>Reifiers to named graphs: place each reified content member in the graph selected by H's mapping in M; retain M as the metadata context.
+A blank-node holon without an existing mapping has no default graph name, so the converter <em class="rfc2119" title="MUST">MUST</em> add an explicit <a><code>h:contentGraph</code></a> mapping for it to the output M, naming a fresh graph. Adding such a derived mapping is the only change to M a converter may make, and it <em class="rfc2119" title="MUST">MUST</em> be reported.</li>
+<li>Named graphs to reifiers: emit each content member as a base statement and a fresh occurrence reifier linked to H. Retain M separately.</li></ul>
+<pre class="example nohighlight turtle" title="Content-preserving conversion of a blank-node holon to the dataset profile">
+# Input, reifier profile. M (supplied as a view of the same graph): _:h a h:Holon .
+ex:a ex:value "a" .
+_:r1 rdf:reifies &lt;&lt;( ex:a ex:value "a" )&gt;&gt; ; h:inHolon _:h .
+
+# Output, dataset profile. The default graph is the output M.
+_:h a h:Holon ; h:contentGraph &lt;urn:example:derived-1&gt; .   # derived mapping, reported
+&lt;urn:example:derived-1&gt; { ex:a ex:value "a" . }
+
+# Reported: derived h:contentGraph mapping for _:h; loss category: the membership record _:r1.
+</pre>
+<p>Retained unfiled assertions, including source <a>membership</a> records (<code>rdf:reifies</code> and <a><code>h:inHolon</code></a>) and occurrence metadata,
+<em class="rfc2119" title="MUST NOT">MUST NOT</em> be placed in the graph that serves as M for the output. A converter targeting the <a>dataset profile</a>
+<em class="rfc2119" title="MUST">MUST</em> either supply the output M as a separately identified graph or place unfiled assertions in a named graph that is not
+M and not a <a>content graph</a>. Retained source membership records remain ordinary assertions in the output; they do not make the output mixed-representation data
+unless the converter declares it so.</p>
+<p>Graph placement, reifier identity, and occurrence multiplicity are preserved only when the converter explicitly claims and implements those additional guarantees.
+Content-preserving round trips guarantee registry, M, and content equality, not full source-dataset equality; M equality is up to the derived blank-node mappings that a dataset-profile conversion reports. Compare M and content jointly with one consistent blank-node renaming.</p>
+<p>Extraction precedes entailment and uses set semantics. Preserve shared blank nodes across a source dataset; standardize independently loaded inputs apart before merging.
+A holon <em class="rfc2119" title="SHOULD">SHOULD</em> use one representation. For declared mixed data, CG(H) is the union of the triples filed by explicit reifier memberships, read from every graph of S, and the selected named graph, as <a href="#step-membership">step 4</a> states;
+reifier-filed members <em class="rfc2119" title="MUST">MUST</em> still have base assertions, which may be in any graph of S or in M. Mixing representations <em class="rfc2119" title="MUST NOT">MUST NOT</em> change M.</p>
+<pre class="example nohighlight trig" title="Declared mixed data">
+@prefix h: &lt;https://w3id.org/rdf-h#&gt; .
+@prefix ex: &lt;https://example.org/&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+
+ex:City a h:Holon .                               # M is the default graph
+ex:Extra ex:value "extra" .                       # base assertion in the default graph
+_:r1 rdf:reifies &lt;&lt;( ex:Extra ex:value "extra" )&gt;&gt; ; h:inHolon ex:City .
+_:r2 rdf:reifies &lt;&lt;( ex:Elsewhere ex:value "elsewhere" )&gt;&gt; ; h:inHolon ex:City .
+
+ex:City { ex:City ex:value "city" . }             # named-graph content of ex:City
+ex:Other { ex:Elsewhere ex:value "elsewhere" . }  # base assertion of the second membership
+</pre>
+<p>With mixed data declared, <code>CG(ex:City)</code> holds the city, extra, and elsewhere statements: the named graph plus both reifier-filed triples, whose base assertions sit in two different graphs. Without the declaration, the dataset profile applies and only the city statement is content.</p></section>
+<section class="informative appendix" id="design-rationale"><h2>Design Rationale</h2>
+<p>The word <em>holon</em> comes from Koestler [[KOESTLER-1967]]: something that is a whole in its own right and at the same time a part of a larger whole. RDF-H keeps exactly that double nature and nothing more. A holon is a whole because it has its own explicitly filed content, which can be read, validated, and exchanged on its own. It is a part because a parent link can place it under another holon, whose aggregated scope then includes it. Imports add the lateral dependencies that a strict hierarchy cannot express. The three scopes are the three ways of reading a holon: alone, with everything organized under it, or with what it explicitly draws in. What RDF-H does not model is equally deliberate: domain parthood (a floor is physically part of a building) is a claim about the world and belongs in content, under a domain vocabulary; behaviour, autonomy, and change over time are outside an organization of statements.</p>
+<p><strong>One parent.</strong> A holon has at most one administrative parent, so the hierarchy is a forest. This gives each holon one administrative path upward and simplifies ownership and updates. A DAG could also have unambiguous set-union aggregation; it would require policies for multiple administrative parents. Imports provide lateral reuse of direct content, but do not reproduce a second parent's recursive descendant aggregation. Applications needing that behavior must enumerate the required imports or use distinct holons related through an application vocabulary.</p>
+<p><strong>No ancestor scope.</strong> A part does not silently see its context. Aggregated scope reads downward only, so a holon's content means the same wherever the holon is placed, which is what makes a holon reusable. When a part does need its context, the author says so with an import of the parent.</p>
+<p><strong>Single-hop imports.</strong> An import adds one holon's direct content and nothing it imports or contains in turn. Transitive imports would make a scope depend on declarations in additional holons and require an explicit closure policy, including cycle handling. Chains are written explicitly, import by import.</p>
+<p><strong>The additive invariant.</strong> Filing never changes whether a statement is asserted, so the data uses ordinary RDF terms and assertions. RDF-H interprets the union of source graphs and M as G; ordinary SPARQL default-graph queries do not automatically read that union. Holon-unaware consumers retain their usual dataset-selection behavior. The price is that RDF-H cannot hold hypothetical or contextual statements that are filed but not asserted; those need a separate mechanism, listed under future work.</p>
+<p><strong>An explicit registry.</strong> Which holons exist and how they are organized is stated in M, never inferred from content or entailment. A dataset cannot reorganize itself through a statement that happens to use a management predicate, and a reasoner cannot create or dissolve holons.</p>
+<p><strong>Two profiles.</strong> Named graphs are the natural storage when each holon's content is edited and queried as a unit; reifiers are needed when the same statement is filed in several holons with different occurrence metadata, or when content must travel in a single graph. Both describe the same abstract content, which is why conversion between them is specified.</p>
+<p><strong>Attribution.</strong> A scope graph is a union, so it does not say which holon each statement came from. When that matters, the <a>attributed scope dataset</a> keeps each selected holon's content as a named graph beside the union; SPARQL-H exposes it with <code>FROM NAMED HOLONS</code>.</p>
+</section>
+<section class="informative appendix" id="related-work"><h2>Relationship to Other Specifications</h2>
+<p>RDF-H combines several existing mechanisms rather than replacing them.</p>
+<ul>
+<li><strong>RDF 1.1 datasets and TriG</strong> [[RDF11-DATASETS]] [[TRIG]]. RDF 1.1 deliberately assigns no formal semantics to named graphs. The <a>dataset profile</a> supplies one application-level reading: a named graph selected by M is the direct content of a <a>holon</a>, and every graph's statements are asserted. Datasets that do not use the RDF-H vocabulary are unaffected.</li>
+<li><strong>RDF 1.2 reifiers</strong> [[RDF12-CONCEPTS]]. The <a>reifier profile</a> uses <code>rdf:reifies</code> exactly as RDF 1.2 defines it and adds one property, <a><code>h:inHolon</code></a>. RDF-H does not change the meaning of triple terms, which remain unasserted; the additive invariant requires the base assertion separately.</li>
+<li><strong>SHACL</strong> [[SHACL]]. SHACL lets a data graph name its shapes graphs with <code>sh:shapesGraph</code> and lets shapes graphs include others with <code>owl:imports</code>. <code>h:importsShapes</code> differs in granularity: it selects shapes per holon, in M, without transitive inclusion, so that one dataset can hold holons validated under different shapes.</li>
+<li><strong>OWL imports</strong> [[OWL2-SYNTAX]]. <code>owl:imports</code> merges ontologies transitively for reasoning. <code>h:imports</code> selects content for one holon's <a>visible scope</a>, is not transitive, and has no entailment consequences.</li>
+<li><strong>SPARQL Service Description and VoID</strong> [[SPARQL11-SERVICE-DESCRIPTION]] [[VOID]]. Both describe which graphs or datasets an endpoint offers. They can describe a store that holds RDF-H data, but they do not define content units, hierarchy, or <a>scope</a> resolution. A service description could list the scope graph exposed by a scoped endpoint.</li>
+<li><strong>PROV bundles</strong> [[PROV-O]]. A <code>prov:Bundle</code> is a named set of provenance descriptions. A holon's content is not provenance about its statements; <a>occurrence</a> metadata on reifiers may itself be described with PROV.</li>
+<li><strong>Nanopublications</strong> [[NANOPUB]]. A nanopublication fixes a structure of assertion, provenance, and publication-information graphs linked from a head graph. A nanopublication's assertion graph can be the <a>content graph</a> of a holon, with M playing the role of the head graph for many publications; RDF-H does not prescribe the provenance and publication-information parts.</li>
+<li><strong>Linked Data Platform</strong> [[LDP]]. LDP containers organize resources through HTTP interactions and <a>membership</a> triples about resources. RDF-H memberships are about statements, and RDF-H defines no protocol.</li>
+</ul>
+</section><section class="informative appendix" id="changelog"><h2>Change Log</h2>
+<section id="changelog-0-8"><h3>0.8 (2026-10-21)</h3>
+<p>Separated Turtle-H, clarified content and assertion semantics, and introduced optional administrative composition. This draft also consolidates repeated explanations and keeps conversion details in an appendix; vocabulary and semantics are unchanged by that editorial cleanup.</p>
+<p><strong>Migration from 0.7:</strong> RDF-H no longer defines its specialized part-whole vocabulary,
+                parthood cycle checks, or mereological coherence shapes. Use an external domain vocabulary for domain parthood.
+                Use <code>h:parentHolon</code> only for administrative organization; it is not a semantic replacement for domain parthood.</p>
+<p>Changes in this release, in order of introduction:</p>
+<ul>
+<li>Hierarchy aggregation includes the selected <a>holon</a> and its <a>descendants</a>; <a>ancestors</a> are excluded unless explicitly imported. Direct named-graph queries remain direct. Imports contribute only their target's direct content; descendant aggregation inherits neither <a data-lt="import">imports</a> nor shapes.</li>
+<li>Shapes: the assertion shape is unchanged; <code>h:HolonIntegrityShape</code> warns on any missing registry declaration rather than only missing <a><code>h:Holon</code></a> typing; <code>h:AcyclicPartShape</code> is replaced by <code>h:CompositionHierarchyShape</code>, which checks <code>h:parentHolon</code> cardinality and acyclicity.</li>
+<li>Several holons may select the same <a>content graph</a>; graph names are not reserved per holon.</li>
+<li>Conversion: where converters place unfiled assertions, and derived blank-node mappings as the only permitted change to M.</li>
+<li>Registry and mapping validity is checked over all of M for every request.</li>
+<li><a>Global scope</a> is defined for validation and reasoning; RDF-H Graph conformance is judged together with M; the blank-node scope rule for a separately supplied M.</li>
+<li>A processing algorithm with named error conditions and a profile-selection rule, including declared mixed data. The algorithm is the single normative statement of holon resolution; the processing-context, hierarchy, and scope sections explain it and link to the governing steps.</li>
+<li>Security and privacy considerations replace the authorization note; internationalization and related-work sections are added.</li>
+<li>The Turtle-H suite is executed by an implementation for the first time: the RDF4J-based <a href="https://github.com/geoknoesis/rdf4j-rio-turtleh"><code>rdf4j-rio-turtleh</code></a> parser passes its parsing and expansion cases.</li>
+<li>The SPARQL-H suite gains reifier-profile tests, so both profiles are executed.</li>
+<li>An RDF-H test manifest covers the optional conversion and validation capabilities.</li>
+<li>The attributed scope dataset keeps each selected holon's content as a named graph beside the scope union; SPARQL-H exposes it with <code>FROM NAMED HOLONS</code>. Mixed data is specified fully and tested. A design rationale explains the single parent, the absence of an ancestor scope, single-hop imports, the additive invariant, and the explicit registry.</li>
+<li>Self-review: the conversion error joins the error table; mixed data no longer rejects an unmapped blank-node holon; global reasoning requests need no holon; a reifier-profile request over a dataset designates its graph; an undefined scope name is an unsupported-capability error.</li>
+<li>Editorial: the processing algorithm, security, and internationalization are top-level sections; validation material is consolidated; the design rationale and related work are appendices; examples are numbered and tables captioned.</li>
+<li>Every error condition of the processing algorithm gains a test, shown in the error table; the Turtle-H and SPARQL-H suites gain tests for previously untested rules, and each specification lists the requirements verified by review rather than by tests.</li>
+<li>The Turtle-H suite gains serialization tests for the serializer conformance class; <a href="https://github.com/geoknoesis/rdf4j-rio-turtleh"><code>rdf4j-rio-turtleh</code></a> passes them.</li>
+</ul>
+</section>
+<p>This revision separates authoritative M from content in both representations, defines the registry and mode-specific errors, adds two conversion preservation levels, deprecates unsupported completeness semantics, and distinguishes shapes-definition failures from data violations.</p></section><section class="informative appendix" id="open-issues"><h2>Draft Status and Future Work</h2>
+<dl>
+<dt id="issue-w3id-redirect">Vocabulary publication</dt><dd>The vocabulary redirect and stable publication artifacts remain to be completed. The namespace document is <code>https://w3id.org/rdf-h#</code>; each release has a version IRI of the form <code>https://w3id.org/rdf-h/0.8</code>, which the redirect is to serve. Release 0.7 used the fragment form <code>https://w3id.org/rdf-h#0.7</code>, which is kept as its prior-version IRI.</dd>
+<dt id="issue-turtle-h-status">Turtle-H base-language coverage</dt><dd>The Turtle-H suite tests the <code>@holon</code> extension, not inherited Turtle 1.2 syntax. Running the W3C Turtle 1.2 test suite through Turtle-H parsers would show that blocks leave the base language intact.</dd>
+<dt id="issue-contextual">Contextual assertions</dt><dd>Local theories and hypothetical statements require separate future work; they are outside the additive core.</dd>
+<dt id="issue-implementations">Independent implementations</dt><dd>Reference adapters execute the SPARQL-H suite over both profiles and declared mixed data (84 of 84) and the RDF-H conversion and validation suite (14 of 14), and the RDF4J-based <a href="https://github.com/geoknoesis/rdf4j-rio-turtleh"><code>rdf4j-rio-turtleh</code></a> parser executes the Turtle-H suite (81 of 81, including serialization and an unrepresentable-context rejection), both with EARL reports. Both come from the editors' organization, so neither is independent evidence. Advancement beyond a community draft needs at least two independent implementations of each feature with EARL reports.</dd>
+<dt id="issue-dependencies">Dependency maturity</dt><dd>The evolving RDF/SPARQL dependencies are pinned to RDF 1.2 Concepts (Candidate Recommendation Snapshot, 7 April 2026), RDF 1.2 Semantics (Candidate Recommendation Draft, 24 September 2026), Turtle 1.2 (Working Draft, 7 October 2026), and SPARQL 1.2 Query (Working Draft, 11 October 2026). The <a>reifier profile</a>, asserted-base-triple shape, and companions depend on these evolving documents. Their maturity must be reassessed before RDF-H stabilizes.</dd>
+<dt id="issue-namespace">Namespace under W3C</dt><dd>If adopted by a W3C group, the namespace would move from <code>https://w3id.org/rdf-h#</code> to a W3C-managed IRI; the w3id namespace would then redirect.</dd>
+<dt id="issue-media-type">Media type</dt><dd>Turtle-H proposes <code>text/turtle-h</code> in its registration template; IANA registration follows stabilization.</dd>
+<dt id="issue-completeness">Qualified completeness</dt><dd>Application contracts can qualify completeness;
+                a shared machine-readable claim vocabulary needs further design.</dd>
+</dl>
+</section>
+<section class="informative appendix" id="acknowledgements">
+<h2>Acknowledgements</h2>
+<p>The editors thank the Spatial Web Foundation for early feedback and discussions that have shaped this specification.</p>
+</section>
+</body>
+</html>

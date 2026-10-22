@@ -140,11 +140,13 @@ Aggregation now follows administrative descendants instead of domain mereology; 
 | [rdfh.ttl](./rdfh.ttl) | Vocabulary and five partial SHACL checks. |
 | [examples/](./examples/) | Representation and composition examples. |
 | [tests/](./tests/) | Initial conformance fixtures. |
+| [versions/](./versions/) | Frozen artifacts of each release, one directory per version IRI. |
 | [rdfh.css](./rdfh.css) | Legacy stylesheet; all specifications use standard W3C ReSpec styling. |
 
 Each document maintains its own changelog. Release tags use `rdf-h-vX.Y.Z` and
-`turtle-h-vX.Y.Z`, and `sparql-h-vX.Y.Z`. The vocabulary namespace remains `https://w3id.org/rdf-h#`;
-its redirect publication remains tracked in the specification's open issues.
+`turtle-h-vX.Y.Z`, and `sparql-h-vX.Y.Z`. The vocabulary namespace remains `https://w3id.org/rdf-h#`, and each release's frozen
+artifacts live under [versions/](./versions/) for its version IRI `https://w3id.org/rdf-h/<version>`;
+the redirect itself remains tracked in the specification's open issues.
 
 ## Contributing and license
 

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>SPARQL-H: Holon-Scoped Queries for RDF-H</title>
+<script class="remove" src="https://www.w3.org/Tools/respec/respec-w3c"></script>
+<script class="remove">
+        var respecConfig = {
+            testSuiteURI: "https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl",
+    "useW3CStyle": true,
+    "specStatus": "unofficial",
+    "publishDate": "2026-10-21",
+    "shortName": "sparql-h",
+    "version": "0.1.0",
+    "editors": [
+        {
+            "name": "Stephane Fellah",
+            "url": "https://geoknoesis.com",
+            "company": "Geoknoesis LLC",
+            "companyURL": "https://geoknoesis.com"
+        }
+    ],
+    "github": {
+        "repoURL": "https://github.com/geoknoesis/rdf-holon",
+        "branch": "main",
+        "commitHistoryURL": "https://github.com/geoknoesis/rdf-holon/commits/main/sparql-h/index.html"
+    },
+    "edDraftURI": "https://geoknoesis.github.io/rdf-holon/sparql-h/",
+    "copyrightStart": "2026",
+    "localBiblio": {
+        "RDF-H": {
+            "title": "RDF-H 0.8: Organizing RDF Content into Holons",
+            "href": "https://geoknoesis.github.io/rdf-holon/",
+            "publisher": "Geoknoesis LLC"
+        },
+        "SPARQL11-QUERY": {
+            "title": "SPARQL 1.1 Query Language",
+            "href": "https://www.w3.org/TR/sparql11-query/",
+            "publisher": "W3C"
+        },
+        "SPARQL11-PROTOCOL": {
+            "title": "SPARQL 1.1 Protocol",
+            "href": "https://www.w3.org/TR/sparql11-protocol/",
+            "publisher": "W3C"
+        },
+        "SPARQL11-ENTAILMENT": {
+            "title": "SPARQL 1.1 Entailment Regimes",
+            "href": "https://www.w3.org/TR/sparql11-entailment/",
+            "publisher": "W3C"
+        },
+        "RFC8174": {
+            "title": "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words",
+            "href": "https://www.rfc-editor.org/info/rfc8174",
+            "publisher": "IETF"
+        },
+        "SPARQL12-QUERY": {
+            "title": "SPARQL 1.2 Query Language",
+            "href": "https://www.w3.org/TR/2026/WD-sparql12-query-20261011/",
+            "publisher": "W3C",
+            "status": "Working Draft",
+            "date": "11 October 2026"
+        },
+        "RFC2119": {
+            "title": "Key words for use in RFCs to Indicate Requirement Levels",
+            "href": "https://www.rfc-editor.org/rfc/rfc2119",
+            "publisher": "IETF"
+        }
+    },
+    "otherLinks": [
+        {
+            "key": "Source",
+            "data": [
+                {
+                    "value": "Specification source",
+                    "href": "https://github.com/geoknoesis/rdf-holon/blob/main/sparql-h/index.html"
+                }
+            ]
+        }
+    ]
+};
+    </script>
+</head>
+<body>
+<section id="abstract">
+<p>A holon is an identifiable unit of RDF content. SPARQL-H adds FROM HOLON to SPARQL to query the statements assigned to a holon. The query can also select related content through parent links and explicit imports, as defined below.</p>
+</section>
+<section id="sotd"><p>This document is the frozen snapshot of SPARQL-H 0.1.0, released with RDF-H 0.8 on 2026-10-21 (repository tag <code>sparql-h-v0.1.0</code>). The <a href="https://geoknoesis.github.io/rdf-holon/sparql-h/">editor's draft</a> may be newer.</p>
+<p>This is experimental community draft 0.1.0 by Geoknoesis LLC, targeting RDF-H 0.8.
+            It is not a W3C specification and is not accepted by ordinary SPARQL parsers.
+            RDF-H does not require this extension; <a href="../#querying">standard SPARQL recipes</a> remain available.</p>
+<p>Feedback and source are in the <a href="https://github.com/geoknoesis/rdf-holon">repository</a>.
+            The document and examples use the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/LICENSE">Apache 2.0 license</a>.</p>
+</section>
+<section id="terms"><h2>Terms Used in This Specification</h2>
+<p>This specification assumes basic SPARQL knowledge. An <strong>RDF graph</strong> is a set of subject, predicate, and object triples. A <strong>dataset</strong> contains a default graph and zero or more named graphs. Ordinary query patterns read the <strong>default graph</strong>; <code>GRAPH</code> patterns select named graphs.</p>
+<p>A holon's <strong>direct content</strong>, written <code>CG(H)</code>, is the set of triples explicitly assigned (or <strong>filed</strong>) in holon H. A <strong>parent link</strong>, written <code>h:parentHolon</code>, organizes a child under an immediate parent. Following these links upward reaches <strong>ancestors</strong>; following them downward reaches <strong>descendants</strong>. An <strong>import</strong>, written <code>h:imports</code>, explicitly selects another holon's direct content.</p>
+<p>A <strong>scope</strong> selects content for a query. <strong>DIRECT</strong> selects only H's direct content. <strong>AGGREGATED</strong>, written <code>AG(H)</code>, adds all descendants' direct content. <strong>VISIBLE</strong>, written <code>VG(H)</code>, also adds the direct content of holons imported by H. These names describe data selection, not access permissions or SPARQL functions such as <code>COUNT</code>.</p>
+<p>The <dfn data-lt="source dataset">source</dfn> is the RDF-H data supplied by the calling application. Its <strong>metadata context M</strong> is the graph of declarations that control registration, graph mappings, parent links, and imports. Its <strong>registry K(M)</strong> is the set of holons explicitly registered by those declarations. A <strong>graph mapping</strong> selects the named graph containing a holon's direct content. RDF-H defines the exact registration and mapping rules.</p>
+<p><dfn data-lt="scope resolution">Scope resolution</dfn> reads these declarations and combines the selected content into a <dfn>scope graph</dfn>. Combining graphs uses a <strong>set union</strong>: each distinct triple appears once. The <dfn>query dataset</dfn> is the dataset supplied to the SPARQL engine after this step; it differs from the <a>source dataset</a>.</p>
+<p>An <strong>IRI</strong> is an identifier such as <code>https://example.org/City</code>. RDF-H's <strong>dataset profile</strong> (also called the dataset representation) stores holon content in named graphs. Its <strong>reifier profile</strong> uses RDF resources called reifiers linked to <strong>triple terms</strong>, which represent triples without asserting them. A <strong>blank node</strong> identifies a resource without an IRI; its identity must remain consistent when selected graphs are combined.</p>
+<p>An <strong>entailment regime</strong> specifies the reasoning rules used during evaluation. <strong>Simple entailment</strong> uses basic RDF matching without additional RDF Schema or OWL rules. An <strong>ontology</strong> supplies vocabulary definitions and reasoning rules. A <dfn>service profile</dfn> is an optional set of additional requirements for an endpoint that accepts queries over a network. A <strong>snapshot</strong> is a fixed version of the source data.</p></section><section class="informative" id="introduction">
+<h2>One Clause Selects the Scope</h2>
+<pre class="example nohighlight sparql-h" title="One clause selects the scope">PREFIX ex: &lt;https://example.org/&gt;
+SELECT ?subject ?value
+FROM HOLON ex:City SCOPE AGGREGATED
+WHERE { ?subject ex:value ?value }
+ORDER BY ?value</pre>
+<p>The processor combines the city's content and its descendants' content into one default graph, then evaluates
+            the remaining query with a standard SPARQL engine. The <a>source dataset</a> is supplied by the application or endpoint.</p>
+<table><caption>Holon clauses and the default graph they select</caption><thead><tr><th>Clause</th><th>Default graph</th></tr></thead><tbody>
+<tr><td><code>FROM HOLON ex:City</code></td><td>Direct city content; DIRECT is the default.</td></tr>
+<tr><td><code>FROM HOLON ex:City SCOPE DIRECT</code></td><td>Direct city content.</td></tr>
+<tr><td><code>FROM HOLON ex:City SCOPE AGGREGATED</code></td><td>City content and all administrative descendants' direct content.</td></tr>
+<tr><td><code>FROM HOLON ex:City SCOPE VISIBLE</code></td><td>Aggregated city content plus the direct content of holons explicitly imported by the city.</td></tr>
+<tr><td><code>FROM HOLON ex:City SCOPE AGGREGATED FROM NAMED HOLONS</code></td><td>As for AGGREGATED, and each selected holon's direct content is also a named graph, named by the holon's IRI, so <code>GRAPH ?h</code> tells which holon a statement came from.</td></tr>
+</tbody></table>
+<p>The three scope names select data. They do not change SPARQL aggregate functions such as <code>COUNT</code>.</p>
+</section>
+<section id="scope">
+<h2>Scope and Dependencies</h2>
+<p>The key words <em class="rfc2119" title="MUST">MUST</em>, <em class="rfc2119" title="MUST NOT">MUST NOT</em>, <em class="rfc2119" title="SHOULD">SHOULD</em>, <em class="rfc2119" title="SHOULD NOT">SHOULD NOT</em>, and <em class="rfc2119" title="MAY">MAY</em> in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here. Examples and sections marked informative
+            are explanatory; other sections define requirements. RDF-H defines holon identity, direct content extraction,
+            graph mappings, hierarchy, and imports [[RDF-H]]. This specification only adds query syntax and its evaluation contract.</p>
+<p>Version 0.1.0 supports outermost <code>SELECT</code>, <code>ASK</code>, and explicit-template <code>CONSTRUCT</code> queries
+            over SPARQL 1.1-compatible content graphs [[SPARQL11-QUERY]]. The grammar positions it uses are unchanged in SPARQL 1.2
+            [[SPARQL12-QUERY]], and a processor built on a SPARQL 1.2 engine applies the same rules; evaluating reifier-profile content
+            that contains triple terms requires SPARQL 1.2. It defines no updates, new result format, media type,
+            or HTTP protocol parameter. <code>DESCRIBE</code>, template-less CONSTRUCT shorthand, multiple holon clauses,
+            and holon clauses inside subqueries are outside this version and <em class="rfc2119" title="MUST">MUST</em> be rejected in SPARQL-H input.</p>
+<p>A processor <em class="rfc2119" title="MUST">MUST</em> declare support for the RDF-H dataset representation, reifier representation, or both.
+            A reifier processor needs RDF 1.2-capable content extraction; this draft does not add triple-term syntax to SPARQL 1.1.
+            It <em class="rfc2119" title="MUST">MUST</em> reject extracted content it cannot faithfully evaluate, rather than drop unsupported terms.
+            Turtle-H support is independent.</p>
+</section>
+<section id="syntax">
+<h2>Syntax</h2>
+<p>Use one holon clause where the outer query's ordinary dataset clauses would occur: after the SELECT clause,
+            after the CONSTRUCT template, or after ASK. The query body and solution modifiers follow unchanged.</p>
+<p>The rules below use EBNF (Extended Backus–Naur Form). <code>::=</code> defines a rule, <code>|</code> separates alternatives, and <code>?</code> makes the preceding group optional. <code>Prologue</code> contains BASE and PREFIX declarations; <code>ConstructTemplate</code> describes output triples; <code>WhereClause</code> contains query patterns; <code>SolutionModifier</code> covers grouping, ordering, and limits; and <code>ValuesClause</code> supplies trailing VALUES bindings, if present. Other rule names retain their SPARQL 1.1 definitions.</p><pre class="nohighlight">QueryUnitH        ::= Prologue (SelectQueryH | ConstructQueryH | AskQueryH) ValuesClause
+SelectQueryH      ::= SelectClause HolonDatasetClause WhereClause SolutionModifier
+ConstructQueryH   ::= 'CONSTRUCT' ConstructTemplate HolonDatasetClause WhereClause SolutionModifier
+AskQueryH         ::= 'ASK' HolonDatasetClause WhereClause SolutionModifier
+HolonDatasetClause ::= 'FROM' 'HOLON' iri ('SCOPE' ScopeMode)? NamedHolonsClause?
+ScopeMode         ::= 'DIRECT' | 'AGGREGATED' | 'VISIBLE'
+NamedHolonsClause ::= 'FROM' 'NAMED' 'HOLONS'</pre>
+<p>Unchanged productions, whitespace, comments, IRI escaping, BASE and PREFIX resolution follow the SPARQL 1.1 grammar.
+            <code>ValuesClause</code> includes its ordinary empty alternative. Keywords are case-insensitive, with standard token boundaries.
+            The new keywords apply only in the positions defined here; matching words inside comments, strings, or IRIs are not clauses.</p>
+<p>A keyword token ends at whitespace, a comment, or a character that cannot continue a name; a following <code>:</code>
+            continues a prefixed name instead. The characters <code>HOLON:</code> (in any case) therefore begin the SPARQL prefixed name
+            <code>HOLON:…</code>, never the <code>HOLON</code> keyword, so <code>FROM HOLON:City</code> is an ordinary <code>FROM</code>
+            clause and the query contains no holon clause. A processor <em class="rfc2119" title="MUST NOT">MUST NOT</em> read it as
+            <code>FROM HOLON :City</code>. A prefixed holon name <em class="rfc2119" title="MUST">MUST</em> be separated from <code>HOLON</code>
+            by whitespace or a comment; an IRI reference such as <code>HOLON&lt;https://example.org/City&gt;</code> needs no separator, as in SPARQL.</p>
+<ul>
+<li>The holon is a constant IRI, written as an IRI reference or prefixed name. Variables, literals, and blank-node labels are not allowed.</li>
+<li>Omitting SCOPE means DIRECT. Unknown scope names are errors; processors <em class="rfc2119" title="MUST NOT">MUST NOT</em> substitute another scope.</li>
+<li>Exactly one outermost holon clause is required. Ordinary <code>FROM</code> and <code>FROM NAMED</code> clauses <em class="rfc2119" title="MUST NOT">MUST NOT</em> be combined with it. <code>FROM NAMED HOLONS</code> is the only named-graph selector; it takes no IRI and follows the scope, when one is given.</li>
+<li>Ordinary SPARQL subqueries are allowed and inherit the selected <a>query dataset</a>; they <em class="rfc2119" title="MUST NOT">MUST NOT</em> contain a holon clause.</li>
+</ul>
+<p>A service <em class="rfc2119" title="MAY">MAY</em> also accept ordinary SPARQL without a holon clause. Such input is ordinary SPARQL, not an implicit
+            SPARQL-H query; the service <em class="rfc2119" title="MUST">MUST</em> preserve its normal dataset semantics and <em class="rfc2119" title="MUST">MUST</em> be able to report that the input was not treated as SPARQL-H. A conformance adapter answers a SPARQL-H syntax request for such input with a syntax rejection, not with acceptance.</p>
+</section>
+<section id="evaluation">
+<h2>Evaluation</h2>
+<section id="source-dataset">
+<h3>Resolve the Source</h3>
+<p>The query request <em class="rfc2119" title="MUST">MUST</em> identify a source data graph or dataset and the representation used. Resolve BASE and PREFIX declarations
+                before looking up the holon. Resolving a holon IRI <em class="rfc2119" title="MUST NOT">MUST NOT</em> automatically fetch a document from that IRI on the Web.</p>
+<p>The selected holon <em class="rfc2119" title="MUST">MUST</em> be known under the declared RDF-H representation; an unknown holon is a resolution error.
+                A known empty holon is valid and produces an empty direct graph. Apply RDF-H content-graph mappings and import-resolution errors.
+                A missing named graph for a known holon means empty content, not an unknown holon.</p>
+<p>Evaluation is defined over one fixed set of inputs: the source data and M. Implementations <em class="rfc2119" title="MUST">MUST</em> produce results equivalent to that context; transaction mechanisms, revision identifiers, and caching are service concerns discussed in the <a>service profile</a>.</p>
+<p>The query request supplies the <a href="../#dataset-resolution">RDF-H processing context</a>, including M.
+For dataset input, M defaults to the source default graph. Reifier input must explicitly supply M; it is never inferred from arbitrary asserted content.
+Known holons are exactly K(M). Apply the checks of the <a href="../#processing-model">RDF-H processing algorithm</a> for the requested scope: DIRECT ignores hierarchy/import errors; AGGREGATED and VISIBLE validate the complete parent relation in M;
+VISIBLE resolves only the selected root's direct imports. Inferred typing never registers a missing endpoint.</p></section>
+<section id="scope-resolution">
+<h3>Build the Scope Graph</h3>
+<p>Use the <a href="../#step-scope">RDF-H scope definitions</a>. For selected holon H:</p>
+<pre class="nohighlight">DIRECT     -&gt; CG(H)
+AGGREGATED -&gt; AG(H) = union of CG(H) and every descendant's direct content
+VISIBLE    -&gt; VG(H) = AG(H) union direct content of targets imported by H</pre>
+<p>Descendants follow <code>h:parentHolon+</code> toward H. Ancestors are excluded unless explicitly imported.
+                Imports are single-hop: imports on ancestors or descendants are not inherited, and an imported target's descendants
+                and imports are not expanded. Shape imports do not affect query content.</p>
+<p>The <a>scope graph</a> <em class="rfc2119" title="MUST">MUST</em> be a set union before query evaluation. A repeated triple appears once in that graph;
+                normal SPARQL solution multiplicity still applies. Preserve shared blank-node identity across the original <a>source dataset</a>.
+                Statements that record reifier memberships and other metadata enter the scope graph only if explicitly filed as content.</p>
+<p>DIRECT requires only content extraction. AGGREGATED and VISIBLE require RDF-H composition support.
+                A processor lacking that capability <em class="rfc2119" title="MUST">MUST</em> report an unsupported-capability error, not fall back to DIRECT.
+                Validate mappings and apply the mode-specific hierarchy and import checks before resolving the selected scope.</p>
+<p>Only declarations in M participate. A management-predicate statement filed only as content does not affect resolution.</p></section>
+<section id="query-dataset">
+<h3>Evaluate Ordinary SPARQL</h3>
+<ol>
+<li>Build a <a>query dataset</a> whose default graph is the <a>scope graph</a>. Without <code>FROM NAMED HOLONS</code> its named-graph set is empty; with it, the named graphs are those of the RDF-H <a href="../#dfn-attributed-scope-dataset">attributed scope dataset</a>: one per selected holon, named by the holon identifier (an IRI or a blank node, including blank-node descendants or import targets) and holding that holon's direct content.</li>
+<li>Remove the parsed holon clause from the query syntax tree, preserving all other query elements.</li>
+<li>Evaluate the resulting standard SPARQL query against that query dataset under the declared entailment regime.</li>
+</ol>
+<p>Joins and property paths can cross statements originating in different selected holons because they are evaluated
+                over the union graph. <code>ORDER BY</code>, grouping, LIMIT, OFFSET, and trailing VALUES keep their ordinary semantics.</p>
+<p>Explicit <code>GRAPH</code> patterns keep their normal named-graph meaning. Without <code>FROM NAMED HOLONS</code> the
+                query dataset has no named graphs, so those patterns contribute no matches; they <em class="rfc2119" title="MUST NOT">MUST NOT</em> be reinterpreted as a scope request.
+                With it, <code>GRAPH ?h</code> binds <code>?h</code> to each selected holon whose direct content matches, so a statement filed in several selected holons matches once per holon, while the default graph remains the deduplicated union.
+                That does not imply every surrounding query is empty: OPTIONAL, UNION, and NOT EXISTS retain their normal semantics.</p>
+<p>A processor <em class="rfc2119" title="MAY">MAY</em> compute the scope graph as a view or evaluate it without storing a separate copy, provided the results are equivalent.
+                It <em class="rfc2119" title="MUST NOT">MUST NOT</em> merely wrap a multi-pattern query in <code>GRAPH ?g</code>, which would constrain the patterns to one source graph
+                and can miss cross-holon joins. Scope graphs are read-only views; executing the query <em class="rfc2119" title="MUST NOT">MUST NOT</em> modify holon content or memberships.</p>
+</section>
+<section id="entailment">
+<h3>Reasoning Rules</h3>
+<p>When the caller supplies no entailment regime, the processor <em class="rfc2119" title="MUST">MUST</em> use simple entailment. Explicit ontology inputs and supported regimes form part of the evaluation context.
+                Extract asserted content and resolve the scope before applying query-time entailment. Inferences <em class="rfc2119" title="MUST NOT">MUST NOT</em> implicitly change
+                hierarchy, import selection, or source memberships. A request names an entailment regime by IRI, as in
+                [[SPARQL11-ENTAILMENT]]; simple entailment is <code>http://www.w3.org/ns/entailment/Simple</code>.
+                A requested regime the processor does not support is an <code>unsupported-capability</code> error.</p>
+</section>
+</section>
+<section id="errors"><h2>Core Error Categories</h2><table><caption>Error categories</caption><thead><tr><th>Error category</th><th>Examples</th></tr></thead><tbody>
+<tr><td>Syntax</td><td>Unknown scope, variable holon, repeated or nested holon clause, unsupported query form.</td></tr>
+<tr><td>Dataset conflict</td><td>FROM/FROM NAMED mixed with FROM HOLON, or standard protocol dataset selectors present.</td></tr>
+<tr><td>Resolution</td><td>Any RDF-H <a href="../#error-conditions">error condition</a> raised by <a>scope resolution</a>: unknown holon, unresolved import, invalid mapping, invalid applicable parent hierarchy.</td></tr>
+<tr><td>Unsupported capability</td><td>Unavailable representation, composition, entailment regime, or unsupported content terms.</td></tr>
+<tr><td>Execution</td><td>Authorization failure, inconsistent snapshot, resource limit, or SPARQL evaluation failure.</td></tr>
+</tbody></table><p>Processors <em class="rfc2119" title="MUST">MUST</em> distinguish failure from a valid empty result. Error encodings and transport status codes are implementation-defined
+            in this version; implementations <em class="rfc2119" title="MUST">MUST</em> document them. Where a processor reports
+            an error category, it <em class="rfc2119" title="SHOULD">SHOULD</em> use the identifiers <code>syntax</code>,
+            <code>dataset-conflict</code>, <code>resolution</code>, <code>unsupported-capability</code>, and <code>execution</code>;
+            the conformance suite uses them to compare expected errors across implementations and additionally requires the exact RDF-H <code>condition</code> for fixtures that name one. A processor that reports finer detail
+            <em class="rfc2119" title="SHOULD">SHOULD</em> name the RDF-H error condition, such as <code>parent-cycle</code>, alongside the category.</p></section><section id="protocol">
+<h2>Optional Service Profile</h2>
+<p>Core conformance covers syntax, <a>scope resolution</a>, query-dataset construction, and evaluation errors. An implementation claiming the optional <a>service profile</a> <em class="rfc2119" title="MUST">MUST</em> also satisfy this section. This profile does not define a new network message format.</p><p>This draft defines no transport. A front end may receive source context through application configuration, a dedicated endpoint,
+            or a documented API. A regular SPARQL endpoint cannot be assumed to parse <code>FROM HOLON</code>.</p>
+<p>A SPARQL-H front end <em class="rfc2119" title="MUST">MUST</em> reject standard protocol <code>default-graph-uri</code> or <code>named-graph-uri</code> dataset selectors
+            combined with a holon clause. The source context is supplied separately; those selectors would otherwise conflict with the resolved <a>query dataset</a>.
+            Ordinary SPARQL requests remain subject to the standard protocol's dataset precedence rules [[SPARQL11-PROTOCOL]].</p>
+<p>Before reporting results, a processor <em class="rfc2119" title="MUST">MUST</em> identify the <a>source dataset</a> or snapshot, resolved holon IRI, effective scope,
+            source representation, entailment regime, and any filtering. Metadata may be returned alongside results; standard SPARQL
+            result documents and variable bindings <em class="rfc2119" title="MUST NOT">MUST NOT</em> be changed to inject this information.</p>
+<p>Scope selection grants no authorization. The service <em class="rfc2119" title="MUST">MUST</em> either fail when selected data is not accessible, or explicitly
+                report that the result uses a filtered view. It <em class="rfc2119" title="MUST NOT">MUST NOT</em> represent a filtered view as the full RDF-H scope.
+                Scope and resolution errors occur before query evaluation and cannot be suppressed by a query's SERVICE SILENT.</p><p>Standard <code>SERVICE</code> patterns retain their remote-query meaning and are subject to host service policy.
+                Local scope is not a remote-data or network-access boundary. A service rejecting federation <em class="rfc2119" title="MUST">MUST</em> report that policy error;
+                it <em class="rfc2119" title="MUST NOT">MUST NOT</em> silently reinterpret SERVICE as a local graph operation.</p><p>A service-profile processor <em class="rfc2119" title="MUST">MUST</em> report the effective entailment regime and ontology inputs, a consistent source snapshot or equivalent revision context, and its service-profile claim. Core adapters may expose the same details without changing result bindings.</p></section>
+<section class="informative" id="examples">
+<h2>Examples</h2>
+<p>The <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/examples/rdf-h/composition/scopes.trig">shared dataset</a> contains City, District, Neighborhood, ancestors,
+            and an explicit Metro import. Querying <code>ex:value</code> gives:</p>
+<table><caption>Values per scope in the examples</caption><thead><tr><th>Scope</th><th>Values</th></tr></thead><tbody>
+<tr><td>DIRECT (or omitted)</td><td>city</td></tr>
+<tr><td>AGGREGATED</td><td>city, district, neighborhood</td></tr>
+<tr><td>VISIBLE</td><td>city, district, metro, neighborhood</td></tr>
+</tbody></table>
+<pre class="example nohighlight sparql-h" title="ASK over the aggregated scope">PREFIX ex: &lt;https://example.org/&gt;
+ASK
+FROM HOLON ex:City SCOPE AGGREGATED
+WHERE { ex:District ex:value "district" }</pre>
+<p>The ASK result is true. The same query with DIRECT returns false.</p>
+<pre class="example nohighlight sparql-h" title="CONSTRUCT over the visible scope">PREFIX ex: &lt;https://example.org/&gt;
+CONSTRUCT { ?subject ex:value ?value }
+FROM HOLON ex:City SCOPE VISIBLE
+WHERE { ?subject ex:value ?value }</pre>
+<p>This produces four value statements.</p>
+<pre class="example nohighlight sparql-h" title="Attributing statements to holons with FROM NAMED HOLONS">PREFIX ex: &lt;https://example.org/&gt;
+SELECT ?holon ?value
+FROM HOLON ex:City SCOPE AGGREGATED FROM NAMED HOLONS
+WHERE { GRAPH ?holon { ?s ex:value ?value } }
+ORDER BY ?value</pre>
+<table><caption>Bindings of the attribution example</caption><thead><tr><th><code>?holon</code></th><th><code>?value</code></th></tr></thead><tbody>
+<tr><td><code>ex:City</code></td><td>city</td></tr>
+<tr><td><code>ex:District</code></td><td>district</td></tr>
+<tr><td><code>ex:Neighborhood</code></td><td>neighborhood</td></tr>
+</tbody></table>
+<p>The same query without <code>GRAPH</code> returns the three values from the default graph, which stays the deduplicated union. <a href="https://github.com/geoknoesis/rdf-holon/tree/rdf-h-v0.8.0/examples/sparql-h">Download examples and their expected standard-SPARQL translations</a>.</p>
+</section>
+<section id="conformance">
+<p>A conforming SPARQL-H processor <em class="rfc2119" title="MUST">MUST</em> parse the grammar and restrictions, preserve IRI resolution,
+            implement DIRECT and its declared representation support, and support the three query forms defined here.
+            It <em class="rfc2119" title="MUST">MUST</em> implement AGGREGATED and VISIBLE when claiming composition support, or report the defined capability error.</p>
+<p>A core processor <em class="rfc2119" title="MUST">MUST</em> preserve the input context, shared blank-node identity, the <a>query dataset</a> as defined (default-only unless <code>FROM NAMED HOLONS</code> is given, which it <em class="rfc2119" title="MUST">MUST</em> support), and specified error behavior. It <em class="rfc2119" title="MUST">MUST</em> document supported representations, composition, and regimes. Services <em class="rfc2119" title="MAY">MAY</em> additionally claim the optional <a>service profile</a>, including its metadata, transport-conflict, authorization/filtering, and federation requirements.</p>
+<p>The <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/sparql-h/manifest.ttl">RDF test manifest</a> uses W3C manifest infrastructure with project-specific SPARQL-H test classes.
+See the <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/README.md">suite guide</a> for implementation adapters, result comparison, and EARL reporting.
+Manifest integrity and expected-result smoke checks do not establish parser conformance; a small reference adapter for both RDF-H profiles is supplied, with limits documented in the suite guide.</p><p>The <a href="https://github.com/geoknoesis/rdf-holon/blob/rdf-h-v0.8.0/tests/reference_sparql_h.py">reference adapter</a> parses source using the grammar plus RDFLib base-language productions, and resolves scopes with a separate executable context model. It does not consume expected lowerings or results. It is a test implementation, not a production service or proof of independent multi-implementation interoperability.</p>
+<p>The suite exercises the core requirements that a request and its result can show: syntax and its restrictions, both RDF-H profiles, every scope, the default-only query dataset, cross-holon joins, entailment defaults, and each error category. It does not exercise the optional <a>service profile</a>, for which this version defines no standard transport; the duties to declare capabilities and document error encodings; the prohibition on fetching holon IRIs; or read-only evaluation. Implementations show these by documentation and review. A documented service adapter can make transport conflicts, federation policy, filtering disclosures, network access, and read-only behavior testable; the lack of a standard transport does not make those duties inherently untestable.</p></section>
+<section class="informative" id="security">
+<h2>Security and Privacy Considerations</h2>
+<p>The RDF-H security and privacy considerations apply to the source data, M, and <a>scope resolution</a>. SPARQL-H adds the usual SPARQL concerns: query cost, which aggregated and visible scopes can multiply; <code>SERVICE</code> patterns, which reach remote endpoints regardless of the local scope; and result metadata, which may reveal the registry and hierarchy to a querier who cannot otherwise read M; <code>FROM NAMED HOLONS</code> likewise exposes the identifiers of every selected holon as graph names. A service that filters by authorization reports the filtering as the <a>service profile</a> requires and never presents a filtered view as the full scope.</p>
+</section>
+<section class="informative appendix" id="implementation">
+<h2>Implementation Guidance</h2>
+<p>A small front end can parse the extra dataset clause, resolve content with RDF-H's existing
+            <a href="https://github.com/geoknoesis/rdf-holon/tree/rdf-h-v0.8.0/examples/rdf-h/composition/queries">standard SPARQL scope recipes</a>, and hand the lowered query and <a>scope graph</a> to an existing engine.
+            This is a query-and-context translation, not a universally self-contained SPARQL string rewrite.</p>
+<p>Extend a parser or use a token-aware grammar. A regular-expression replacement can corrupt literals, comments,
+            IRIs, or nested queries. Preserve source positions for diagnostics. Cache scope graphs only with a source revision,
+            holon, scope, authorization context, and regime sufficient to prevent stale or cross-user reuse.</p>
+<p>Materialization is adequate for a prototype; virtual unions and indexed descendant traversal can avoid large copies.
+            Keep the same result semantics, especially cross-holon joins and duplicate elimination before aggregates.</p>
+</section>
+<section class="informative appendix" id="changelog">
+<h2>Draft Status</h2>
+<p>0.1.0 introduces one holon clause, three scope modes, default-only query datasets with an optional <code>FROM NAMED HOLONS</code> attribution selector, and read-only SELECT, ASK,
+            and explicit-template CONSTRUCT. An experimental reference adapter for both RDF-H profiles parses source queries; no standard endpoint or full RDF 1.2 query support is claimed.</p>
+<p>Future work: independent implementation interoperability, transport negotiation, test coverage for SPARQL 1.2 query features such as triple-term patterns, and <code>DESCRIBE</code>.
+            Any extension must preserve the distinction between direct content and explicit <a>scope resolution</a>.</p>
+</section>
+</body>
+</html>
