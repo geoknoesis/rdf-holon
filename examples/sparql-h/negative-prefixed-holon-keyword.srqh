@@ -1,0 +1,2 @@
+PREFIX HOLON: <https://example.org/>
+SELECT * FROM HOLON:City WHERE { ?s ?p ?o }

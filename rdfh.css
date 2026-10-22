@@ -23,8 +23,16 @@
     --rdfh-content: 52rem;
 }
 
-/* ---- Page frame (layout only; header keeps its original typography) ---- */
+/* Both specifications use a light page, independent of browser theme. */
+html {
+    color-scheme: light;
+    background: #fff;
+}
+
+/* ---- Page frame (header keeps its original typography) --------------- */
 html body {
+    background: #fff;
+    color: var(--rdfh-ink);
     max-width: var(--rdfh-content);
     margin: 0 auto;
     padding: 1.5rem 1.5rem 6rem;

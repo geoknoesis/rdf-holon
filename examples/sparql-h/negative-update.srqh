@@ -1,0 +1,2 @@
+PREFIX ex: <https://example.org/>
+DELETE WHERE { ?s ?p ?o }

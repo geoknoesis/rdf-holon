@@ -1,0 +1,57 @@
+{
+  "metadataGraph": [
+    [
+      {
+        "type": "bnode",
+        "value": "h"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#Holon"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "h"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#contentGraph"
+      },
+      {
+        "type": "literal",
+        "value": "derived graph name"
+      }
+    ]
+  ],
+  "holons": [
+    {
+      "holon": {
+        "type": "bnode",
+        "value": "h"
+      },
+      "content": [
+        [
+          {
+            "type": "uri",
+            "value": "https://example.org/a"
+          },
+          {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          {
+            "type": "literal",
+            "value": "a"
+          }
+        ]
+      ]
+    }
+  ],
+  "derivedMappings": true
+}

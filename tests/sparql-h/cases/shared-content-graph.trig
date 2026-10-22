@@ -1,0 +1,6 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+# City maps to the graph that is also holon Other's default graph; both share direct content.
+ex:City a h:Holon ; h:contentGraph ex:Other .
+ex:Other a h:Holon .
+ex:Other { ex:Other ex:value "other" . }
+ex:City { ex:City ex:value "decoy" . }

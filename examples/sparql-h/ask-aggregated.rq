@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+ASK
+WHERE { ex:District ex:value "district" }

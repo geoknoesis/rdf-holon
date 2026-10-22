@@ -1,0 +1,23 @@
+{
+  "head": {
+    "vars": [
+      "value"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "value": {
+          "type": "literal",
+          "value": "city"
+        }
+      },
+      {
+        "value": {
+          "type": "literal",
+          "value": "shared"
+        }
+      }
+    ]
+  }
+}

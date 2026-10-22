@@ -1,0 +1,8 @@
+@prefix ex: <https://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+ex:CityShapes {
+    ex:StreetShape a sh:NodeShape ; sh:targetClass ex:Street ;
+        sh:property [ sh:path ex:name ; sh:minCount 1 ] .
+}
+# A property shape must have exactly one sh:path; this one has none.
+ex:BadShapes { ex:BadShape a sh:PropertyShape ; sh:minCount 1 . }

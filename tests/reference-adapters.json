@@ -1,0 +1,10 @@
+{
+  "sparql-h": [
+    "python",
+    "tests/reference_sparql_h.py"
+  ],
+  "rdf-h": [
+    "python",
+    "tests/reference_rdfh.py"
+  ]
+}

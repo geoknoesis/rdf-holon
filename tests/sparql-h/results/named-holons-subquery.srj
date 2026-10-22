@@ -1,0 +1,45 @@
+{
+  "head": {
+    "vars": [
+      "h",
+      "n"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "h": {
+          "type": "uri",
+          "value": "https://example.org/City"
+        },
+        "n": {
+          "type": "literal",
+          "value": "1",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+        }
+      },
+      {
+        "h": {
+          "type": "uri",
+          "value": "https://example.org/District"
+        },
+        "n": {
+          "type": "literal",
+          "value": "1",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+        }
+      },
+      {
+        "h": {
+          "type": "uri",
+          "value": "https://example.org/Neighborhood"
+        },
+        "n": {
+          "type": "literal",
+          "value": "1",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+        }
+      }
+    ]
+  }
+}

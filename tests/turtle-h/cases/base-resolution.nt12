@@ -1,0 +1,4 @@
+<https://example.org/base/s> <https://example.org/p> <https://example.org/base/o> .
+_:r1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/base/s> <https://example.org/p> <https://example.org/base/o> )>> .
+_:r1 <https://w3id.org/rdf-h#inHolon> <https://example.org/base/H> .
+<https://example.org/base/H> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/rdf-h#Holon> .

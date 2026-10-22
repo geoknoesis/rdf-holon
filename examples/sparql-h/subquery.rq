@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+SELECT ?value
+WHERE { { SELECT ?value WHERE { ?s ex:value ?value } } } ORDER BY ?value

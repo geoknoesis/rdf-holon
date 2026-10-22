@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+SELECT ?text
+FROM HOLON ex:City
+WHERE { BIND("FROM HOLON ex:Other SCOPE VISIBLE" AS ?text) } # FROM HOLON is a comment here

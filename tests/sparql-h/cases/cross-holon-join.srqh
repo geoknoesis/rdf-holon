@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+PREFIX h: <https://w3id.org/rdf-h#>
+SELECT ?name FROM HOLON ex:City SCOPE AGGREGATED WHERE { ex:City ex:hasDistrict ?d . ?d ex:name ?name }

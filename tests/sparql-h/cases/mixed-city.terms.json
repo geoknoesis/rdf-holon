@@ -1,0 +1,100 @@
+{
+  "graph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Extra"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "extra"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/Extra"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "extra"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r2"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/Elsewhere"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "elsewhere"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r2"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,1 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> . ex:City a h:Holon ; h:contentGraph ex:Actual . ex:Actual { ex:City ex:value "mapped" . } ex:City { ex:City ex:value "decoy" . }

@@ -1,0 +1,10 @@
+PREFIX h: <https://w3id.org/rdf-h#>
+PREFIX ex: <https://example.org/>
+
+CONSTRUCT { ?s ?p ?o }
+WHERE {
+    ?holon h:parentHolon* ex:City .
+    OPTIONAL { ?holon h:contentGraph ?declaredGraph }
+    BIND(COALESCE(?declaredGraph, ?holon) AS ?graph)
+    GRAPH ?graph { ?s ?p ?o }
+}

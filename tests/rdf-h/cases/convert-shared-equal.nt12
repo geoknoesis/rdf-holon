@@ -1,0 +1,6 @@
+<https://example.org/s> <https://example.org/p> <https://example.org/o> .
+<https://example.org/rA> <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/s> <https://example.org/p> <https://example.org/o> )>> .
+<https://example.org/rA> <https://w3id.org/rdf-h#inHolon> <https://example.org/A> .
+<https://example.org/s> <https://example.org/p> <https://example.org/o> .
+<https://example.org/rB> <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/s> <https://example.org/p> <https://example.org/o> )>> .
+<https://example.org/rB> <https://w3id.org/rdf-h#inHolon> <https://example.org/B> .

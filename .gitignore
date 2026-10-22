@@ -1,2 +1,5 @@
 CLAUDE.md
 .vscode/
+__pycache__/
+/tmp/conformance.ttl
+/tmp/conformance.json

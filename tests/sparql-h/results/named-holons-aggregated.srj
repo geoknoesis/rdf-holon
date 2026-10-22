@@ -1,0 +1,42 @@
+{
+  "head": {
+    "vars": [
+      "h",
+      "value"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "h": {
+          "type": "uri",
+          "value": "https://example.org/City"
+        },
+        "value": {
+          "type": "literal",
+          "value": "city"
+        }
+      },
+      {
+        "h": {
+          "type": "uri",
+          "value": "https://example.org/District"
+        },
+        "value": {
+          "type": "literal",
+          "value": "district"
+        }
+      },
+      {
+        "h": {
+          "type": "uri",
+          "value": "https://example.org/Neighborhood"
+        },
+        "value": {
+          "type": "literal",
+          "value": "neighborhood"
+        }
+      }
+    ]
+  }
+}

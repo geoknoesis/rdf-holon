@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+PREFIX h: <https://w3id.org/rdf-h#>
+SELECT ?x FROM HOLON ex:City WHERE { ?x a ex:Structure }

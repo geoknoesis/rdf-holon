@@ -1,0 +1,4 @@
+<https://example.org/s> <https://example.org/says> <<( <https://example.org/a> <https://example.org/b> <https://example.org/c> )>> .
+_:r1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/s> <https://example.org/says> <<( <https://example.org/a> <https://example.org/b> <https://example.org/c> )>> )>> .
+_:r1 <https://w3id.org/rdf-h#inHolon> <https://example.org/H> .
+<https://example.org/H> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/rdf-h#Holon> .

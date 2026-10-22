@@ -1,0 +1,4 @@
+@prefix ex: <https://example.org/> .
+@prefix h: <https://w3id.org/rdf-h#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@holon ex:H { ex:s ex:p ex:o ~ ex:ann {| ex:source ex:Doc |} . }

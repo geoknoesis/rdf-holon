@@ -1,0 +1,200 @@
+{
+  "specification": "SPARQL-H 0.1.0",
+  "source": "../../examples/rdf-h/composition/scopes.trig",
+  "positive": [
+    {
+      "id": "direct",
+      "query": "../../examples/sparql-h/direct.srqh",
+      "lowered": "../../examples/sparql-h/direct.rq",
+      "scope": "direct",
+      "resultKind": "select",
+      "expected": [
+        "city"
+      ]
+    },
+    {
+      "id": "default",
+      "query": "../../examples/sparql-h/default.srqh",
+      "lowered": "../../examples/sparql-h/default.rq",
+      "scope": "direct",
+      "resultKind": "select",
+      "expected": [
+        "city"
+      ]
+    },
+    {
+      "id": "aggregated",
+      "query": "../../examples/sparql-h/aggregated.srqh",
+      "lowered": "../../examples/sparql-h/aggregated.rq",
+      "scope": "aggregated",
+      "resultKind": "select",
+      "expected": [
+        "city",
+        "district",
+        "neighborhood"
+      ]
+    },
+    {
+      "id": "visible",
+      "query": "../../examples/sparql-h/visible.srqh",
+      "lowered": "../../examples/sparql-h/visible.rq",
+      "scope": "visible",
+      "resultKind": "select",
+      "expected": [
+        "city",
+        "district",
+        "metro",
+        "neighborhood"
+      ]
+    },
+    {
+      "id": "ask-aggregated",
+      "query": "../../examples/sparql-h/ask-aggregated.srqh",
+      "lowered": "../../examples/sparql-h/ask-aggregated.rq",
+      "scope": "aggregated",
+      "resultKind": "ask",
+      "expected": true
+    },
+    {
+      "id": "ask-direct",
+      "query": "../../examples/sparql-h/ask-direct.srqh",
+      "lowered": "../../examples/sparql-h/ask-direct.rq",
+      "scope": "direct",
+      "resultKind": "ask",
+      "expected": false
+    },
+    {
+      "id": "construct-visible",
+      "query": "../../examples/sparql-h/construct-visible.srqh",
+      "lowered": "../../examples/sparql-h/construct-visible.rq",
+      "scope": "visible",
+      "resultKind": "construct",
+      "expected": [
+        "city",
+        "district",
+        "metro",
+        "neighborhood"
+      ]
+    },
+    {
+      "id": "count-visible",
+      "query": "../../examples/sparql-h/count-visible.srqh",
+      "lowered": "../../examples/sparql-h/count-visible.rq",
+      "scope": "visible",
+      "resultKind": "count",
+      "expected": 4
+    },
+    {
+      "id": "named-graph",
+      "query": "../../examples/sparql-h/named-graph.srqh",
+      "lowered": "../../examples/sparql-h/named-graph.rq",
+      "scope": "aggregated",
+      "resultKind": "ask",
+      "expected": false
+    },
+    {
+      "id": "lexical-content",
+      "query": "../../examples/sparql-h/lexical-content.srqh",
+      "lowered": "../../examples/sparql-h/lexical-content.rq",
+      "scope": "direct",
+      "resultKind": "select",
+      "expected": [
+        "FROM HOLON ex:Other SCOPE VISIBLE"
+      ]
+    },
+    {
+      "id": "case-insensitive",
+      "query": "../../examples/sparql-h/case-insensitive.srqh",
+      "lowered": "../../examples/sparql-h/case-insensitive.rq",
+      "scope": "direct",
+      "resultKind": "select",
+      "expected": [
+        "city"
+      ]
+    },
+    {
+      "id": "trailing-values",
+      "query": "../../examples/sparql-h/trailing-values.srqh",
+      "lowered": "../../examples/sparql-h/trailing-values.rq",
+      "scope": "visible",
+      "resultKind": "select",
+      "expected": [
+        "metro"
+      ]
+    },
+    {
+      "id": "subquery",
+      "query": "../../examples/sparql-h/subquery.srqh",
+      "lowered": "../../examples/sparql-h/subquery.rq",
+      "scope": "aggregated",
+      "resultKind": "select",
+      "expected": [
+        "city",
+        "district",
+        "neighborhood"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "unknown-scope",
+      "query": "../../examples/sparql-h/negative-unknown-scope.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "variable-holon",
+      "query": "../../examples/sparql-h/negative-variable-holon.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "blank-holon",
+      "query": "../../examples/sparql-h/negative-blank-holon.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "multiple-holons",
+      "query": "../../examples/sparql-h/negative-multiple-holons.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "mixed-from",
+      "query": "../../examples/sparql-h/negative-mixed-from.srqh",
+      "expectedError": "dataset-conflict"
+    },
+    {
+      "id": "mixed-from-named",
+      "query": "../../examples/sparql-h/negative-mixed-from-named.srqh",
+      "expectedError": "dataset-conflict"
+    },
+    {
+      "id": "nested-holon",
+      "query": "../../examples/sparql-h/negative-nested-holon.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "describe",
+      "query": "../../examples/sparql-h/negative-describe.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "construct-shorthand",
+      "query": "../../examples/sparql-h/negative-construct-shorthand.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "update",
+      "query": "../../examples/sparql-h/negative-update.srqh",
+      "expectedError": "syntax"
+    },
+    {
+      "id": "protocol-dataset-conflict",
+      "query": "../../examples/sparql-h/direct.srqh",
+      "protocolParameters": {
+        "default-graph-uri": [
+          "https://example.org/Other"
+        ]
+      },
+      "expectedError": "dataset-conflict"
+    }
+  ]
+}

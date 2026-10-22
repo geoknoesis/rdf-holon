@@ -1,0 +1,7 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+ex:City a h:Holon ; h:importsShapes ex:CityShapes .
+ex:District a h:Holon ; h:parentHolon ex:City .
+ex:Missing a h:Holon ; h:importsShapes ex:AbsentShapes .
+ex:Bad a h:Holon ; h:importsShapes ex:BadShapes .
+ex:City { ex:Plaza a ex:Square ; ex:name "Plaza" . }
+ex:District { ex:Lane a ex:Street . }

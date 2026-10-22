@@ -1,0 +1,126 @@
+@prefix ht: <https://geoknoesis.github.io/rdf-holon/tests/vocab#> .
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ht:Requirement a rdfs:Class ;
+    rdfs:comment "A reviewed normative contract group, not a claim of exhaustive inherited-language coverage." .
+
+ht:RDFHConversionTest a rdfs:Class ;
+    rdfs:label "RDF-H representation conversion" ;
+    rdfs:comment "The output's M, each holon's direct content, and (for assertion preservation) all assertions must match mf:result." ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:RDFHNegativeValidationTest a rdfs:Class ;
+    rdfs:label "RDF-H validation error" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:RDFHValidationTest a rdfs:Class ;
+    rdfs:label "RDF-H scoped validation" ;
+    rdfs:comment "Validation of one holon's scope against the shapes it imports; mf:result gives the expected conformance." ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:SPARQLHEvalTest a rdfs:Class ;
+    rdfs:label "SPARQL-H query evaluation" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:SPARQLHNegativeEvalTest a rdfs:Class ;
+    rdfs:label "SPARQL-H expected execution error" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:SPARQLHNegativeSyntaxTest a rdfs:Class ;
+    rdfs:label "SPARQL-H negative syntax" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:SPARQLHPositiveSyntaxTest a rdfs:Class ;
+    rdfs:label "SPARQL-H positive syntax" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:TurtleHEvalTest a rdfs:Class ;
+    rdfs:label "Turtle-H expansion evaluation" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:TurtleHNegativeSyntaxTest a rdfs:Class ;
+    rdfs:label "Turtle-H negative syntax" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:TurtleHSerializerTest a rdfs:Class ;
+    rdfs:label "Turtle-H serialization" ;
+    rdfs:comment "The action is a G/M pair in term JSON. The implementation serializes it; its output, re-parsed by the same implementation, must yield the G/M of mf:result." ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:TurtleHPositiveSyntaxTest a rdfs:Class ;
+    rdfs:label "Turtle-H positive syntax" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:base a rdf:Property ;
+    rdfs:comment "Explicit document base IRI." .
+
+ht:covers a rdf:Property ;
+    rdfs:comment "A manifest test covers the referenced requirement group." .
+
+ht:expectedError a rdf:Property ;
+    rdfs:comment "Expected error category for execution rejection." .
+
+ht:expectedCondition a rdf:Property ;
+    rdfs:comment "Exact error-condition identifier required in a rejection; checked in addition to the category." .
+
+ht:TurtleHNegativeSerializerTest a rdfs:Class ;
+    rdfs:label "Turtle-H unrepresentable serialization context" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:RDFHNegativeConversionTest a rdfs:Class ;
+    rdfs:label "RDF-H unrepresentable conversion" ;
+    rdfs:subClassOf mf:ManifestEntry .
+
+ht:loweredQuery a rdf:Property ;
+    rdfs:comment "Expected standard query for fixture integrity and semantic smoke checks, never supplied to implementation adapters." .
+
+ht:metadataContext a rdf:Property ;
+    rdfs:comment "Explicit authoritative input metadata graph, separate from content." .
+
+ht:metadataResult a rdf:Property ;
+    rdfs:comment "Expected metadata-context graph; compared jointly with data for shared blank-node identity." .
+
+ht:ordered a rdf:Property ;
+    rdfs:comment "Whether SELECT result order must match." .
+
+ht:protocolParameters a rdf:Property ;
+    rdfs:comment "JSON object containing invocation protocol parameters." .
+
+ht:regressionCommand a rdf:Property ;
+    rdfs:comment "Repository regression command covering a requirement group." .
+
+ht:resultTerms a rdf:Property ;
+    rdfs:comment "Lossless RDF term JSON sidecar for graph comparison, including RDF 1.2 triple terms." .
+
+ht:scope a rdf:Property ;
+    rdfs:comment "Expected effective scope for fixture integrity, never supplied to adapters." .
+
+ht:sourceDataset a rdf:Property ;
+    rdfs:comment "Source RDF-H dataset in TriG; distinct from a query default graph." .
+
+ht:entailmentRegime a rdf:Property ;
+    rdfs:comment "Entailment regime IRI requested for evaluation; absent means the processor's default, simple entailment." .
+
+ht:holon a rdf:Property ;
+    rdfs:comment "Selected holon of a test." .
+
+ht:preservationLevel a rdf:Property ;
+    rdfs:comment "Requested conversion preservation level: content or assertion." .
+
+ht:shapesDataset a rdf:Property ;
+    rdfs:comment "Validation shapes dataset in TriG; outside the asserted data." .
+
+ht:targetRepresentation a rdf:Property ;
+    rdfs:comment "Target representation of a conversion: dataset or reifier." .
+
+ht:sourceGraph a rdf:Property ;
+    rdfs:comment "Reifier-profile source graph in RDF 1.2 N-Triples; requires an explicit ht:metadataContext." .
+
+ht:sourceTerms a rdf:Property ;
+    rdfs:comment "Lossless term-JSON sidecar of ht:sourceGraph, for adapters without an RDF 1.2 parser." .
+
+ht:specReference a rdf:Property ;
+    rdfs:comment "Specification section defining a requirement group." .
+

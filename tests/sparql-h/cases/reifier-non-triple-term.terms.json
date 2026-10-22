@@ -1,0 +1,46 @@
+{
+  "graph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "city"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/NotATriple"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      }
+    ]
+  ]
+}

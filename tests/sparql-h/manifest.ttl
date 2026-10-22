@@ -1,0 +1,659 @@
+@prefix ht: <https://geoknoesis.github.io/rdf-holon/tests/vocab#> .
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix qt: <http://www.w3.org/2001/sw/DataAccess/tests/test-query#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<> a mf:Manifest ;
+    rdfs:label "SPARQL-H 0.1.0 syntax and evaluation tests" ;
+    mf:entries (
+        <#named-holons-empty>
+        <#direct-syntax>
+        <#direct-eval>
+        <#default-syntax>
+        <#default-eval>
+        <#aggregated-syntax>
+        <#aggregated-eval>
+        <#visible-syntax>
+        <#visible-eval>
+        <#ask-aggregated-syntax>
+        <#ask-aggregated-eval>
+        <#ask-direct-syntax>
+        <#ask-direct-eval>
+        <#construct-visible-syntax>
+        <#construct-visible-eval>
+        <#count-visible-syntax>
+        <#count-visible-eval>
+        <#named-graph-syntax>
+        <#named-graph-eval>
+        <#lexical-content-syntax>
+        <#lexical-content-eval>
+        <#case-insensitive-syntax>
+        <#case-insensitive-eval>
+        <#trailing-values-syntax>
+        <#trailing-values-eval>
+        <#subquery-syntax>
+        <#subquery-eval>
+        <#unknown-scope>
+        <#variable-holon>
+        <#blank-holon>
+        <#multiple-holons>
+        <#mixed-from>
+        <#mixed-from-named>
+        <#nested-holon>
+        <#describe>
+        <#construct-shorthand>
+        <#update>
+        <#protocol-dataset-conflict>
+        <#unknown-holon>
+        <#unresolved-import>
+        <#parent-cycle>
+        <#multiple-parents>
+        <#conflicting-graph-mapping>
+        <#empty-holon>
+        <#mapped-content>
+        <#unregistered-descendant>
+        <#direct-ignores-cycle>
+        <#aggregate-rejects-unrelated-cycle>
+        <#content-import-not-control>
+        <#explicit-metadata-context>
+        <#base-query>
+        <#base-query-syntax>
+        <#tabbed-query>
+        <#tabbed-query-syntax>
+        <#prefixed-holon-keyword>
+        <#shared-content-graph>
+        <#shared-content-graph-twin>
+        <#unrelated-invalid-mapping>
+        <#reifier-direct>
+        <#reifier-aggregated>
+        <#reifier-visible>
+        <#reifier-no-bookkeeping>
+        <#reifier-unknown-holon>
+        <#reifier-missing-base>
+        <#reifier-unregistered-membership>
+        <#reifier-non-triple-term>
+        <#holon-iri-no-separator>
+        <#cross-holon-join>
+        <#cross-holon-join-direct>
+        <#simple-entailment>
+        <#unsupported-regime>
+        <#invalid-graph-name>
+        <#unmapped-blank-node-holon>
+        <#missing-reification>
+        <#named-holons-syntax>
+        <#negative-named-holons-iri>
+        <#negative-named-holons-order>
+        <#named-holons-aggregated>
+        <#named-holons-default-union>
+        <#mixed-direct>
+        <#reifier-base-in-m>
+        <#reifier-ignored-mapping>
+        <#blank-descendant-attribution>
+        <#named-holons-subquery>
+    ) .
+
+<#named-holons-empty> a ht:SPARQLHEvalTest ;
+    mf:name "named-holons-empty" ;
+    mf:action [ qt:query <cases/named-holons-empty.srqh> ;
+            ht:sourceDataset <cases/empty-holon.trig> ] ;
+    mf:result <results/named-holons-empty.srj> .
+
+<#aggregate-rejects-unrelated-cycle> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/aggregate-rejects-unrelated-cycle.srqh> ;
+            ht:sourceDataset <cases/aggregate-rejects-unrelated-cycle.trig> ] ;
+    mf:name "aggregate-rejects-unrelated-cycle" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "parent-cycle" .
+
+<#aggregated-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/aggregated.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "aggregated-eval" ;
+    mf:result <results/aggregated.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/aggregated.rq> ;
+    ht:ordered true ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "aggregated" .
+
+<#aggregated-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/aggregated.srqh> ;
+    mf:name "aggregated-syntax" .
+
+<#ask-aggregated-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/ask-aggregated.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "ask-aggregated-eval" ;
+    mf:result <results/ask-aggregated.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/ask-aggregated.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "aggregated" .
+
+<#ask-aggregated-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/ask-aggregated.srqh> ;
+    mf:name "ask-aggregated-syntax" .
+
+<#ask-direct-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/ask-direct.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "ask-direct-eval" ;
+    mf:result <results/ask-direct.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/ask-direct.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#ask-direct-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/ask-direct.srqh> ;
+    mf:name "ask-direct-syntax" .
+
+<#base-query> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/base-query.srqh> ;
+            ht:sourceDataset <cases/base-query.trig> ] ;
+    mf:name "base-query" ;
+    mf:result <results/base-query.srj> ;
+    ht:loweredQuery <cases/base-query.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#base-query-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <cases/base-query.srqh> ;
+    mf:name "base-query-syntax" .
+
+<#blank-holon> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-blank-holon.srqh> ;
+    mf:name "blank-holon" .
+
+<#case-insensitive-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/case-insensitive.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "case-insensitive-eval" ;
+    mf:result <results/case-insensitive.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/case-insensitive.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#case-insensitive-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/case-insensitive.srqh> ;
+    mf:name "case-insensitive-syntax" .
+
+<#conflicting-graph-mapping> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/conflicting-graph-mapping.srqh> ;
+            ht:sourceDataset <cases/conflicting-graph-mapping.trig> ] ;
+    mf:name "conflicting-graph-mapping" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "conflicting-mapping" .
+
+<#construct-shorthand> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-construct-shorthand.srqh> ;
+    mf:name "construct-shorthand" .
+
+<#construct-visible-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/construct-visible.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "construct-visible-eval" ;
+    mf:result <results/construct-visible.ttl> ;
+    ht:loweredQuery <../../examples/sparql-h/construct-visible.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "visible" .
+
+<#construct-visible-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/construct-visible.srqh> ;
+    mf:name "construct-visible-syntax" .
+
+<#content-import-not-control> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/content-import-not-control.srqh> ;
+            ht:sourceDataset <cases/content-import-not-control.trig> ] ;
+    mf:name "content-import-not-control" ;
+    mf:result <results/content-import-not-control.srj> ;
+    ht:loweredQuery <cases/content-import-not-control.rq> ;
+    ht:ordered true ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "visible" .
+
+<#count-visible-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/count-visible.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "count-visible-eval" ;
+    mf:result <results/count-visible.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/count-visible.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "visible" .
+
+<#count-visible-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/count-visible.srqh> ;
+    mf:name "count-visible-syntax" .
+
+<#default-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/default.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "default-eval" ;
+    mf:result <results/default.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/default.rq> ;
+    ht:ordered true ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#default-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/default.srqh> ;
+    mf:name "default-syntax" .
+
+<#describe> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-describe.srqh> ;
+    mf:name "describe" .
+
+<#direct-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/direct.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "direct-eval" ;
+    mf:result <results/direct.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/direct.rq> ;
+    ht:ordered true ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#direct-ignores-cycle> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/direct-ignores-cycle.srqh> ;
+            ht:sourceDataset <cases/direct-ignores-cycle.trig> ] ;
+    mf:name "direct-ignores-cycle" ;
+    mf:result <results/direct-ignores-cycle.srj> ;
+    ht:loweredQuery <cases/direct-ignores-cycle.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#direct-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/direct.srqh> ;
+    mf:name "direct-syntax" .
+
+<#empty-holon> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/empty-holon.srqh> ;
+            ht:sourceDataset <cases/empty-holon.trig> ] ;
+    mf:name "empty-holon" ;
+    mf:result <results/empty-holon.srj> ;
+    ht:loweredQuery <cases/empty-holon.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#explicit-metadata-context> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/explicit-metadata-context.srqh> ;
+            ht:metadataContext <cases/explicit-metadata-context.metadata.ttl> ;
+            ht:sourceDataset <cases/explicit-metadata-context.trig> ] ;
+    mf:name "explicit-metadata-context" ;
+    mf:result <results/explicit-metadata-context.srj> ;
+    ht:loweredQuery <cases/explicit-metadata-context.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "aggregated" .
+
+<#lexical-content-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/lexical-content.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "lexical-content-eval" ;
+    mf:result <results/lexical-content.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/lexical-content.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#lexical-content-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/lexical-content.srqh> ;
+    mf:name "lexical-content-syntax" .
+
+<#mapped-content> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/mapped-content.srqh> ;
+            ht:sourceDataset <cases/mapped-content.trig> ] ;
+    mf:name "mapped-content" ;
+    mf:result <results/mapped-content.srj> ;
+    ht:loweredQuery <cases/mapped-content.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#prefixed-holon-keyword> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-prefixed-holon-keyword.srqh> ;
+    mf:name "prefixed-holon-keyword" ;
+    rdfs:comment "HOLON:City is a prefixed name in an ordinary FROM clause, not a holon clause; the query is not SPARQL-H." .
+
+<#mixed-from> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-mixed-from.srqh> ;
+    mf:name "mixed-from" .
+
+<#mixed-from-named> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-mixed-from-named.srqh> ;
+    mf:name "mixed-from-named" .
+
+<#multiple-holons> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-multiple-holons.srqh> ;
+    mf:name "multiple-holons" .
+
+<#multiple-parents> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/multiple-parents.srqh> ;
+            ht:sourceDataset <cases/multiple-parents.trig> ] ;
+    mf:name "multiple-parents" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "multiple-parents" .
+
+<#named-graph-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/named-graph.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "named-graph-eval" ;
+    mf:result <results/named-graph.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/named-graph.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "aggregated" .
+
+<#named-graph-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/named-graph.srqh> ;
+    mf:name "named-graph-syntax" .
+
+<#nested-holon> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-nested-holon.srqh> ;
+    mf:name "nested-holon" .
+
+<#parent-cycle> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/parent-cycle.srqh> ;
+            ht:sourceDataset <cases/parent-cycle.trig> ] ;
+    mf:name "parent-cycle" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "parent-cycle" .
+
+<#protocol-dataset-conflict> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/direct.srqh> ;
+            ht:protocolParameters "{\"default-graph-uri\": [\"https://example.org/Other\"]}" ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "protocol-dataset-conflict" ;
+    ht:expectedError "dataset-conflict" .
+
+<#shared-content-graph> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/shared-content-graph.srqh> ;
+            ht:sourceDataset <cases/shared-content-graph.trig> ] ;
+    mf:name "shared-content-graph" ;
+    rdfs:comment "An explicit mapping may name another holon's IRI; the two holons share direct content." ;
+    mf:result <results/shared-content-graph.srj> ;
+    ht:loweredQuery <cases/shared-content-graph.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#shared-content-graph-twin> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/shared-content-graph-twin.srqh> ;
+            ht:sourceDataset <cases/shared-content-graph-twin.trig> ] ;
+    mf:name "shared-content-graph-twin" ;
+    rdfs:comment "Two holons mapped to the same graph are not a mapping error." ;
+    mf:result <results/shared-content-graph-twin.srj> ;
+    ht:loweredQuery <cases/shared-content-graph-twin.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#subquery-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/subquery.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "subquery-eval" ;
+    mf:result <results/subquery.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/subquery.rq> ;
+    ht:ordered true ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "aggregated" .
+
+<#subquery-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/subquery.srqh> ;
+    mf:name "subquery-syntax" .
+
+<#tabbed-query> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/tabbed-query.srqh> ;
+            ht:sourceDataset <cases/tabbed-query.trig> ] ;
+    mf:name "tabbed-query" ;
+    mf:result <results/tabbed-query.srj> ;
+    ht:loweredQuery <cases/tabbed-query.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "direct" .
+
+<#tabbed-query-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <cases/tabbed-query.srqh> ;
+    mf:name "tabbed-query-syntax" .
+
+<#trailing-values-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/trailing-values.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "trailing-values-eval" ;
+    mf:result <results/trailing-values.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/trailing-values.rq> ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "visible" .
+
+<#trailing-values-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/trailing-values.srqh> ;
+    mf:name "trailing-values-syntax" .
+
+<#unknown-holon> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/unknown-holon.srqh> ;
+            ht:sourceDataset <cases/unknown-holon.trig> ] ;
+    mf:name "unknown-holon" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "unknown-holon" .
+
+<#unknown-scope> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-unknown-scope.srqh> ;
+    mf:name "unknown-scope" .
+
+<#unregistered-descendant> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/unregistered-descendant.srqh> ;
+            ht:sourceDataset <cases/unregistered-descendant.trig> ] ;
+    mf:name "unregistered-descendant" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "unregistered-parent-endpoint" .
+
+<#unrelated-invalid-mapping> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/unrelated-invalid-mapping.srqh> ;
+            ht:sourceDataset <cases/unrelated-invalid-mapping.trig> ] ;
+    mf:name "unrelated-invalid-mapping" ;
+    rdfs:comment "Registry and mapping validity is global over M: a conflicting mapping on another holon fails a DIRECT request." ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "conflicting-mapping" .
+
+<#unresolved-import> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/unresolved-import.srqh> ;
+            ht:sourceDataset <cases/unresolved-import.trig> ] ;
+    mf:name "unresolved-import" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "unresolved-import" .
+
+<#update> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-update.srqh> ;
+    mf:name "update" .
+
+<#variable-holon> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <../../examples/sparql-h/negative-variable-holon.srqh> ;
+    mf:name "variable-holon" .
+
+<#visible-eval> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <../../examples/sparql-h/visible.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "visible-eval" ;
+    mf:result <results/visible.srj> ;
+    ht:loweredQuery <../../examples/sparql-h/visible.rq> ;
+    ht:ordered true ;
+    ht:holon <https://example.org/City> ;
+    ht:scope "visible" .
+
+<#visible-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <../../examples/sparql-h/visible.srqh> ;
+    mf:name "visible-syntax" .
+
+<#reifier-direct> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/reifier-direct.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-city.nt12> ;
+            ht:sourceTerms <cases/reifier-city.terms.json> ] ;
+    mf:name "reifier-direct" ;
+    mf:result <results/reifier-direct.srj> ;
+    ht:ordered true .
+
+<#reifier-aggregated> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/reifier-aggregated.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-city.nt12> ;
+            ht:sourceTerms <cases/reifier-city.terms.json> ] ;
+    mf:name "reifier-aggregated" ;
+    mf:result <results/reifier-aggregated.srj> ;
+    ht:ordered true .
+
+<#reifier-visible> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/reifier-visible.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-city.nt12> ;
+            ht:sourceTerms <cases/reifier-city.terms.json> ] ;
+    mf:name "reifier-visible" ;
+    mf:result <results/reifier-visible.srj> ;
+    ht:ordered true .
+
+<#reifier-no-bookkeeping> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/reifier-no-bookkeeping.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-city.nt12> ;
+            ht:sourceTerms <cases/reifier-city.terms.json> ] ;
+    mf:name "reifier-no-bookkeeping" ;
+    mf:result <results/reifier-no-bookkeeping.srj> .
+
+<#reifier-unknown-holon> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/reifier-unknown-holon.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-city.nt12> ;
+            ht:sourceTerms <cases/reifier-city.terms.json> ] ;
+    mf:name "reifier-unknown-holon" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "unknown-holon" .
+
+<#reifier-missing-base> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/reifier-missing-base.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-missing-base.nt12> ;
+            ht:sourceTerms <cases/reifier-missing-base.terms.json> ] ;
+    mf:name "reifier-missing-base" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "missing-base-assertion" .
+
+<#reifier-unregistered-membership> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/reifier-unregistered-membership.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-unregistered-membership.nt12> ;
+            ht:sourceTerms <cases/reifier-unregistered-membership.terms.json> ] ;
+    mf:name "reifier-unregistered-membership" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "unregistered-membership-holon" .
+
+<#reifier-non-triple-term> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/reifier-non-triple-term.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/reifier-non-triple-term.nt12> ;
+            ht:sourceTerms <cases/reifier-non-triple-term.terms.json> ] ;
+    mf:name "reifier-non-triple-term" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "non-triple-term-reification" .
+
+<#holon-iri-no-separator> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <cases/holon-iri-no-separator.srqh> ;
+    mf:name "holon-iri-no-separator" .
+
+<#cross-holon-join> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/cross-holon-join.srqh> ;
+            ht:sourceDataset <cases/cross-holon-join.trig> ] ;
+    mf:name "cross-holon-join" ;
+    mf:result <results/cross-holon-join.srj> .
+
+<#cross-holon-join-direct> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/cross-holon-join-direct.srqh> ;
+            ht:sourceDataset <cases/cross-holon-join.trig> ] ;
+    mf:name "cross-holon-join-direct" ;
+    mf:result <results/cross-holon-join-direct.srj> .
+
+<#simple-entailment> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/simple-entailment.srqh> ;
+            ht:sourceDataset <cases/simple-entailment.trig> ] ;
+    mf:name "simple-entailment" ;
+    mf:result <results/simple-entailment.srj> .
+
+<#unsupported-regime> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/unsupported-regime.srqh> ;
+            ht:sourceDataset <cases/simple-entailment.trig> ;
+            ht:entailmentRegime <https://example.org/unsupported-regime> ] ;
+    mf:name "unsupported-regime" ;
+    ht:expectedError "unsupported-capability" ;
+    ht:expectedCondition "unsupported-capability" .
+
+<#invalid-graph-name> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/invalid-graph-name.srqh> ;
+            ht:sourceDataset <cases/invalid-graph-name.trig> ] ;
+    mf:name "invalid-graph-name" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "invalid-graph-name" .
+
+<#unmapped-blank-node-holon> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/unmapped-blank-node-holon.srqh> ;
+            ht:sourceDataset <cases/unmapped-blank-node-holon.trig> ] ;
+    mf:name "unmapped-blank-node-holon" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "unmapped-blank-node-holon" .
+
+<#missing-reification> a ht:SPARQLHNegativeEvalTest ;
+    mf:action [ qt:query <cases/missing-reification.srqh> ;
+            ht:metadataContext <cases/reifier.metadata.ttl> ;
+            ht:sourceGraph <cases/missing-reification.nt12> ;
+            ht:sourceTerms <cases/missing-reification.terms.json> ] ;
+    mf:name "missing-reification" ;
+    ht:expectedError "resolution" ;
+    ht:expectedCondition "missing-reification" .
+
+<#named-holons-syntax> a ht:SPARQLHPositiveSyntaxTest ;
+    mf:action <cases/named-holons-aggregated.srqh> ;
+    mf:name "named-holons-syntax" .
+
+<#negative-named-holons-iri> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <cases/negative-named-holons-iri.srqh> ;
+    mf:name "negative-named-holons-iri" .
+
+<#negative-named-holons-order> a ht:SPARQLHNegativeSyntaxTest ;
+    mf:action <cases/negative-named-holons-order.srqh> ;
+    mf:name "negative-named-holons-order" .
+
+<#named-holons-aggregated> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/named-holons-aggregated.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "named-holons-aggregated" ;
+    mf:result <results/named-holons-aggregated.srj> ;
+    ht:ordered true .
+
+<#named-holons-default-union> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/named-holons-default-union.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "named-holons-default-union" ;
+    mf:result <results/named-holons-default-union.srj> ;
+    ht:ordered true .
+
+<#mixed-direct> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/mixed-direct.srqh> ;
+            ht:sourceDataset <cases/mixed-city.trig> ;
+            ht:sourceGraph <cases/mixed-city.nt12> ;
+            ht:sourceTerms <cases/mixed-city.terms.json> ] ;
+    mf:name "mixed-direct" ;
+    mf:result <results/mixed-direct.srj> ;
+    ht:ordered true .
+
+<#reifier-base-in-m> a ht:SPARQLHEvalTest ;
+    mf:name "reifier-base-in-m" ;
+    mf:action [ qt:query <cases/reifier-base-in-m.srqh> ; ht:metadataContext <cases/reifier-base-in-m.metadata.ttl> ; ht:sourceGraph <cases/reifier-base-in-m.nt12> ; ht:sourceTerms <cases/reifier-base-in-m.terms.json> ] ;
+    mf:result <results/reifier-base-in-m.srj> .
+
+<#reifier-ignored-mapping> a ht:SPARQLHEvalTest ;
+    mf:name "reifier-ignored-mapping" ;
+    mf:action [ qt:query <cases/reifier-ignored-mapping.srqh> ; ht:metadataContext <cases/reifier-ignored-mapping.metadata.ttl> ; ht:sourceGraph <cases/reifier-ignored-mapping.nt12> ; ht:sourceTerms <cases/reifier-ignored-mapping.terms.json> ] ;
+    mf:result <results/reifier-ignored-mapping.srj> .
+
+<#blank-descendant-attribution> a ht:SPARQLHEvalTest ;
+    mf:name "blank-descendant-attribution" ;
+    mf:action [ qt:query <cases/blank-descendant-attribution.srqh> ; ht:sourceDataset <cases/blank-descendant-attribution.trig> ] ;
+    mf:result <results/blank-descendant-attribution.srj> .
+
+<#named-holons-subquery> a ht:SPARQLHEvalTest ;
+    mf:action [ qt:query <cases/named-holons-subquery.srqh> ;
+            ht:sourceDataset <../../examples/rdf-h/composition/scopes.trig> ] ;
+    mf:name "named-holons-subquery" ;
+    rdfs:comment "A subquery inherits the attributed query dataset: GRAPH ?h inside it binds the selected holons." ;
+    mf:result <results/named-holons-subquery.srj> ;
+    ht:ordered true .

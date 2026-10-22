@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+SELECT ?h ?n FROM HOLON ex:City SCOPE AGGREGATED FROM NAMED HOLONS
+WHERE { { SELECT ?h (COUNT(*) AS ?n) WHERE { GRAPH ?h { ?s ex:value ?v } } GROUP BY ?h } }
+ORDER BY ?h

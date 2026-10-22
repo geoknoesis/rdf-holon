@@ -1,0 +1,5 @@
+@prefix ex: <https://example.org/> .
+@prefix h: <https://w3id.org/rdf-h#> .
+ex:Other a h:Holon .
+ex:H h:parentHolon ex:Other .
+@holon ex:H { }

@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+SELECT (COUNT(*) AS ?count)
+FROM HOLON ex:City SCOPE VISIBLE
+WHERE { ?s ex:value ?v }

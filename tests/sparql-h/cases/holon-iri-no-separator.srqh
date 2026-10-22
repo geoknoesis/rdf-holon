@@ -1,0 +1,1 @@
+SELECT * FROM HOLON<https://example.org/City> WHERE { ?s ?p ?o }

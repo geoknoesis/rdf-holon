@@ -1,0 +1,5 @@
+@prefix h: <https://w3id.org/rdf-h#> .
+@prefix ex: <https://example.org/> .
+ex:City a h:Holon ; h:importsShapes ex:CityShapes .
+# This graph is neither registered as a holon nor selected by composition.
+ex:Unselected { ex:Hidden a ex:Street . }

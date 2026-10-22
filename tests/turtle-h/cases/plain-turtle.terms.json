@@ -1,0 +1,19 @@
+{
+  "graph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/s"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/p"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/o"
+      }
+    ]
+  ],
+  "metadataGraph": []
+}

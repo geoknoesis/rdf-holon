@@ -1,0 +1,5 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+# City is valid; Other has two mappings. Mapping validity is checked over all of M.
+ex:City a h:Holon .
+ex:Other a h:Holon ; h:contentGraph ex:One, ex:Two .
+ex:City { ex:City ex:value "city" . }

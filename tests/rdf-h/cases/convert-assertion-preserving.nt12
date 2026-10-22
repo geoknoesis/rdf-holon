@@ -1,0 +1,5 @@
+<https://example.org/City> <https://example.org/value> "city" .
+_:r1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/City> <https://example.org/value> "city" )>> .
+_:r1 <https://w3id.org/rdf-h#inHolon> <https://example.org/City> .
+_:r1 <https://example.org/source> <https://example.org/Survey> .
+<https://example.org/Unfiled> <https://example.org/value> "unfiled" .

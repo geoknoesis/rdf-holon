@@ -1,0 +1,11 @@
+{
+  "turtle-h": [
+    "your-turtle-h-adapter"
+  ],
+  "sparql-h": [
+    "your-sparql-h-adapter"
+  ],
+  "rdf-h": [
+    "your-rdf-h-adapter"
+  ]
+}

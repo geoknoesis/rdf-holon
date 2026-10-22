@@ -1,0 +1,4 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+ex:City a h:Holon .
+ex:City { ex:Tower a ex:Building . ex:Building rdfs:subClassOf ex:Structure . }

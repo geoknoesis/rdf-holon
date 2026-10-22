@@ -1,0 +1,590 @@
+@prefix ht: <https://geoknoesis.github.io/rdf-holon/tests/vocab#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#COMPLETENESS> a ht:Requirement ;
+    rdfs:label "Legacy CompleteHolon provides registration compatibility, not a closed-world claim." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_legacy_complete_type_only_registers" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#validation-closure> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION> a ht:Requirement ;
+    rdfs:label "Content preservation retains M and memberships; assertion preservation also retains all assertions." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_content_predicates_do_not_become_declarations_after_conversion",
+        "python tests/test_semantics.py SemanticTests.test_dataset_conversion_derives_blank_node_mappings_and_separates_unfiled" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#profile-equivalence> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#HARNESS> a ht:Requirement ;
+    rdfs:label "Fixture validation is not language conformance; skip and failure outcomes stay distinct." ;
+    ht:regressionCommand "python tests/test_runner.py" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/tests/README.md> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS> a ht:Requirement ;
+    rdfs:label "Memberships refer to registered holons and at least one valid triple term with asserted base." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_missing_and_nonterm_reification_rejected" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#validation-procedure> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#VALIDATION-SCOPE> a ht:Requirement ;
+    rdfs:label "Validation applies only the shapes graphs the holon imports in M, without inheritance, to the requested scope; a missing shapes graph is an error." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#shape-composition> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-dataset-to-reifier> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-content-not-promoted> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-blank-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-assertion-preserving> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#validate-direct-conforms> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#VALIDATION-SCOPE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#validate-aggregated-violates> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#VALIDATION-SCOPE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#validate-shapes-not-inherited> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#VALIDATION-SCOPE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#validate-missing-shapes-graph> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#VALIDATION-SCOPE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#validate-ill-formed-shapes-graph> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SHAPE-MERGE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SHAPE-MERGE> a ht:Requirement ;
+    rdfs:label "Effective shapes graph syntax is checked before data constraints." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_shapes_union_can_be_a_definition_failure" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#shape-composition> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#aggregate-rejects-unrelated-cycle> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#aggregated-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#aggregated-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#ask-aggregated-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#ask-aggregated-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#ask-direct-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#ask-direct-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#base-query> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#base-query-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#blank-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#case-insensitive-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#case-insensitive-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#conflicting-graph-mapping> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#construct-shorthand> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#construct-visible-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#construct-visible-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#content-import-not-control> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#count-visible-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#count-visible-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#default-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#default-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#describe> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#direct-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#direct-ignores-cycle> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#direct-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#empty-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#explicit-metadata-context> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#lexical-content-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#lexical-content-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#mapped-content> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#prefixed-holon-keyword> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#shared-content-graph> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#shared-content-graph-twin> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#mixed-from> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#mixed-from-named> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#multiple-holons> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#multiple-parents> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-graph-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-graph-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#nested-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#parent-cycle> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#protocol-dataset-conflict> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SERVICE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#subquery-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#subquery-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#tabbed-query> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#tabbed-query-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#trailing-values-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#trailing-values-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unknown-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unknown-scope> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unregistered-descendant> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unrelated-invalid-mapping> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unresolved-import> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#update> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#variable-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#visible-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#visible-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#annotation-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#annotation-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#base-resolution-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#base-resolution-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#basic-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#basic-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#blank-holon-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#blank-holon-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#collection-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#collection-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#content-management-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#content-management-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#directional-literal-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#LITERALS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#directional-literal-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#LITERALS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#empty-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#empty-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#explicit-management-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#explicit-management-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#lexical-content-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#lexical-content-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-bare-trig> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-directive-in-block> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-extra-close> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-literal-id> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-missing-close> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-missing-dot> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-missing-id> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-missing-open> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-undefined-prefix> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-variable-id> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-wrong-case> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#nested-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#nested-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#object-list-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#object-list-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#outside-content-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#outside-content-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#plain-turtle-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#plain-turtle-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#property-list-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#property-list-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#repeat-occurrence-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#repeat-occurrence-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#two-holons-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#two-holons-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#typed-literal-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#typed-literal-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SERVICE> a ht:Requirement ;
+    rdfs:label "Service-profile protocol conflicts do not silently override scope." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/sparql-h/#protocol> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#LITERALS> a ht:Requirement ;
+    rdfs:label "RDF 1.2 directional literals preserve both language and direction." ;
+    ht:regressionCommand "python tests/test_runner.py HarnessTests.test_directional_literal_direction_is_preserved" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/turtle-h/#expansion-algorithm> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MODE-VALIDATION> a ht:Requirement ;
+    rdfs:label "DIRECT ignores composition errors; aggregate validates full parent relation; visible imports are root-local." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_mode_specific_invalid_hierarchy" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#processing-model> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION> a ht:Requirement ;
+    rdfs:label "Turtle statement expansion is staged before finite RDF-H membership generation." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_turtle_generated_triples_are_filed_once" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/turtle-h/#expansion-algorithm> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION> a ht:Requirement ;
+    rdfs:label "Every block emits unfiled registration into G and M, including empty blocks." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_empty_turtle_block_preserves_registration" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/turtle-h/#expansion-algorithm> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> a ht:Requirement ;
+    rdfs:label "RDF-H uses one designated M independent of representation." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_content_predicates_do_not_become_declarations_after_conversion" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#dataset-resolution> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> a ht:Requirement ;
+    rdfs:label "One holon clause, three modes, standard lexical rules and supported query forms." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_parser_preserves_tabs_comments_and_literal_tokens" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/sparql-h/#syntax> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY> a ht:Requirement ;
+    rdfs:label "Registry is explicit K(M); unknown and known empty differ." ;
+    ht:regressionCommand "python tests/test_semantics.py SemanticTests.test_unknown_and_registered_empty_are_distinct" ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#step-registry> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION> a ht:Requirement ;
+    rdfs:label "FROM NAMED HOLONS adds one named graph per selected holon, named by the holon IRI, while the default graph stays the scope union." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/sparql-h/#query-dataset> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-holons-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#negative-named-holons-iri> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#negative-named-holons-order> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-holons-aggregated> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-holons-default-union> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#mixed-direct> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET> a ht:Requirement ;
+    rdfs:label "Default graph is resolved scope; no named graphs; joins span selected holons." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/sparql-h/#query-dataset> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> a ht:Requirement ;
+    rdfs:label "Reifier-profile sources resolve scopes from explicit memberships and an explicit M; membership bookkeeping and unfiled assertions never enter a scope." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/index.html#step-membership> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-direct> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-aggregated> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-visible> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-no-bookkeeping> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-unknown-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-missing-base> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-unregistered-membership> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-non-triple-term> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ENTAILMENT> a ht:Requirement ;
+    rdfs:label "Evaluation defaults to simple entailment; an unsupported requested regime is an unsupported-capability error." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/sparql-h/#entailment> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#holon-iri-no-separator> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#cross-holon-join> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#cross-holon-join-direct> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#simple-entailment> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ENTAILMENT> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unsupported-regime> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ENTAILMENT> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#invalid-graph-name> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#unmapped-blank-node-holon> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#missing-reification> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-REIFIER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-SCOPES> a ht:Requirement ;
+    rdfs:label "Query scope is resolved from K(M) before standard SPARQL evaluation." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/sparql-h/#scope-resolution> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> a ht:Requirement ;
+    rdfs:label "Serializers fold only eligible membership reifiers, keep others expanded, preserve occurrence multiplicity, and write M so a re-parse reproduces G and M." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/turtle-h/#serialization> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#annotation-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#base-resolution-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#basic-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#blank-holon-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#collection-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#content-management-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#directional-literal-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#empty-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#explicit-management-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#lexical-content-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#nested-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#object-list-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#outside-content-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#plain-turtle-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#property-list-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#repeat-occurrence-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#two-holons-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#typed-literal-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#iri-reifier-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#occurrence-metadata-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#mixed-occurrences-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#repeated-block-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#repeated-block-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#triple-term-content-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#triple-term-content-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#reified-subject-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#reified-subject-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#no-whitespace-syntax> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#no-whitespace-eval> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-EXPANSION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-REGISTRATION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#METADATA> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-anonymous-id> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-sparql-prefix-in-block> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#negative-boolean-id> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#reduced-metadata-serialize> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SYNTAX> a ht:Requirement ;
+    rdfs:label "Turtle-H grammar including lexical nesting and case-sensitive directive." ;
+    ht:specReference <https://geoknoesis.github.io/rdf-holon/turtle-h/#grammar> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/turtle-h/manifest.ttl#inert-management-serialize-error> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#TH-SERIALIZER> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-shared-conflict> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-shared-equal> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-inert-membership> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#convert-filed-membership> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#CONVERSION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-base-in-m> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#MEMBERSHIPS> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#reifier-ignored-mapping> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#REGISTRY> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#blank-descendant-attribution> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/rdf-h/manifest.ttl#validate-global-unselected-data> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#VALIDATION-SCOPE> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-holons-empty> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION> .
+
+<https://geoknoesis.github.io/rdf-holon/tests/sparql-h/manifest.ttl#named-holons-subquery> ht:covers <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-ATTRIBUTION>,
+        <https://geoknoesis.github.io/rdf-holon/tests/requirements.ttl#SPH-DATASET> .

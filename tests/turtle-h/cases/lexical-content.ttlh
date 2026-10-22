@@ -1,0 +1,4 @@
+@prefix ex: <https://example.org/> .
+@prefix h: <https://w3id.org/rdf-h#> .
+# @holon ex:Fake { is a comment
+@holon ex:H { ex:s ex:p "@holon ex:Fake { not a block }" . }

@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+SELECT ?value
+from holon ex:City scope direct
+WHERE { ?s ex:value ?value }

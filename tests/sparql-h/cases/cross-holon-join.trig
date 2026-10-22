@@ -1,0 +1,5 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+ex:City a h:Holon .
+ex:District a h:Holon ; h:parentHolon ex:City .
+ex:City { ex:City ex:hasDistrict ex:District . }
+ex:District { ex:District ex:name "Old Town" . }

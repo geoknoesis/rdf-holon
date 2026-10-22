@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+ASK
+WHERE { GRAPH ex:City { ?s ?p ?o } }

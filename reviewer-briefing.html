@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RDF-H 0.8 Reviewer Briefing — October 21, 2026</title>
+<style>
+body { font: 17px/1.6 system-ui, sans-serif; max-width: 58rem; margin: 3rem auto; padding: 0 1.25rem; color: #17212b; }
+h1, h2, h3 { line-height: 1.2; } h2 { margin-top: 2.25rem; }
+a { color: #0755a5; } table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+th, td { padding: .6rem; border: 1px solid #ccd5df; text-align: left; vertical-align: top; }
+pre { overflow: auto; padding: 1rem; background: #f1f4f8; } code { font-size: .9em; }
+</style>
+</head>
+<body>
+<h1>RDF-H 0.8 Reviewer Briefing</h1>
+<p>October 21, 2026 · Stephane Fellah · Geoknoesis LLC</p>
+<p>RDF-H is a community draft for organizing RDF statements into identifiable content units called holons.
+The specifications, fixtures, and reference implementations come from the editors' organization.
+The next evidence needed is an implementation by a party that did not write them, built from the normative text.</p>
+
+<h2>What RDF-H defines</h2>
+<p>A designated metadata context M explicitly registers holons and records their graph mappings,
+optional administrative parents, content imports, and shape imports. Content-only management assertions
+never become authoritative declarations. A holon has at most one administrative parent; several roots are allowed.</p>
+<p>The dataset profile extracts content from named graphs. The reifier profile uses RDF 1.2 reifiers and
+<code>h:inHolon</code>. Direct scope selects one holon's content; aggregated scope adds descendants;
+visible scope additionally adds the selected holon's direct imports. Imports are single-hop and do not
+inherit descendants or further imports. An attributed dataset retains one named graph per selected holon.</p>
+<p>Every filed statement must be asserted in G, the union of source assertions and M. A base assertion supplied
+only in M satisfies this invariant. This union is an RDF-H interpretation: ordinary SPARQL default-graph
+queries retain their usual graph-selection behavior and do not automatically read G.</p>
+<table>
+<caption>Documents under review</caption>
+<thead><tr><th>Document</th><th>Status</th><th>Defines</th></tr></thead>
+<tbody>
+<tr><td><a href="index.html">RDF-H</a></td><td>0.8 working draft</td><td>Registry, profiles, processing algorithm, 15 scope-resolution and validation error conditions, conversion and conformance.</td></tr>
+<tr><td><a href="turtle-h/index.html">Turtle-H</a></td><td>0.1.0</td><td><code>@holon</code> blocks, staged expansion to G/M, serialization and representability failures.</td></tr>
+<tr><td><a href="sparql-h/index.html">SPARQL-H</a></td><td>0.1.0 experimental</td><td><code>FROM HOLON … SCOPE …</code> and <code>FROM NAMED HOLONS</code>, followed by standard query evaluation.</td></tr>
+</tbody></table>
+<p>This briefing describes the revised local working tree of October 21, 2026. Published editors' drafts
+may lag it. Freeze an identified source snapshot before asking another implementer to reproduce the results.</p>
+
+<h2>Reading order</h2>
+<ol>
+<li><a href="index.html#reading-terms">Terms</a> and the <a href="index.html#basic-model">opening example</a>.</li>
+<li><a href="index.html#processing-model">Processing algorithm</a>, including profile selection, the definition of G, and error conditions.</li>
+<li><a href="index.html#content-graph">Representations</a> and <a href="index.html#composition">hierarchy and imports</a>; compare them with the algorithm.</li>
+<li><a href="index.html#design-rationale">Design rationale</a>, <a href="index.html#validation">validation</a>, and <a href="index.html#profile-equivalence">conversion</a>.</li>
+<li>The complete <a href="turtle-h/index.html">Turtle-H</a> and <a href="sparql-h/index.html">SPARQL-H</a> drafts.</li>
+<li><a href="index.html#security">Security</a>, <a href="index.html#conformance">conformance</a>, and <a href="index.html#related-work">related work</a>.</li>
+</ol>
+
+<h2>Evidence and its limits</h2>
+<table>
+<caption>Current manifest coverage: 178 cases</caption>
+<thead><tr><th>Suite</th><th>Cases</th><th>Execution</th></tr></thead>
+<tbody>
+<tr><td>Turtle-H</td><td>81: 22 positive syntax, 14 negative syntax, 22 expansion, 22 successful serialization, 1 serialization rejection.</td><td>Java RDF4J-based parser and writer.</td></tr>
+<tr><td>SPARQL-H</td><td>83: 17 positive syntax, 13 negative syntax, 36 evaluation, 17 expected execution errors.</td><td>Python reference adapter; both profiles, mixed data, and blank-node descendant attribution.</td></tr>
+<tr><td>RDF-H</td><td>14: 5 successful conversions, 3 rejected conversions, 4 validation outcomes, 2 validation errors.</td><td>Python reference adapter.</td></tr>
+</tbody></table>
+<p>The harness compares exact error conditions where a fixture declares <code>ht:expectedCondition</code>,
+in addition to the broad category. All 15 processing conditions have such fixtures.
+It checks converted membership and mapping validity before comparing content and metadata.
+The <a href="tests/requirements.ttl">requirement trace</a> contains 21 reviewed groups; this is not exhaustive base-language coverage.</p>
+<p>Passing these project-authored cases establishes agreement with these fixtures. It does not establish
+independent interoperability. Serializer tests reparse output with the same implementation;
+matching parser/writer defects remain possible. The inherited Turtle 1.2 suite has not been run here.
+The Python adapters are experimental and do not implement every RDF 1.2 term or query feature.</p>
+
+<h2>Corrections following the first review</h2>
+<ul>
+<li>Serialization rejects <code>unrepresentable-context</code> when expanded output would promote an assertion absent from M into an active declaration. It does not invent memberships to hide that assertion.</li>
+<li>Conversion rejects <code>unrepresentable-conversion</code> when preserving M and each holon's content is impossible. Distinct contents must not be merged into a shared target graph.</li>
+<li>Retained dataset assertions using <code>h:inHolon</code> can become active in a reifier target. Converters check the target and reject invalid or changed content before returning success.</li>
+<li>The base-assertion rule consistently checks G = source assertions ∪ M.</li>
+<li>Error fixtures check specific conditions; counts and dependency statuses are corrected across the documents.</li>
+</ul>
+<p>The conversion and serialization failures above are operation-specific errors; they do not add entries
+to the algorithm's 15 scope-resolution and validation conditions.</p>
+
+<h2>Design decisions to challenge</h2>
+<ul>
+<li><strong>One parent.</strong> The forest simplifies administration. A DAG could also have unambiguous set-union aggregation. Imports reuse direct content and do not fully substitute for a second parent's descendant aggregation.</li>
+<li><strong>No automatic ancestor scope.</strong> A part imports its parent explicitly when it needs the parent's direct content. Does this suffice for realistic contexts?</li>
+<li><strong>Single-hop imports.</strong> Does explicit enumeration remain manageable for substantial dependency structures?</li>
+<li><strong>Always-asserted filed statements.</strong> Hypothetical or unasserted contexts are outside the model. Is that restriction acceptable?</li>
+<li><strong>Global validity checks.</strong> An unrelated hierarchy defect can fail aggregated and visible requests. Should deployments partition M into separate failure domains?</li>
+<li><strong>Shared graph mappings.</strong> Several dataset holons may share identical content. Conversion must reject incompatible contents under such mappings.</li>
+<li><strong>Attribution.</strong> Named graphs identify holons, including blank-node descendants and imports; they do not preserve individual occurrence provenance.</li>
+<li><strong>Serializer choices.</strong> Folding is optional and block grouping is not canonical. Compare preservation guarantees rather than identical text or blocks.</li>
+<li><strong>Publication.</strong> Review the proposed <code>text/turtle-h</code> media type, <code>.ttlh</code> extension, version IRIs, and namespace continuity.</li>
+</ul>
+
+<h2>Dependencies and open work</h2>
+<p>The drafts pin <a href="https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/">RDF 1.2 Concepts, April 7, 2026</a>
+(Candidate Recommendation Snapshot), <a href="https://www.w3.org/TR/2026/CRD-rdf12-semantics-20260924/">RDF 1.2 Semantics, September 24, 2026</a>
+(Candidate Recommendation Draft), <a href="https://www.w3.org/TR/2026/WD-rdf12-turtle-20261007/">Turtle 1.2, October 7, 2026</a>
+(Working Draft), and <a href="https://www.w3.org/TR/2026/WD-sparql12-query-20261011/">SPARQL 1.2 Query, October 11, 2026</a>
+(Working Draft). They have different maturity levels and must be reassessed before stabilization.</p>
+<p>Independent implementations and EARL reports are still needed. Namespace redirects, stable version artifacts,
+media-type registration, inherited-language testing, and publication of the Java codec remain release work.
+SPARQL-H selects its root by constant IRI; blank-node roots cannot be selected directly through its syntax.</p>
+<p>The optional service profile defines no standard transport. Its current suite does not exercise deployment
+behavior. A documented integration adapter can nevertheless test dataset-selector conflicts, federation policy,
+filtering disclosures, forbidden network requests, and read-only behavior. Trust in M requires deployment review.</p>
+
+<h2>Run the suites</h2>
+<pre>python -m pip install -r tests/requirements.txt
+python tests/run_suite.py --validate-only --semantic-smoke
+python tests/test_runner.py
+python tests/test_semantics.py
+python tests/run_suite.py --manifest tests/sparql-h/manifest.ttl --adapter-config tests/reference-adapters.json --require-all
+python tests/run_suite.py --manifest tests/rdf-h/manifest.ttl --adapter-config tests/reference-adapters.json --require-all
+python tests/run_suite.py --adapter-config my-adapters.json --require-all --implementation urn:example:my-processor --report tmp/earl.ttl</pre>
+<p>Create the report directory first. Configure a Turtle-H adapter separately; it is not bundled in this repository.
+The <a href="tests/README.md">suite guide</a> defines the JSON adapter protocol, target graphs, error conditions,
+and EARL reporting. The runner does not send expected results to adapters.</p>
+
+<h2>Review questions</h2>
+<ol>
+<li>Can you implement the processing algorithm from its inputs, steps, and error table? Does explanatory text contradict it?</li>
+<li>Can you name a valid input with undefined resolution, conversion, or serialization behavior?</li>
+<li>Do successful conversions preserve M, the registry, every CG(H), and the declared assertion level?</li>
+<li>Do serializer outputs preserve the G/M boundary, including nonfoldable control-predicate content?</li>
+<li>Does attribution behave correctly with blank-node descendants, shared graphs, subqueries, trailing VALUES, and SERVICE?</li>
+<li>Do the security rules match who may edit M and content in your deployment?</li>
+<li>Can your independent implementation execute all 178 cases and publish an EARL report, including failures and skips?</li>
+</ol>
+<p>Sources: <a href="https://github.com/geoknoesis/rdf-holon">repository</a>,
+<a href="rdfh.ttl">vocabulary</a>, <a href="tests/manifest.ttl">suite manifest</a>,
+and <a href="index.html#open-issues">draft issues</a>. Specifications, vocabulary, examples, and fixtures use Apache 2.0.</p>
+</body>
+</html>

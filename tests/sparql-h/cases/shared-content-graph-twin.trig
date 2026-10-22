@@ -1,0 +1,5 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+# Two holons explicitly map to the same graph; this is not a mapping error.
+ex:City a h:Holon ; h:contentGraph ex:Shared .
+ex:Twin a h:Holon ; h:contentGraph ex:Shared .
+ex:Shared { ex:Shared ex:value "shared" . }

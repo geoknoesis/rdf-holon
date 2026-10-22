@@ -1,0 +1,35 @@
+{
+  "head": {
+    "vars": [
+      "value"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "value": {
+          "type": "literal",
+          "value": "city"
+        }
+      },
+      {
+        "value": {
+          "type": "literal",
+          "value": "district"
+        }
+      },
+      {
+        "value": {
+          "type": "literal",
+          "value": "metro"
+        }
+      },
+      {
+        "value": {
+          "type": "literal",
+          "value": "neighborhood"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,403 @@
+{
+  "graph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "city"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/City"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "city"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/District"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "district"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r2"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/District"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "district"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r2"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/District"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Neighborhood"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "neighborhood"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r3"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/Neighborhood"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "neighborhood"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r3"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/Neighborhood"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/State"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "state"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r4"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/State"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "state"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r4"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/State"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Metro"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "metro"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r5"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/Metro"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "metro"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r5"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/Metro"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Shared"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "shared"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r6"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/Shared"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "shared"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r6"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r7"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"
+      },
+      {
+        "type": "triple",
+        "value": {
+          "subject": {
+            "type": "uri",
+            "value": "https://example.org/Shared"
+          },
+          "predicate": {
+            "type": "uri",
+            "value": "https://example.org/value"
+          },
+          "object": {
+            "type": "literal",
+            "value": "shared"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r7"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/Metro"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/source"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/Survey"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Unfiled"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "unfiled"
+      }
+    ]
+  ]
+}

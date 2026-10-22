@@ -1,0 +1,90 @@
+{
+  "graph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/H"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#Holon"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Other"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#Holon"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/H"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#parentHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/Other"
+      }
+    ]
+  ],
+  "metadataGraph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/H"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#Holon"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/Other"
+      },
+      {
+        "type": "uri",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#Holon"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/H"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#parentHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/Other"
+      }
+    ]
+  ]
+}

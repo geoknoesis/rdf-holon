@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+ASK
+FROM HOLON ex:City SCOPE AGGREGATED
+WHERE { ex:District ex:value "district" }

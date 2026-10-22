@@ -1,0 +1,5 @@
+<https://example.org/Extra> <https://example.org/value> "extra" .
+_:r1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/Extra> <https://example.org/value> "extra" )>> .
+_:r1 <https://w3id.org/rdf-h#inHolon> <https://example.org/City> .
+_:r2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/Elsewhere> <https://example.org/value> "elsewhere" )>> .
+_:r2 <https://w3id.org/rdf-h#inHolon> <https://example.org/City> .

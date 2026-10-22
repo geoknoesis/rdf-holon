@@ -1,0 +1,4 @@
+_:subject <https://example.org/p> <https://example.org/o> .
+_:r1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( _:subject <https://example.org/p> <https://example.org/o> )>> .
+_:r1 <https://w3id.org/rdf-h#inHolon> _:holon .
+_:holon <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/rdf-h#Holon> .

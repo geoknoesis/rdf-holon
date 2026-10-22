@@ -1,0 +1,17 @@
+{
+  "head": {
+    "vars": [
+      "text"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "text": {
+          "type": "literal",
+          "value": "FROM HOLON ex:Other SCOPE VISIBLE"
+        }
+      }
+    ]
+  }
+}

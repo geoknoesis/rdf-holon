@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+SELECT ?value
+FROM HOLON ex:City SCOPE AGGREGATED
+WHERE { { SELECT ?value WHERE { ?s ex:value ?value } } } ORDER BY ?value

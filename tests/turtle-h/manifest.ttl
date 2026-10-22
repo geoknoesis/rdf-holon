@@ -1,0 +1,504 @@
+@prefix ht: <https://geoknoesis.github.io/rdf-holon/tests/vocab#> .
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a mf:Manifest ;
+    rdfs:label "Turtle-H 0.1.0 syntax and expansion tests" ;
+    mf:entries (
+        <#empty-syntax>
+        <#empty-eval>
+        <#basic-syntax>
+        <#basic-eval>
+        <#nested-syntax>
+        <#nested-eval>
+        <#object-list-syntax>
+        <#object-list-eval>
+        <#two-holons-syntax>
+        <#two-holons-eval>
+        <#repeat-occurrence-syntax>
+        <#repeat-occurrence-eval>
+        <#blank-holon-syntax>
+        <#blank-holon-eval>
+        <#outside-content-syntax>
+        <#outside-content-eval>
+        <#base-resolution-syntax>
+        <#base-resolution-eval>
+        <#lexical-content-syntax>
+        <#lexical-content-eval>
+        <#typed-literal-syntax>
+        <#typed-literal-eval>
+        <#plain-turtle-syntax>
+        <#plain-turtle-eval>
+        <#negative-missing-close>
+        <#negative-missing-open>
+        <#negative-missing-id>
+        <#negative-literal-id>
+        <#negative-variable-id>
+        <#negative-wrong-case>
+        <#negative-bare-trig>
+        <#negative-missing-dot>
+        <#negative-undefined-prefix>
+        <#negative-extra-close>
+        <#negative-directive-in-block>
+        <#collection-syntax>
+        <#collection-eval>
+        <#property-list-syntax>
+        <#property-list-eval>
+        <#annotation-syntax>
+        <#annotation-eval>
+        <#directional-literal-syntax>
+        <#directional-literal-eval>
+        <#content-management-syntax>
+        <#content-management-eval>
+        <#explicit-management-syntax>
+        <#explicit-management-eval>
+        <#annotation-serialize>
+        <#base-resolution-serialize>
+        <#basic-serialize>
+        <#blank-holon-serialize>
+        <#collection-serialize>
+        <#content-management-serialize>
+        <#directional-literal-serialize>
+        <#empty-serialize>
+        <#explicit-management-serialize>
+        <#lexical-content-serialize>
+        <#nested-serialize>
+        <#object-list-serialize>
+        <#outside-content-serialize>
+        <#plain-turtle-serialize>
+        <#property-list-serialize>
+        <#repeat-occurrence-serialize>
+        <#two-holons-serialize>
+        <#typed-literal-serialize>
+        <#iri-reifier-serialize>
+        <#occurrence-metadata-serialize>
+        <#mixed-occurrences-serialize>
+        <#repeated-block-syntax>
+        <#repeated-block-eval>
+        <#triple-term-content-syntax>
+        <#triple-term-content-eval>
+        <#reified-subject-syntax>
+        <#reified-subject-eval>
+        <#no-whitespace-syntax>
+        <#no-whitespace-eval>
+        <#negative-anonymous-id>
+        <#negative-sparql-prefix-in-block>
+        <#negative-boolean-id>
+        <#reduced-metadata-serialize>
+        <#inert-management-serialize-error>
+    ) .
+
+<#annotation-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/annotation.ttlh> ;
+    mf:name "annotation-eval" ;
+    mf:result <cases/annotation.nt12> ;
+    ht:metadataResult <cases/annotation.metadata.ttl> ;
+    ht:resultTerms <cases/annotation.terms.json> .
+
+<#annotation-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/annotation.ttlh> ;
+    mf:name "annotation-syntax" .
+
+<#base-resolution-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/base-resolution.ttlh> ;
+    mf:name "base-resolution-eval" ;
+    mf:result <cases/base-resolution.nt12> ;
+    ht:metadataResult <cases/base-resolution.metadata.ttl> ;
+    ht:resultTerms <cases/base-resolution.terms.json> .
+
+<#base-resolution-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/base-resolution.ttlh> ;
+    mf:name "base-resolution-syntax" .
+
+<#basic-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/basic.ttlh> ;
+    mf:name "basic-eval" ;
+    mf:result <cases/basic.nt12> ;
+    ht:metadataResult <cases/basic.metadata.ttl> ;
+    ht:resultTerms <cases/basic.terms.json> .
+
+<#basic-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/basic.ttlh> ;
+    mf:name "basic-syntax" .
+
+<#blank-holon-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/blank-holon.ttlh> ;
+    mf:name "blank-holon-eval" ;
+    mf:result <cases/blank-holon.nt12> ;
+    ht:metadataResult <cases/blank-holon.metadata.ttl> ;
+    ht:resultTerms <cases/blank-holon.terms.json> .
+
+<#blank-holon-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/blank-holon.ttlh> ;
+    mf:name "blank-holon-syntax" .
+
+<#collection-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/collection.ttlh> ;
+    mf:name "collection-eval" ;
+    mf:result <cases/collection.nt12> ;
+    ht:metadataResult <cases/collection.metadata.ttl> ;
+    ht:resultTerms <cases/collection.terms.json> .
+
+<#collection-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/collection.ttlh> ;
+    mf:name "collection-syntax" .
+
+<#content-management-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/content-management.ttlh> ;
+    mf:name "content-management-eval" ;
+    mf:result <cases/content-management.nt12> ;
+    ht:metadataResult <cases/content-management.metadata.ttl> ;
+    ht:resultTerms <cases/content-management.terms.json> .
+
+<#content-management-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/content-management.ttlh> ;
+    mf:name "content-management-syntax" .
+
+<#directional-literal-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/directional-literal.ttlh> ;
+    mf:name "directional-literal-eval" ;
+    mf:result <cases/directional-literal.nt12> ;
+    ht:metadataResult <cases/directional-literal.metadata.ttl> ;
+    ht:resultTerms <cases/directional-literal.terms.json> .
+
+<#directional-literal-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/directional-literal.ttlh> ;
+    mf:name "directional-literal-syntax" .
+
+<#empty-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/empty.ttlh> ;
+    mf:name "empty-eval" ;
+    mf:result <cases/empty.nt12> ;
+    ht:metadataResult <cases/empty.metadata.ttl> ;
+    ht:resultTerms <cases/empty.terms.json> .
+
+<#empty-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/empty.ttlh> ;
+    mf:name "empty-syntax" .
+
+<#explicit-management-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/explicit-management.ttlh> ;
+    mf:name "explicit-management-eval" ;
+    mf:result <cases/explicit-management.nt12> ;
+    ht:metadataResult <cases/explicit-management.metadata.ttl> ;
+    ht:resultTerms <cases/explicit-management.terms.json> .
+
+<#explicit-management-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/explicit-management.ttlh> ;
+    mf:name "explicit-management-syntax" .
+
+<#lexical-content-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/lexical-content.ttlh> ;
+    mf:name "lexical-content-eval" ;
+    mf:result <cases/lexical-content.nt12> ;
+    ht:metadataResult <cases/lexical-content.metadata.ttl> ;
+    ht:resultTerms <cases/lexical-content.terms.json> .
+
+<#lexical-content-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/lexical-content.ttlh> ;
+    mf:name "lexical-content-syntax" .
+
+<#negative-bare-trig> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-bare-trig.ttlh> ;
+    mf:name "negative-bare-trig" .
+
+<#negative-directive-in-block> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-directive-in-block.ttlh> ;
+    mf:name "negative-directive-in-block" .
+
+<#negative-extra-close> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-extra-close.ttlh> ;
+    mf:name "negative-extra-close" .
+
+<#negative-literal-id> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-literal-id.ttlh> ;
+    mf:name "negative-literal-id" .
+
+<#negative-missing-close> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-missing-close.ttlh> ;
+    mf:name "negative-missing-close" .
+
+<#negative-missing-dot> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-missing-dot.ttlh> ;
+    mf:name "negative-missing-dot" .
+
+<#negative-missing-id> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-missing-id.ttlh> ;
+    mf:name "negative-missing-id" .
+
+<#negative-missing-open> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-missing-open.ttlh> ;
+    mf:name "negative-missing-open" .
+
+<#negative-undefined-prefix> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-undefined-prefix.ttlh> ;
+    mf:name "negative-undefined-prefix" .
+
+<#negative-variable-id> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-variable-id.ttlh> ;
+    mf:name "negative-variable-id" .
+
+<#negative-wrong-case> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-wrong-case.ttlh> ;
+    mf:name "negative-wrong-case" .
+
+<#nested-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/nested.ttlh> ;
+    mf:name "nested-eval" ;
+    mf:result <cases/nested.nt12> ;
+    ht:metadataResult <cases/nested.metadata.ttl> ;
+    ht:resultTerms <cases/nested.terms.json> .
+
+<#nested-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/nested.ttlh> ;
+    mf:name "nested-syntax" .
+
+<#object-list-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/object-list.ttlh> ;
+    mf:name "object-list-eval" ;
+    mf:result <cases/object-list.nt12> ;
+    ht:metadataResult <cases/object-list.metadata.ttl> ;
+    ht:resultTerms <cases/object-list.terms.json> .
+
+<#object-list-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/object-list.ttlh> ;
+    mf:name "object-list-syntax" .
+
+<#outside-content-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/outside-content.ttlh> ;
+    mf:name "outside-content-eval" ;
+    mf:result <cases/outside-content.nt12> ;
+    ht:metadataResult <cases/outside-content.metadata.ttl> ;
+    ht:resultTerms <cases/outside-content.terms.json> .
+
+<#outside-content-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/outside-content.ttlh> ;
+    mf:name "outside-content-syntax" .
+
+<#plain-turtle-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/plain-turtle.ttlh> ;
+    mf:name "plain-turtle-eval" ;
+    mf:result <cases/plain-turtle.nt12> ;
+    ht:metadataResult <cases/plain-turtle.metadata.ttl> ;
+    ht:resultTerms <cases/plain-turtle.terms.json> .
+
+<#plain-turtle-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/plain-turtle.ttlh> ;
+    mf:name "plain-turtle-syntax" .
+
+<#property-list-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/property-list.ttlh> ;
+    mf:name "property-list-eval" ;
+    mf:result <cases/property-list.nt12> ;
+    ht:metadataResult <cases/property-list.metadata.ttl> ;
+    ht:resultTerms <cases/property-list.terms.json> .
+
+<#property-list-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/property-list.ttlh> ;
+    mf:name "property-list-syntax" .
+
+<#repeat-occurrence-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/repeat-occurrence.ttlh> ;
+    mf:name "repeat-occurrence-eval" ;
+    mf:result <cases/repeat-occurrence.nt12> ;
+    ht:metadataResult <cases/repeat-occurrence.metadata.ttl> ;
+    ht:resultTerms <cases/repeat-occurrence.terms.json> .
+
+<#repeat-occurrence-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/repeat-occurrence.ttlh> ;
+    mf:name "repeat-occurrence-syntax" .
+
+<#two-holons-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/two-holons.ttlh> ;
+    mf:name "two-holons-eval" ;
+    mf:result <cases/two-holons.nt12> ;
+    ht:metadataResult <cases/two-holons.metadata.ttl> ;
+    ht:resultTerms <cases/two-holons.terms.json> .
+
+<#two-holons-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/two-holons.ttlh> ;
+    mf:name "two-holons-syntax" .
+
+<#typed-literal-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/typed-literal.ttlh> ;
+    mf:name "typed-literal-eval" ;
+    mf:result <cases/typed-literal.nt12> ;
+    ht:metadataResult <cases/typed-literal.metadata.ttl> ;
+    ht:resultTerms <cases/typed-literal.terms.json> .
+
+<#typed-literal-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/typed-literal.ttlh> ;
+    mf:name "typed-literal-syntax" .
+
+<#annotation-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/annotation.terms.json> ;
+    mf:name "annotation-serialize" ;
+    mf:result <cases/annotation.terms.json> .
+
+<#base-resolution-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/base-resolution.terms.json> ;
+    mf:name "base-resolution-serialize" ;
+    mf:result <cases/base-resolution.terms.json> .
+
+<#basic-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/basic.terms.json> ;
+    mf:name "basic-serialize" ;
+    mf:result <cases/basic.terms.json> .
+
+<#blank-holon-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/blank-holon.terms.json> ;
+    mf:name "blank-holon-serialize" ;
+    mf:result <cases/blank-holon.terms.json> .
+
+<#collection-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/collection.terms.json> ;
+    mf:name "collection-serialize" ;
+    mf:result <cases/collection.terms.json> .
+
+<#content-management-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/content-management.terms.json> ;
+    mf:name "content-management-serialize" ;
+    mf:result <cases/content-management.terms.json> .
+
+<#directional-literal-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/directional-literal.terms.json> ;
+    mf:name "directional-literal-serialize" ;
+    mf:result <cases/directional-literal.terms.json> .
+
+<#empty-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/empty.terms.json> ;
+    mf:name "empty-serialize" ;
+    mf:result <cases/empty.terms.json> .
+
+<#explicit-management-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/explicit-management.terms.json> ;
+    mf:name "explicit-management-serialize" ;
+    mf:result <cases/explicit-management.terms.json> .
+
+<#lexical-content-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/lexical-content.terms.json> ;
+    mf:name "lexical-content-serialize" ;
+    mf:result <cases/lexical-content.terms.json> .
+
+<#nested-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/nested.terms.json> ;
+    mf:name "nested-serialize" ;
+    mf:result <cases/nested.terms.json> .
+
+<#object-list-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/object-list.terms.json> ;
+    mf:name "object-list-serialize" ;
+    mf:result <cases/object-list.terms.json> .
+
+<#outside-content-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/outside-content.terms.json> ;
+    mf:name "outside-content-serialize" ;
+    mf:result <cases/outside-content.terms.json> .
+
+<#plain-turtle-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/plain-turtle.terms.json> ;
+    mf:name "plain-turtle-serialize" ;
+    mf:result <cases/plain-turtle.terms.json> .
+
+<#property-list-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/property-list.terms.json> ;
+    mf:name "property-list-serialize" ;
+    mf:result <cases/property-list.terms.json> .
+
+<#repeat-occurrence-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/repeat-occurrence.terms.json> ;
+    mf:name "repeat-occurrence-serialize" ;
+    mf:result <cases/repeat-occurrence.terms.json> .
+
+<#two-holons-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/two-holons.terms.json> ;
+    mf:name "two-holons-serialize" ;
+    mf:result <cases/two-holons.terms.json> .
+
+<#typed-literal-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/typed-literal.terms.json> ;
+    mf:name "typed-literal-serialize" ;
+    mf:result <cases/typed-literal.terms.json> .
+
+<#iri-reifier-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/serialize-iri-reifier.terms.json> ;
+    mf:name "iri-reifier-serialize" ;
+    mf:result <cases/serialize-iri-reifier.terms.json> .
+
+<#occurrence-metadata-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/serialize-occurrence-metadata.terms.json> ;
+    mf:name "occurrence-metadata-serialize" ;
+    mf:result <cases/serialize-occurrence-metadata.terms.json> .
+
+<#mixed-occurrences-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/serialize-mixed-occurrences.terms.json> ;
+    mf:name "mixed-occurrences-serialize" ;
+    mf:result <cases/serialize-mixed-occurrences.terms.json> .
+
+<#repeated-block-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/repeated-block.ttlh> ;
+    mf:name "repeated-block-syntax" .
+
+<#repeated-block-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/repeated-block.ttlh> ;
+    mf:name "repeated-block-eval" ;
+    mf:result <cases/repeated-block.nt12> ;
+    ht:metadataResult <cases/repeated-block.metadata.ttl> ;
+    ht:resultTerms <cases/repeated-block.terms.json> .
+
+<#triple-term-content-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/triple-term-content.ttlh> ;
+    mf:name "triple-term-content-syntax" .
+
+<#triple-term-content-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/triple-term-content.ttlh> ;
+    mf:name "triple-term-content-eval" ;
+    mf:result <cases/triple-term-content.nt12> ;
+    ht:metadataResult <cases/triple-term-content.metadata.ttl> ;
+    ht:resultTerms <cases/triple-term-content.terms.json> .
+
+<#reified-subject-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/reified-subject.ttlh> ;
+    mf:name "reified-subject-syntax" .
+
+<#reified-subject-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/reified-subject.ttlh> ;
+    mf:name "reified-subject-eval" ;
+    mf:result <cases/reified-subject.nt12> ;
+    ht:metadataResult <cases/reified-subject.metadata.ttl> ;
+    ht:resultTerms <cases/reified-subject.terms.json> .
+
+<#no-whitespace-syntax> a ht:TurtleHPositiveSyntaxTest ;
+    mf:action <cases/no-whitespace.ttlh> ;
+    mf:name "no-whitespace-syntax" .
+
+<#no-whitespace-eval> a ht:TurtleHEvalTest ;
+    mf:action <cases/no-whitespace.ttlh> ;
+    mf:name "no-whitespace-eval" ;
+    mf:result <cases/no-whitespace.nt12> ;
+    ht:metadataResult <cases/no-whitespace.metadata.ttl> ;
+    ht:resultTerms <cases/no-whitespace.terms.json> .
+
+<#negative-anonymous-id> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-anonymous-id.ttlh> ;
+    mf:name "negative-anonymous-id" .
+
+<#negative-sparql-prefix-in-block> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-sparql-prefix-in-block.ttlh> ;
+    mf:name "negative-sparql-prefix-in-block" .
+
+<#negative-boolean-id> a ht:TurtleHNegativeSyntaxTest ;
+    mf:action <cases/negative-boolean-id.ttlh> ;
+    mf:name "negative-boolean-id" .
+
+<#reduced-metadata-serialize> a ht:TurtleHSerializerTest ;
+    mf:action <cases/serialize-reduced-metadata.input.json> ;
+    mf:name "reduced-metadata-serialize" ;
+    mf:result <cases/serialize-reduced-metadata.terms.json> .
+
+<#inert-management-serialize-error> a ht:TurtleHNegativeSerializerTest ;
+    mf:name "inert-management-serialize-error" ;
+    mf:action <cases/inert-management.serialize.json> ;
+    ht:expectedError "unrepresentable-context" ;
+    ht:expectedCondition "unrepresentable-context" .

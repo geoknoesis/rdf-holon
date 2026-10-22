@@ -1,0 +1,18 @@
+{
+  "head": {
+    "vars": [
+      "count"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "count": {
+          "type": "literal",
+          "value": "4",
+          "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+        }
+      }
+    ]
+  }
+}

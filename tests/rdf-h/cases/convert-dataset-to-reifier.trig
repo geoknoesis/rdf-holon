@@ -1,0 +1,5 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+ex:City a h:Holon .
+ex:District a h:Holon ; h:parentHolon ex:City ; h:contentGraph ex:DistrictGraph .
+ex:City { ex:City ex:value "city" . }
+ex:DistrictGraph { ex:District ex:value "district" . }

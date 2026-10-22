@@ -1,0 +1,4 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+ex:City a h:Holon .
+_:unnamed a h:Holon .
+ex:City { ex:City ex:value "city" . }

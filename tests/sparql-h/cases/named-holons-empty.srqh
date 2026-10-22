@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+ASK FROM HOLON ex:City FROM NAMED HOLONS
+WHERE { GRAPH ?h {} FILTER(?h = ex:City) }

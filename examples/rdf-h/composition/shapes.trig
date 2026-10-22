@@ -1,0 +1,10 @@
+@prefix ex: <https://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+ex:CityShapes {
+    ex:CityShape a sh:NodeShape ; sh:targetNode ex:City ;
+        sh:property [ sh:path ex:value ; sh:minCount 1 ] .
+}
+ex:StateShapes {
+    ex:StateShape a sh:NodeShape ; sh:targetNode ex:City ;
+        sh:property [ sh:path ex:stateOnly ; sh:minCount 1 ] .
+}

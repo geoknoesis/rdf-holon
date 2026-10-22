@@ -1,0 +1,2 @@
+PREFIX ex: <https://example.org/>
+ASK FROM HOLON ex:A SCOPE AGGREGATED FROM NAMED HOLONS WHERE { GRAPH ?h { ex:s ex:p ex:o } FILTER(isBlank(?h)) }

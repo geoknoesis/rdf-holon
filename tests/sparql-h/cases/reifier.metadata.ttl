@@ -1,0 +1,7 @@
+@prefix h: <https://w3id.org/rdf-h#> .
+@prefix ex: <https://example.org/> .
+ex:State a h:Holon .
+ex:City a h:Holon ; h:parentHolon ex:State ; h:imports ex:Metro .
+ex:District a h:Holon ; h:parentHolon ex:City .
+ex:Neighborhood a h:Holon ; h:parentHolon ex:District .
+ex:Metro a h:Holon .

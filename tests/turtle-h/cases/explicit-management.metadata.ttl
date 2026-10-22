@@ -1,0 +1,7 @@
+@prefix ns1: <https://w3id.org/rdf-h#> .
+
+<https://example.org/H> a ns1:Holon ;
+    ns1:parentHolon <https://example.org/Other> .
+
+<https://example.org/Other> a ns1:Holon .
+

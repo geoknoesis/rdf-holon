@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+SELECT ?value
+FROM HOLON ex:City SCOPE VISIBLE
+WHERE { ?subject ex:value ?value } ORDER BY ?value

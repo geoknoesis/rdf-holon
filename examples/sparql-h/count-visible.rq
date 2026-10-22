@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+SELECT (COUNT(*) AS ?count)
+WHERE { ?s ex:value ?v }

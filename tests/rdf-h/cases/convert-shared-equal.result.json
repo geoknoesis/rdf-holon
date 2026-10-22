@@ -1,0 +1,78 @@
+{
+  "metadataGraph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/A"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#contentGraph"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/shared"
+      }
+    ],
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/B"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#contentGraph"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/shared"
+      }
+    ]
+  ],
+  "holons": [
+    {
+      "holon": {
+        "type": "uri",
+        "value": "https://example.org/A"
+      },
+      "content": [
+        [
+          {
+            "type": "uri",
+            "value": "https://example.org/s"
+          },
+          {
+            "type": "uri",
+            "value": "https://example.org/p"
+          },
+          {
+            "type": "uri",
+            "value": "https://example.org/o"
+          }
+        ]
+      ]
+    },
+    {
+      "holon": {
+        "type": "uri",
+        "value": "https://example.org/B"
+      },
+      "content": [
+        [
+          {
+            "type": "uri",
+            "value": "https://example.org/s"
+          },
+          {
+            "type": "uri",
+            "value": "https://example.org/p"
+          },
+          {
+            "type": "uri",
+            "value": "https://example.org/o"
+          }
+        ]
+      ]
+    }
+  ]
+}

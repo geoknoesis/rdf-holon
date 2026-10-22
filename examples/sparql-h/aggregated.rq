@@ -1,0 +1,3 @@
+PREFIX ex: <https://example.org/>
+SELECT ?value
+WHERE { ?subject ex:value ?value } ORDER BY ?value

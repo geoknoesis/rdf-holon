@@ -1,0 +1,32 @@
+{
+  "graph": [
+    [
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/value"
+      },
+      {
+        "type": "literal",
+        "value": "city"
+      }
+    ],
+    [
+      {
+        "type": "bnode",
+        "value": "r1"
+      },
+      {
+        "type": "uri",
+        "value": "https://w3id.org/rdf-h#inHolon"
+      },
+      {
+        "type": "uri",
+        "value": "https://example.org/City"
+      }
+    ]
+  ]
+}

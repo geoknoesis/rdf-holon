@@ -1,0 +1,22 @@
+<https://example.org/City> <https://example.org/value> "city" .
+_:r1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/City> <https://example.org/value> "city" )>> .
+_:r1 <https://w3id.org/rdf-h#inHolon> <https://example.org/City> .
+<https://example.org/District> <https://example.org/value> "district" .
+_:r2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/District> <https://example.org/value> "district" )>> .
+_:r2 <https://w3id.org/rdf-h#inHolon> <https://example.org/District> .
+<https://example.org/Neighborhood> <https://example.org/value> "neighborhood" .
+_:r3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/Neighborhood> <https://example.org/value> "neighborhood" )>> .
+_:r3 <https://w3id.org/rdf-h#inHolon> <https://example.org/Neighborhood> .
+<https://example.org/State> <https://example.org/value> "state" .
+_:r4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/State> <https://example.org/value> "state" )>> .
+_:r4 <https://w3id.org/rdf-h#inHolon> <https://example.org/State> .
+<https://example.org/Metro> <https://example.org/value> "metro" .
+_:r5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/Metro> <https://example.org/value> "metro" )>> .
+_:r5 <https://w3id.org/rdf-h#inHolon> <https://example.org/Metro> .
+<https://example.org/Shared> <https://example.org/value> "shared" .
+_:r6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/Shared> <https://example.org/value> "shared" )>> .
+_:r6 <https://w3id.org/rdf-h#inHolon> <https://example.org/City> .
+_:r7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <https://example.org/Shared> <https://example.org/value> "shared" )>> .
+_:r7 <https://w3id.org/rdf-h#inHolon> <https://example.org/Metro> .
+_:r1 <https://example.org/source> <https://example.org/Survey> .
+<https://example.org/Unfiled> <https://example.org/value> "unfiled" .

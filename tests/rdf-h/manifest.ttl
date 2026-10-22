@@ -1,0 +1,124 @@
+@prefix ht: <https://geoknoesis.github.io/rdf-holon/tests/vocab#> .
+@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a mf:Manifest ;
+    rdfs:label "RDF-H 0.8 conversion and validation tests" ;
+    mf:entries (
+        <#validate-global-unselected-data>
+        <#convert-dataset-to-reifier>
+        <#convert-content-not-promoted>
+        <#convert-blank-holon>
+        <#convert-assertion-preserving>
+        <#validate-direct-conforms>
+        <#validate-aggregated-violates>
+        <#validate-shapes-not-inherited>
+        <#validate-missing-shapes-graph>
+        <#validate-ill-formed-shapes-graph>
+        <#convert-shared-conflict>
+        <#convert-shared-equal>
+        <#convert-inert-membership>
+        <#convert-filed-membership>
+    ) .
+
+<#validate-global-unselected-data> a ht:RDFHValidationTest ;
+    mf:name "validate-global-unselected-data" ;
+    mf:action [ ht:sourceDataset <cases/validate-global.trig> ;
+            ht:shapesDataset <cases/validate-shapes.trig> ;
+            ht:holon <https://example.org/City> ; ht:scope "global" ] ;
+    mf:result <cases/violates.json> .
+
+<#convert-dataset-to-reifier> a ht:RDFHConversionTest ;
+    mf:action [ ht:sourceDataset <cases/convert-dataset-to-reifier.trig> ;
+            ht:targetRepresentation "reifier" ;
+            ht:preservationLevel "content" ] ;
+    mf:name "convert-dataset-to-reifier" ;
+    mf:result <cases/convert-dataset-to-reifier.result.json> .
+
+<#convert-content-not-promoted> a ht:RDFHConversionTest ;
+    mf:action [ ht:sourceDataset <cases/convert-content-not-promoted.trig> ;
+            ht:targetRepresentation "reifier" ;
+            ht:preservationLevel "content" ] ;
+    mf:name "convert-content-not-promoted" ;
+    mf:result <cases/convert-content-not-promoted.result.json> .
+
+<#convert-blank-holon> a ht:RDFHConversionTest ;
+    mf:action [ ht:sourceGraph <cases/convert-blank-holon.nt12> ;
+            ht:sourceTerms <cases/convert-blank-holon.terms.json> ;
+            ht:targetRepresentation "dataset" ;
+            ht:preservationLevel "content" ] ;
+    mf:name "convert-blank-holon" ;
+    mf:result <cases/convert-blank-holon.result.json> .
+
+<#convert-assertion-preserving> a ht:RDFHConversionTest ;
+    mf:action [ ht:sourceGraph <cases/convert-assertion-preserving.nt12> ;
+            ht:sourceTerms <cases/convert-assertion-preserving.terms.json> ;
+            ht:targetRepresentation "dataset" ;
+            ht:preservationLevel "assertion" ] ;
+    mf:name "convert-assertion-preserving" ;
+    mf:result <cases/convert-assertion-preserving.result.json> .
+
+<#validate-direct-conforms> a ht:RDFHValidationTest ;
+    mf:action [ ht:sourceDataset <cases/validate.trig> ;
+            ht:shapesDataset <cases/validate-shapes.trig> ;
+            ht:holon <https://example.org/City> ;
+            ht:scope "direct" ] ;
+    mf:name "validate-direct-conforms" ;
+    mf:result <cases/conforms.json> .
+
+<#validate-aggregated-violates> a ht:RDFHValidationTest ;
+    mf:action [ ht:sourceDataset <cases/validate.trig> ;
+            ht:shapesDataset <cases/validate-shapes.trig> ;
+            ht:holon <https://example.org/City> ;
+            ht:scope "aggregated" ] ;
+    mf:name "validate-aggregated-violates" ;
+    mf:result <cases/violates.json> .
+
+<#validate-shapes-not-inherited> a ht:RDFHValidationTest ;
+    mf:action [ ht:sourceDataset <cases/validate.trig> ;
+            ht:shapesDataset <cases/validate-shapes.trig> ;
+            ht:holon <https://example.org/District> ;
+            ht:scope "direct" ] ;
+    mf:name "validate-shapes-not-inherited" ;
+    mf:result <cases/conforms.json> .
+
+<#validate-missing-shapes-graph> a ht:RDFHNegativeValidationTest ;
+    mf:action [ ht:sourceDataset <cases/validate.trig> ;
+            ht:shapesDataset <cases/validate-shapes.trig> ;
+            ht:holon <https://example.org/Missing> ;
+            ht:scope "direct" ] ;
+    mf:name "validate-missing-shapes-graph" ;
+    ht:expectedError "missing-shapes-graph" ;
+    ht:expectedCondition "missing-shapes-graph" .
+
+<#validate-ill-formed-shapes-graph> a ht:RDFHNegativeValidationTest ;
+    mf:action [ ht:sourceDataset <cases/validate.trig> ;
+            ht:shapesDataset <cases/validate-shapes.trig> ;
+            ht:holon <https://example.org/Bad> ;
+            ht:scope "direct" ] ;
+    mf:name "validate-ill-formed-shapes-graph" ;
+    ht:expectedError "ill-formed-shapes-graph" ;
+    ht:expectedCondition "ill-formed-shapes-graph" .
+
+<#convert-shared-conflict> a ht:RDFHNegativeConversionTest ;
+    mf:action [ ht:sourceGraph <cases/convert-shared-conflict.nt12> ; ht:sourceTerms <cases/convert-shared-conflict.terms.json> ; ht:targetRepresentation "dataset" ; ht:preservationLevel "content" ] ;
+    mf:name "convert-shared-conflict" ;
+    ht:expectedError "unrepresentable-conversion" ;
+    ht:expectedCondition "unrepresentable-conversion" .
+
+<#convert-shared-equal> a ht:RDFHConversionTest ;
+    mf:action [ ht:sourceGraph <cases/convert-shared-equal.nt12> ; ht:sourceTerms <cases/convert-shared-equal.terms.json> ; ht:targetRepresentation "dataset" ; ht:preservationLevel "content" ] ;
+    mf:name "convert-shared-equal" ;
+    mf:result <cases/convert-shared-equal.result.json> .
+
+<#convert-inert-membership> a ht:RDFHNegativeConversionTest ;
+    mf:name "convert-inert-membership" ;
+    mf:action [ ht:sourceDataset <cases/convert-inert-membership.trig> ; ht:targetRepresentation "reifier" ; ht:preservationLevel "assertion" ] ;
+    ht:expectedError "unrepresentable-conversion" ;
+    ht:expectedCondition "unrepresentable-conversion" .
+
+<#convert-filed-membership> a ht:RDFHNegativeConversionTest ;
+    mf:name "convert-filed-membership" ;
+    mf:action [ ht:sourceDataset <cases/convert-filed-membership.trig> ; ht:targetRepresentation "reifier" ; ht:preservationLevel "content" ] ;
+    ht:expectedError "unrepresentable-conversion" ;
+    ht:expectedCondition "unrepresentable-conversion" .

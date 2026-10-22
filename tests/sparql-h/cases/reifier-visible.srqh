@@ -1,0 +1,4 @@
+PREFIX ex: <https://example.org/>
+PREFIX h: <https://w3id.org/rdf-h#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?value FROM HOLON ex:City SCOPE VISIBLE WHERE { ?s ex:value ?value } ORDER BY ?value

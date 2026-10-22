@@ -1,0 +1,2 @@
+<https://example.org/City> <https://example.org/value> "city" .
+_:r1 <https://w3id.org/rdf-h#inHolon> <https://example.org/City> .

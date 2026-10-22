@@ -1,0 +1,29 @@
+@prefix h: <https://w3id.org/rdf-h#> .
+@prefix ex: <https://example.org/> .
+ex:Root a h:Holon .
+ex:State a h:Holon ; h:parentHolon ex:Root ; h:imports ex:Regulator .
+ex:City a h:Holon ; h:parentHolon ex:State ; h:imports ex:Metro .
+ex:District a h:Holon ; h:parentHolon ex:City ; h:imports ex:LocalAuthority .
+ex:Neighborhood a h:Holon ; h:parentHolon ex:District .
+ex:MetroChild a h:Holon ; h:parentHolon ex:Metro .
+ex:LocalAuthority a h:Holon .
+ex:Metro a h:Holon ; h:imports ex:Remote .
+ex:Regulator a h:Holon .
+ex:Remote a h:Holon .
+ex:Root { ex:Root ex:value "root" . }
+ex:State { ex:State ex:value "state" . }
+ex:City { ex:City ex:value "city" . }
+ex:District { ex:District ex:value "district" . }
+ex:Metro { ex:Metro ex:value "metro" . }
+ex:Regulator { ex:Regulator ex:value "regulator" . }
+ex:Remote { ex:Remote ex:value "remote" . }
+
+# Only City's explicit shape import applies when validating City.
+ex:City h:importsShapes ex:CityShapes .
+ex:State h:importsShapes ex:StateShapes .
+
+ex:Neighborhood { ex:Neighborhood ex:value "neighborhood" . }
+ex:MetroChild { ex:MetroChild ex:value "metro-child" . }
+ex:LocalAuthority { ex:LocalAuthority ex:value "local-authority" . }
+
+ex:City h:imports ex:Missing .

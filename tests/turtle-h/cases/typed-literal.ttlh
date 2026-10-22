@@ -1,0 +1,4 @@
+@prefix ex: <https://example.org/> .
+@prefix h: <https://w3id.org/rdf-h#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@holon ex:H { ex:s ex:p "7"^^xsd:integer . }

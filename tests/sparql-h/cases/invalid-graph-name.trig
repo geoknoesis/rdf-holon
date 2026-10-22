@@ -1,0 +1,2 @@
+@prefix h: <https://w3id.org/rdf-h#> . @prefix ex: <https://example.org/> .
+ex:City a h:Holon ; h:contentGraph "city-graph" .

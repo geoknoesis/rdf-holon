@@ -1,0 +1,3 @@
+@base <https://example.org/base/> .
+@prefix ex: <https://example.org/> .
+@holon <H> { <s> ex:p <o> . }

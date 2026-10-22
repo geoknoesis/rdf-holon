@@ -1,57 +1,152 @@
-# RDF-H: A Holonic Modeling Pattern for RDF
+# RDF-H: Organizing RDF Content into Holons
 
-This repository contains a draft specification for a proposed holonic extension to the Resource Description Framework (RDF), referred to as **RDF-H**. This document is a proposal by **Geoknoesis LLC** and is intended to gather community feedback for potential future standardization by the W3C.
+RDF-H is a community draft by Geoknoesis LLC. A holon has an identifier and explicitly
+filed RDF content. Putting a statement in a holon means claiming that it is true;
+RDF-H does not verify whether the claim is correct.
 
-**Current version: 0.7** (community draft) — see the [Change Log](https://geoknoesis.github.io/rdf-holon/#changelog) for what changed from 0.6.
+**Current RDF-H version: 0.8 (working draft).** Turtle-H 0.1.0 and experimental SPARQL-H 0.1.0 target this draft.
 
-> ⚠️ **w3id.org redirect not yet configured.** The vocabulary IRI `https://w3id.org/rdf-h#` referenced normatively throughout the spec depends on a redirect entry in [perma-id/w3id.org](https://github.com/perma-id/w3id.org) that has not yet been filed. Until that PR is merged, the vocabulary IRI does not resolve on the open web. This is tracked as [Open Issue 2](https://geoknoesis.github.io/rdf-holon/#issue-w3id-redirect) in the specification.
+## Specifications
 
-## Abstract
+- [Reviewer briefing](./reviewer-briefing.html) summarizes the current review scope and evidence.
+- [RDF-H](https://geoknoesis.github.io/rdf-holon/) defines content, representations, validation, and optional administrative composition.
+- [Turtle-H](https://geoknoesis.github.io/rdf-holon/turtle-h/) defines authoring syntax plus parser and serializer conformance.
+- [SPARQL-H](https://geoknoesis.github.io/rdf-holon/sparql-h/) experimentally adds `FROM HOLON` with direct, aggregated, and visible scopes, and `FROM NAMED HOLONS` to attribute statements to holons.
 
-The increasing need to model complex, compositional systems (digital twins, cyber-physical systems, fine-grained access control policies) highlights a key limitation in existing graph data models. While RDF is excellent for linking data, it lacks a native, semantically grounded way to gather the relationships that describe a "whole" and to treat that whole as a part of larger wholes.
+Start with the named-graph example in RDF-H. Use the reifier representation when
+occurrence identity or occurrence metadata is needed. Both use an explicit metadata context M. Representation, composition,
+validation, conversion, Turtle-H, and optional SPARQL-H support are declared separately.
 
-This specification proposes the **holon** as a first-class primitive in RDF. Each holon has a **content graph** `CG(H)` — the set of triples filed in it — which is a *view* over the single asserted graph (an *additive* semantics: every filed triple is also globally true). The content-graph model is defined abstractly and realized by two interoperable serialization **profiles** — a *reifier profile* (RDF 1.2 `rdf:reifies` + `h:inHolon`, single graph, per-occurrence metadata) and a *named-graph profile* (RDF datasets, `GRAPH`-queryable on today's tooling). Grounded in formal mereology and a content/composition coherence discipline, RDF-H aims to enable a faithful, powerful representation of complex, interconnected systems while remaining a conservative extension of RDF 1.2.
+## Standardization status
 
-## Key Features
+RDF-H is a community draft. The specifications follow W3C document conventions (ReSpec,
+BCP 14 keywords, conformance classes, security, privacy, and internationalization
+sections, W3C-style test manifests with EARL reporting). Advancement would additionally
+need two independent implementations per feature, a Turtle-H parser that executes the
+Turtle-H suite, stable RDF 1.2 and SPARQL 1.2 dependencies, and a W3C-managed namespace;
+the specification's open issues track these items.
 
-* **Holon = content graph.** A holon `h:Holon` has a content graph `CG(H)` — the triples filed in it — that is a queryable *view* over the asserted graph, governed by the **additive invariant** `CG(H) ⊆ G`. `h:CompleteHolon` marks a holon whose content graph is complete (a local completeness contract enabling integrity checks scoped to the holon); `h:contentGraph` names the content graph in the named-graph profile.
-* **Dual serialization profiles.** The same `CG(H)` is realized either with RDF 1.2 reifiers via `h:inHolon` (single graph, per-occurrence metadata) or as a named graph in a dataset (`GRAPH`-queryable, inexpensive), with a stated equivalence and translation between the two.
-* **Mereological hierarchy.** A formally grounded part-whole hierarchy: a single transitive top-level `h:partOf`, with non-transitive asymmetric/irreflexive sub-properties `h:componentOf` and `h:memberOf` (structural parthood and aggregate membership), and transitive sub-properties `h:substanceOf` and `h:portionOf` (material composition and continuous-whole segmentation). The vocabulary stays within OWL 2 DL; full-hierarchy acyclicity is enforced by SHACL.
-* **Coherence discipline.** A holon's content graph should be *about* the holon: a part-of relation filed in `H` should describe `H`'s own composition, and any relation filed in `H` should touch `H` or one of its parts. These are advisory recommendations, surfaced by SHACL warnings.
-* **Turtle-H.** A small syntactic sugar over Turtle 1.2 introducing the `@holon` directive (reifier profile), which lets authors write a holon's constituent triples once and have a Turtle-H-aware parser generate the corresponding `h:inHolon` annotations automatically.
-* **SHACL shapes.** Five ready-to-run shapes using standard SPARQL-based constraints that carry their own targets, so loading `rdfh.ttl` as the shapes graph validates a data graph directly: `h:AcyclicPartShape` and `h:AssertedBaseTripleShape` (normative), and `h:HolonIntegrityShape`, `h:MereologicalCoherenceShape`, `h:ContextualCoherenceShape` (advisory, `sh:Warning`).
-* **Standard SPARQL.** Holonic graphs are queried with plain SPARQL 1.1 — `GRAPH` (named-graph profile) or SPARQL 1.2 reified-triple patterns (reifier profile). No SPARQL extension is required.
+## Metadata and registration
 
-## Repository Contents
+Every registry-aware operation uses a designated metadata context M. Dataset inputs
+use the default graph by convention; reifier inputs supply M explicitly. Holons are
+registered by explicit holon types or graph mappings in M. Parent/import endpoints
+must be registered when checked; inferred types do not register missing resources.
+Management predicates filed only as content have no operational effect.
 
-| File | Purpose |
+Turtle-H now returns G and M and emits a holon declaration for every block, including
+empty blocks. Generated declarations are not implicitly filed content. Conversion
+preserves M (adding only reported derived blank-node mappings) and declares either content preservation or full assertion preservation. Unrepresentable conversions fail instead of changing content or activating retained memberships.
+The legacy `h:CompleteHolon` class is deprecated; completeness requires a separate
+application contract and is not implied by that class.
+
+## Optional hierarchy and imports
+
+`h:parentHolon` identifies an immediate administrative parent. It allows at most one
+parent, must be acyclic, and does not require a single root. It does not assert
+physical or ontological parthood.
+
+Direct content contains only the statements filed in a holon. Aggregated content
+combines that holon's direct content with all descendants' direct content. Visible
+content adds the direct content of targets explicitly imported by the selected holon.
+Ancestors are excluded unless explicitly imported. Imports on descendants or ancestors
+are not inherited; imported targets' descendants and imports are not expanded.
+A plain named-graph query remains direct; aggregation and visible scope require explicit resolution.
+
+`h:importsShapes` explicitly selects validation shapes graphs. Shapes are not inherited
+from ancestors, and importing content never imports constraints. Supply shapes as a
+separate validation dataset; every graph in the declared data dataset enters the
+asserted union.
+
+## Querying the three scopes
+
+No SPARQL syntax extension is needed. Resolve `direct`, `aggregated`, or `visible`
+content into a single graph and query that graph using ordinary SPARQL. A convenience
+API should default to direct scope. Named `GRAPH` patterns retain their standard meaning.
+
+The [query guidance](https://geoknoesis.github.io/rdf-holon/#querying) explains the workflow,
+graph mappings, joins, dataset selection, and the reifier representation. Runnable
+[SPARQL 1.1 recipes](./examples/rdf-h/composition/queries/) build each scope graph.
+Run `python tests/rdf-h/check_query_scopes.py` to verify them.
+
+The optional [SPARQL-H draft](./sparql-h/index.html) offers self-contained query syntax:
+
+```sparql
+PREFIX ex: <https://example.org/>
+SELECT ?value
+FROM HOLON ex:City SCOPE AGGREGATED
+WHERE { ?subject ex:value ?value }
+```
+
+This experimental clause needs a SPARQL-H front end; ordinary SPARQL endpoints do
+not accept it. The front end resolves a default-only query dataset and delegates the
+remaining query to a standard engine. Run `python tests/sparql-h/check_examples.py`
+for expected translation semantics. A small source-parsing reference adapter for both RDF-H profiles is included for testing; it is not a production service.
+
+## Language conformance suites
+
+The [W3C-style RDF manifest](./tests/manifest.ttl) discovers 179 Turtle-H, SPARQL-H, and RDF-H
+syntax, evaluation, and expected-error cases. See [the suite guide](./tests/README.md)
+for implementation adapters and EARL reporting.
+
+```text
+python tests/run_suite.py --validate-only --semantic-smoke
+python tests/test_runner.py
+python tests/test_semantics.py
+python tests/run_suite.py --manifest tests/sparql-h/manifest.ttl --adapter-config tests/reference-adapters.json --require-all
+```
+
+Manifest checks do not claim language implementation conformance. Without configured
+adapters the runner reports tests as untested. A source-parsing reference adapter can
+run the 84 SPARQL-H cases, including reifier-profile and mixed sources, and a second reference adapter runs the 14 RDF-H
+conversion and validation cases. No Turtle-H parser is bundled; the RDF4J-based `rdf4j-rio-turtleh` codecs pass
+all 81 Turtle-H cases (including 22 successful serializations and one representability rejection) through the adapter protocol, so the full suite runs
+179 of 179 with these adapters.
+The [requirement trace](./tests/requirements.ttl) links reviewed contracts to fixtures
+and regression commands.
+
+## Validation
+
+- `h:AssertedBaseTripleShape`: required assertion check for reifier-filed statements.
+- `h:HolonIntegrityShape`: advisory check for an explicit registry declaration on each holon used by `h:inHolon`.
+- `h:ReifierMembershipShape`: membership node kinds and nonempty reification.
+- `h:ContentGraphMappingShape`: mapping cardinality and graph-name kinds.
+- `h:CompositionHierarchyShape`: parent cardinality and cycle checks for optional composition.
+
+The shapes are partial checks. Registry resolution, triple-term validity, and mode-specific
+validation also follow the normative processing algorithm. Imported shapes graphs are
+checked for well-formedness before domain data validation.
+
+Content-level validation parity excludes occurrence-specific and representation-specific
+constraints. The reifier assertion shape requires triple-term query support or an equivalent procedure.
+
+Run `python tests/rdf-h/check_composition.py` with rdflib installed. Install pyshacl
+for the additional executable validation checks; otherwise those checks explicitly skip.
+
+## Migration from 0.7
+
+RDF-H 0.8 no longer defines the specialized part-whole vocabulary or its coherence
+and cycle checks. Use an external vocabulary for domain parthood. `h:parentHolon`
+is an administrative relation, not a replacement with equivalent meaning.
+Aggregation now follows administrative descendants instead of domain mereology; it does not read ancestors. Prior drafts remain available in Git history.
+
+## Repository contents
+
+| Path | Purpose |
 |---|---|
-| [`index.html`](./index.html) | The specification document (rendered by ReSpec). |
-| [`rdfh.css`](./rdfh.css) | Readability stylesheet for the specification (presentation only). |
-| [`rdfh.ttl`](./rdfh.ttl) | The RDF-H vocabulary in Turtle, including OWL axioms and the SHACL shapes. |
-| [`LICENSE`](./LICENSE) | Apache License, Version 2.0. |
-| [`README.md`](./README.md) | This file. |
+| [index.html](./index.html) | RDF-H ReSpec document. |
+| [turtle-h/index.html](./turtle-h/index.html) | Turtle-H ReSpec document. |
+| [sparql-h/index.html](./sparql-h/index.html) | Experimental SPARQL-H syntax and evaluation specification. |
+| [rdfh.ttl](./rdfh.ttl) | Vocabulary and five partial SHACL checks. |
+| [examples/](./examples/) | Representation and composition examples. |
+| [tests/](./tests/) | Initial conformance fixtures. |
+| [rdfh.css](./rdfh.css) | Legacy stylesheet; all specifications use standard W3C ReSpec styling. |
 
-## Modularity
+Each document maintains its own changelog. Release tags use `rdf-h-vX.Y.Z` and
+`turtle-h-vX.Y.Z`, and `sparql-h-vX.Y.Z`. The vocabulary namespace remains `https://w3id.org/rdf-h#`;
+its redirect publication remains tracked in the specification's open issues.
 
-The specification is structured in three logically separable layers:
+## Contributing and license
 
-1. The **core vocabulary and content-graph model** (`h:Holon`, `h:inHolon`, `h:contentGraph`, `h:CompleteHolon`) — each holon's content graph and its reifier/named-graph serialization profiles.
-2. The **mereology** (the `h:partOf` hierarchy).
-3. **Turtle-H** (the `@holon` surface-syntax sugar).
-
-For v0.7 the three layers remain bundled in this single document and share the `https://w3id.org/rdf-h#` namespace. Whether to extract layers (2) and (3) into companion specifications, and whether to split namespaces pre-emptively, are tracked as [Open Issues 1, 6, and 7](https://geoknoesis.github.io/rdf-holon/#open-issues).
-
-## Viewing the Specification
-
-The latest version of the draft specification can be viewed online, rendered directly from this repository via GitHub Pages:
-
-**[https://geoknoesis.github.io/rdf-holon/](https://geoknoesis.github.io/rdf-holon/)**
-
-## Contributing
-
-Feedback and contributions are welcome. Please open an issue to discuss the proposal, suggest changes, or report errors. The specification's [Open Issues appendix](https://geoknoesis.github.io/rdf-holon/#open-issues) lists the design questions on which community input is most actively sought (mereology extraction, Turtle-H venue, namespace organization, closed-world holon contents, and the empty-holon question, among others).
-
-## License
-
-This repository — including the specification document, the RDF-H vocabulary (`rdfh.ttl`), and all examples — is published under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). See [`LICENSE`](./LICENSE) for the full text.
+Use the [repository](https://github.com/geoknoesis/rdf-holon) for issues and contributions.
+Specifications, vocabulary, and examples use the [Apache 2.0 license](./LICENSE).

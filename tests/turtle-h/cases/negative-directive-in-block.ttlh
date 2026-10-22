@@ -1,0 +1,3 @@
+@prefix ex: <https://example.org/> .
+@prefix h: <https://w3id.org/rdf-h#> .
+@holon ex:H { @prefix inner: <https://example.org/inner/> . }

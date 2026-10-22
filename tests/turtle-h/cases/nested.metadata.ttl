@@ -1,0 +1,5 @@
+
+<https://example.org/Inner> a <https://w3id.org/rdf-h#Holon> .
+
+<https://example.org/Outer> a <https://w3id.org/rdf-h#Holon> .
+

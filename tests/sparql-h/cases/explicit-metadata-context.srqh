@@ -1,0 +1,2 @@
+PREFIX ex: <https://example.org/>
+SELECT ?value FROM HOLON ex:B SCOPE AGGREGATED WHERE { ?s ex:value ?value }

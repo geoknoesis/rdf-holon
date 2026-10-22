@@ -1,0 +1,10 @@
+@prefix ns1: <https://example.org/> .
+
+ns1:City ns1:value "city" .
+
+ns1:District ns1:value "district" .
+
+ns1:Metro ns1:value "metro" .
+
+ns1:Neighborhood ns1:value "neighborhood" .
+

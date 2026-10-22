@@ -1,0 +1,3 @@
+
+<https://example.org/H> a <https://w3id.org/rdf-h#Holon> .
+
