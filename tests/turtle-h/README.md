@@ -8,7 +8,7 @@ management predicates have explicit gold results.
 
 Run `python tests/run_suite.py --manifest tests/turtle-h/manifest.ttl --validate-only`.
 No Turtle-H parser is bundled; an external adapter executes the language tests. The RDF4J-based
-`rdf4j-rio-turtleh` parser and serializer pass all 81 cases (`./gradlew conformanceConfig` in that project writes an
+[`rdf4j-rio-turtleh`](https://github.com/geoknoesis/rdf4j-rio-turtleh) parser and serializer pass all 81 cases (`./gradlew conformanceConfig` in that project writes an
 adapter configuration for this runner).
 Gold-result checks and the reference context model do not establish parser conformance.
 See [the suite guide](../README.md) and [requirement trace](../requirements.ttl).

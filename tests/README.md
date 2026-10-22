@@ -35,7 +35,7 @@ using a grammar extension and RDFLib base productions, resolves M and scopes wit
 separate executable model, and evaluates queries without expected lowerings or results.
 It is not a production service, a full RDF 1.2 query engine, or independent multi-vendor
 interoperability evidence. Turtle-H syntax/expansion needs an external parser; the RDF4J-based
-`rdf4j-rio-turtleh` adapter passes all 81 Turtle-H cases. It shares the editors' organization, so it is not
+[`rdf4j-rio-turtleh`](https://github.com/geoknoesis/rdf4j-rio-turtleh) adapter passes all 81 Turtle-H cases. It shares the editors' organization, so it is not
 independent interoperability evidence either.
 Full language execution uses an implementation adapter. Missing or unsupported adapters produce SKIP/EARL untested,
 never PASS. A passing fixture-integrity check is not language conformance.

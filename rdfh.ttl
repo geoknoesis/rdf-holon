@@ -131,7 +131,7 @@ h: a owl:Ontology ;
             foaf:name "Stephane Fellah" ;
             foaf:workplaceHomepage <https://geoknoesis.com> ] ;
     dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
-    dct:modified "2026-10-18"^^xsd:date ;
+    dct:modified "2026-10-21"^^xsd:date ;
     rdfs:comment "This vocabulary defines the core class, properties, and partial SHACL shapes for representing and validating holarchic structures in RDF 1.2."@en ;
     rdfs:seeAlso <https://geoknoesis.github.io/rdf-holon/> ;
     vann:preferredNamespacePrefix "h" ;

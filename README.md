@@ -4,7 +4,7 @@ RDF-H is a community draft by Geoknoesis LLC. A holon has an identifier and expl
 filed RDF content. Putting a statement in a holon means claiming that it is true;
 RDF-H does not verify whether the claim is correct.
 
-**Current RDF-H version: 0.8 (working draft).** Turtle-H 0.1.0 and experimental SPARQL-H 0.1.0 target this draft.
+**Current RDF-H version: 0.8 (released 2026-10-21).** Turtle-H 0.1.0 and experimental SPARQL-H 0.1.0 target this release.
 
 ## Specifications
 
@@ -99,7 +99,7 @@ python tests/run_suite.py --manifest tests/sparql-h/manifest.ttl --adapter-confi
 Manifest checks do not claim language implementation conformance. Without configured
 adapters the runner reports tests as untested. A source-parsing reference adapter can
 run the 84 SPARQL-H cases, including reifier-profile and mixed sources, and a second reference adapter runs the 14 RDF-H
-conversion and validation cases. No Turtle-H parser is bundled; the RDF4J-based `rdf4j-rio-turtleh` codecs pass
+conversion and validation cases. No Turtle-H parser is bundled; the RDF4J-based [`rdf4j-rio-turtleh`](https://github.com/geoknoesis/rdf4j-rio-turtleh) codecs pass
 all 81 Turtle-H cases (including 22 successful serializations and one representability rejection) through the adapter protocol, so the full suite runs
 179 of 179 with these adapters.
 The [requirement trace](./tests/requirements.ttl) links reviewed contracts to fixtures
